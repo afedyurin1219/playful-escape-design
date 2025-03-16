@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Printer, Home, FileDown, Copy } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import PrintableLetters from '../components/PrintableLetters';
-import { isWordScrambleTask, extractScrambledWord } from '../utils/printUtils';
+import { hasPrintableContent, getPrintableContent } from '../utils/printUtils';
 
 interface LocationState {
   escapeRoom: EscapeRoomPlan;
@@ -212,10 +212,13 @@ ${escapeRoom.prizes.join(', ')}
                         <h4 className="font-semibold text-charcoal-light mb-1">Task:</h4>
                         <p>{station.task}</p>
                         
-                        {/* Add printable letters for word scramble tasks */}
-                        {isWordScrambleTask(station.task) && 
-                          extractScrambledWord(station.task) && (
-                            <PrintableLetters word={extractScrambledWord(station.task)!} />
+                        {/* Add printable content for tasks with letters or numbers */}
+                        {hasPrintableContent(station.task) && 
+                          getPrintableContent(station.task) && (
+                            <PrintableLetters 
+                              contentType={getPrintableContent(station.task)!.type} 
+                              content={getPrintableContent(station.task)!.content} 
+                            />
                           )
                         }
                       </div>
