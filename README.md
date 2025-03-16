@@ -1,4 +1,7 @@
-# Welcome to your Lovable project
+
+# EscapeLab - Create Your Own Escape Room at Home
+
+Design fun and interactive escape rooms for kids' birthday parties and events. EscapeLab makes it easy to create immersive adventures without screens.
 
 ## Project info
 
@@ -52,13 +55,14 @@ npm run dev
 
 ## What technologies are used for this project?
 
-This project is built with .
+This project is built with:
 
 - Vite
 - TypeScript
 - React
 - shadcn-ui
 - Tailwind CSS
+- Framer Motion
 
 ## How can I deploy this project?
 
