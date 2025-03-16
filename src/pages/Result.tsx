@@ -22,20 +22,18 @@ const Result = () => {
   const state = location.state as LocationState;
   
   useEffect(() => {
-    // Redirect to creator if no escape room data is available
     if (!state?.escapeRoom) {
       navigate('/create');
     }
   }, [state, navigate]);
   
   if (!state?.escapeRoom) {
-    return null; // Prevent rendering while redirecting
+    return null;
   }
   
   const { escapeRoom, config } = state;
   
   const handleCopyToClipboard = () => {
-    // Generate a simple text summary of the escape room plan
     const summary = `
 ${escapeRoom.title}
 
@@ -78,25 +76,20 @@ ${escapeRoom.prizes.join(', ')}
   };
   
   const handlePrint = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent default navigation
+    e.preventDefault();
     window.print();
   };
   
-  // Helper function to get supplies needed for a specific station
   const getStationSupplies = (stationName: string, supplies: Array<any>) => {
     const stationNameLower = stationName.toLowerCase();
     
     return supplies.filter(supply => {
-      // Match supplies by purpose containing the station name
-      return supply.purpose.toLowerCase().includes(stationNameLower) ||
-             // Match supplies by challenge category
-             supply.category === 'challenge';
+      return supply.purpose.toLowerCase().includes(stationNameLower);
     });
   };
   
   return (
     <div className="min-h-screen bg-ivory text-charcoal pb-16 print:p-0">
-      {/* Header - hidden during print */}
       <header className="py-6 px-6 border-b border-gray-200 mb-8 print:hidden">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <a href="/" className="text-2xl font-display text-teal">Escape Room Designer</a>
@@ -124,13 +117,11 @@ ${escapeRoom.prizes.join(', ')}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          {/* Title Section */}
           <div className="mb-8 text-center">
             <h1 className="text-4xl font-display text-teal mb-3">{escapeRoom.title}</h1>
             <p className="text-lg max-w-3xl mx-auto">{escapeRoom.story}</p>
           </div>
           
-          {/* Action Buttons - hidden during print */}
           <div className="flex justify-center gap-4 mb-8 print:hidden">
             <Button 
               onClick={handleCopyToClipboard}
@@ -147,7 +138,6 @@ ${escapeRoom.prizes.join(', ')}
             </Button>
           </div>
           
-          {/* Tabs - hidden during print */}
           <div className="border-b border-gray-200 mb-6 print:hidden">
             <nav className="flex space-x-8">
               {['overview', 'stations', 'supplies', 'facilitation'].map((tab) => (
@@ -166,9 +156,7 @@ ${escapeRoom.prizes.join(', ')}
             </nav>
           </div>
           
-          {/* Tab Content - all content displays during print */}
           <div className="tab-content mb-16">
-            {/* Overview Section - always show for print, hide if not active tab */}
             <div className={`overview ${activeTab === 'overview' ? '' : 'print:block hidden'}`}>
               <h2 className="text-2xl font-display mb-6 print:block hidden">Overview</h2>
               <div className="grid md:grid-cols-2 gap-6">
@@ -215,12 +203,10 @@ ${escapeRoom.prizes.join(', ')}
               </div>
             </div>
             
-            {/* Stations Section - always show for print, hide if not active tab */}
             <div className={`stations mt-8 ${activeTab === 'stations' ? '' : 'print:block hidden'}`}>
               <h2 className="text-2xl font-display mb-6 print:page-break-before">Stations ({escapeRoom.stations.length})</h2>
               <div className="space-y-6">
                 {escapeRoom.stations.map((station, index) => {
-                  // Get supplies needed for this station
                   const stationSupplies = getStationSupplies(station.name, escapeRoom.supplies);
                   
                   return (
@@ -230,7 +216,6 @@ ${escapeRoom.prizes.join(', ')}
                         <h4 className="font-semibold text-charcoal-light mb-1">Task:</h4>
                         <p>{station.task}</p>
                         
-                        {/* Add printable content for tasks with letters or numbers */}
                         {hasPrintableContent(station.task) && 
                           getPrintableContent(station.task, station.answer) && (
                             <PrintableLetters 
@@ -274,7 +259,6 @@ ${escapeRoom.prizes.join(', ')}
               </div>
             </div>
             
-            {/* Supplies Section - always show for print, hide if not active tab */}
             <div className={`supplies mt-8 ${activeTab === 'supplies' ? '' : 'print:block hidden'}`}>
               <h2 className="text-2xl font-display mb-6 print:page-break-before">Required Supplies</h2>
               
@@ -329,7 +313,6 @@ ${escapeRoom.prizes.join(', ')}
               </div>
             </div>
             
-            {/* Facilitation Section - always show for print, hide if not active tab */}
             <div className={`facilitation mt-8 ${activeTab === 'facilitation' ? '' : 'print:block hidden'}`}>
               <h2 className="text-2xl font-display mb-6 print:page-break-before">Facilitation Guide</h2>
               
@@ -372,7 +355,6 @@ ${escapeRoom.prizes.join(', ')}
         </motion.div>
       </main>
       
-      {/* Print-specific styles */}
       <style>
         {`
           @media print {
