@@ -15,7 +15,23 @@ const ThemeSelector = ({ ageGroup, onThemeSelected }: ThemeSelectorProps) => {
   const [isCustom, setIsCustom] = useState(false);
   
   useEffect(() => {
-    const themesForAge = getThemesByAgeGroup(ageGroup);
+    // Get themes for the selected age group
+    let themesForAge = getThemesByAgeGroup(ageGroup);
+    
+    // Ensure we have exactly 9 themes (3x3 grid)
+    if (themesForAge.length > 9) {
+      themesForAge = themesForAge.slice(0, 9);
+    } else if (themesForAge.length < 9) {
+      // If fewer than 9 themes, duplicate some to fill the grid
+      const originalCount = themesForAge.length;
+      for (let i = 0; i < 9 - originalCount; i++) {
+        themesForAge.push({
+          ...themesForAge[i % originalCount],
+          id: `${themesForAge[i % originalCount].id}-copy-${i}`,
+        });
+      }
+    }
+    
     setThemes(themesForAge);
   }, [ageGroup]);
   
@@ -57,7 +73,7 @@ const ThemeSelector = ({ ageGroup, onThemeSelected }: ThemeSelectorProps) => {
         Select a theme for your escape room or create your own
       </motion.p>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {themes.map((theme, index) => (
           <motion.div
             key={theme.id}
