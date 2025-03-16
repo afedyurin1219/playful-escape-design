@@ -1,4 +1,3 @@
-
 export interface EscapeRoomConfig {
   ageGroup: string;
   theme: string;
@@ -72,79 +71,53 @@ export const generateEscapeRoom = (config: EscapeRoomConfig): EscapeRoomPlan => 
     teamSetup = "Divide participants into three or four teams of 3-4 kids each. Teams will compete to complete all stations first.";
   }
   
-  // Custom generation based on specific popular themes
-  if (config.theme === 'harry-potter' || config.customTheme?.toLowerCase().includes('harry potter')) {
-    title = "Hogwarts Mystery: The Chamber of Secrets";
-    story = "A mysterious force has locked down Hogwarts, and dark magic is spreading through the castle. As young witches and wizards, you must work together to solve puzzles, cast spells, and find the source of the dark magic before it's too late. Professor McGonagall has left clues around the castle to help you on your quest.";
+  // Check if it's a custom theme first - custom themes are now properly processed
+  if (config.theme === 'custom' && config.customTheme) {
+    // Create a normalized version of the custom theme for comparison
+    const normalizedTheme = config.customTheme.toLowerCase();
     
-    return {
-      title,
-      story,
-      teamSetup,
-      stations: generateHarryPotterStations(numStations, config.difficulty),
-      supplies: generateHarryPotterSupplies(),
-      prizes: ["House Cup replica", "Chocolate frogs", "Bertie Bott's Every Flavor Beans", "Wand for each participant", "Hogwarts House badges"]
-    };
-  } else if (config.theme === 'minecraft' || config.customTheme?.toLowerCase().includes('minecraft')) {
-    title = "Minecraft: The Missing Diamonds";
-    story = "The village's precious diamonds have been stolen by the Ender Dragon! As brave miners, you must venture through the blocky world, solve puzzles, craft items, and defeat challenges to recover the missing diamonds before the dragon uses them to gain ultimate power.";
-    
-    return {
-      title,
-      story,
-      teamSetup,
-      stations: generateMinecraftStations(numStations, config.difficulty),
-      supplies: generateMinecraftSupplies(),
-      prizes: ["Minecraft character figurines", "Diamond-shaped candy", "Creeper stickers", "Minecraft wristbands", "Pixel art craft kits"]
-    };
-  } else if (config.theme === 'star-wars' || config.customTheme?.toLowerCase().includes('star wars')) {
-    title = "Star Wars: Escape from the Death Star";
-    story = "You are Rebel spies who have infiltrated the Empire's Death Star to steal the plans. Your mission was successful, but now you must escape before Darth Vader captures you. Navigate through Imperial security, solve puzzles, and make your way to the hidden Rebel ship before time runs out!";
-    
-    return {
-      title,
-      story,
-      teamSetup,
-      stations: generateStarWarsStations(numStations, config.difficulty),
-      supplies: generateStarWarsSupplies(),
-      prizes: ["Lightsaber toys", "Star Wars character masks", "Rebel Alliance pins", "Space-themed candy", "Star Wars trading cards"]
-    };
-  } else if (config.theme === 'detective-noir' || config.customTheme?.toLowerCase().includes('detective')) {
-    title = "The Case of the Missing Masterpiece";
-    story = "A priceless painting has been stolen from the city museum, and the police are baffled. As expert detectives, you've been called in to crack the case. Follow the clues, decode messages from the thief, and piece together the evidence to recover the masterpiece and bring the culprit to justice.";
-    
-    return {
-      title,
-      story,
-      teamSetup,
-      stations: generateDetectiveStations(numStations, config.difficulty),
-      supplies: generateDetectiveSupplies(),
-      prizes: ["Magnifying glasses", "Deerstalker hats", "Detective notebooks", "Invisible ink pens", "Mystery novels"]
-    };
-  } else if (config.theme === 'winnie-pooh' || config.customTheme?.toLowerCase().includes('winnie') || config.customTheme?.toLowerCase().includes('pooh')) {
-    title = "Hundred Acre Wood Mystery";
-    story = "Oh bother! Winnie the Pooh's honey pots have all gone missing, and his tumbly is getting rumbly! As Pooh's friends, you must help search the Hundred Acre Wood, solve puzzles from Christopher Robin, and follow clues to find the missing honey before Pooh's picnic with all his friends.";
-    
-    return {
-      title,
-      story,
-      teamSetup,
-      stations: generateWinniePoohStations(numStations, config.difficulty),
-      supplies: generateWinniePoohSupplies(),
-      prizes: ["Honey-flavored treats", "Winnie the Pooh coloring books", "Plush Winnie the Pooh character keychains", "Red balloon toys", "Hundred Acre Wood map prints"]
-    };
-  } else if (config.theme === 'peppa-pig' || config.customTheme?.toLowerCase().includes('peppa')) {
-    title = "Peppa's Muddy Puddle Adventure";
-    story = "Peppa and George are planning a special surprise party, but all the party supplies have been scattered around by a big wind! As Peppa's friends, you need to help find all the missing party items by jumping in muddy puddles, solving puzzles, and working together before the party guests arrive!";
-    
-    return {
-      title,
-      story,
-      teamSetup,
-      stations: generatePeppaPigStations(numStations, config.difficulty),
-      supplies: generatePeppaPigSupplies(),
-      prizes: ["Peppa Pig stickers", "Small Peppa Pig character toys", "Muddy puddle slime", "Peppa Pig party hats", "Colorful balloons"]
-    };
+    // Check if the custom theme matches any known themes
+    if (normalizedTheme.includes('harry potter')) {
+      return generateHarryPotterEscapeRoom(numStations, config.difficulty, config.customTheme, teamSetup);
+    } else if (normalizedTheme.includes('minecraft')) {
+      return generateMinecraftEscapeRoom(numStations, config.difficulty, config.customTheme, teamSetup);
+    } else if (normalizedTheme.includes('star wars')) {
+      return generateStarWarsEscapeRoom(numStations, config.difficulty, config.customTheme, teamSetup);
+    } else if (normalizedTheme.includes('detective') || normalizedTheme.includes('mystery') || normalizedTheme.includes('noir')) {
+      return generateDetectiveEscapeRoom(numStations, config.difficulty, config.customTheme, teamSetup);
+    } else if (normalizedTheme.includes('winnie') || normalizedTheme.includes('pooh')) {
+      return generateWinniePoohEscapeRoom(numStations, config.difficulty, config.customTheme, teamSetup);
+    } else if (normalizedTheme.includes('peppa') || normalizedTheme.includes('pig')) {
+      return generatePeppaPigEscapeRoom(numStations, config.difficulty, config.customTheme, teamSetup);
+    } else if (normalizedTheme.includes('smile') || normalizedTheme.includes('horror')) {
+      return generateHorrorEscapeRoom(numStations, config.difficulty, config.customTheme, teamSetup, 'smile');
+    } else if (normalizedTheme.includes('frozen')) {
+      return generateFrozenEscapeRoom(numStations, config.difficulty, config.customTheme, teamSetup);
+    } else if (normalizedTheme.includes('pirate')) {
+      return generatePirateEscapeRoom(numStations, config.difficulty, config.customTheme, teamSetup);
+    } else if (normalizedTheme.includes('superhero') || normalizedTheme.includes('avenger') || normalizedTheme.includes('marvel')) {
+      return generateSuperheroEscapeRoom(numStations, config.difficulty, config.customTheme, teamSetup);
+    } else if (normalizedTheme.includes('dinosaur') || normalizedTheme.includes('jurassic')) {
+      return generateDinosaurEscapeRoom(numStations, config.difficulty, config.customTheme, teamSetup);
+    } else {
+      // For truly custom themes that don't match any known categories
+      return generateCustomThemeEscapeRoom(numStations, config.difficulty, config.customTheme, teamSetup);
+    }
+  }
+  
+  // Handle predefined themes
+  if (config.theme === 'harry-potter' || (config.customTheme && config.customTheme.toLowerCase().includes('harry potter'))) {
+    return generateHarryPotterEscapeRoom(numStations, config.difficulty, 'Harry Potter', teamSetup);
+  } else if (config.theme === 'minecraft' || (config.customTheme && config.customTheme.toLowerCase().includes('minecraft'))) {
+    return generateMinecraftEscapeRoom(numStations, config.difficulty, 'Minecraft', teamSetup);
+  } else if (config.theme === 'star-wars' || (config.customTheme && config.customTheme.toLowerCase().includes('star wars'))) {
+    return generateStarWarsEscapeRoom(numStations, config.difficulty, 'Star Wars', teamSetup);
+  } else if (config.theme === 'detective-noir' || (config.customTheme && (config.customTheme.toLowerCase().includes('detective') || config.customTheme.toLowerCase().includes('mystery')))) {
+    return generateDetectiveEscapeRoom(numStations, config.difficulty, 'Detective Mystery', teamSetup);
+  } else if (config.theme === 'winnie-pooh' || (config.customTheme && (config.customTheme.toLowerCase().includes('winnie') || config.customTheme.toLowerCase().includes('pooh')))) {
+    return generateWinniePoohEscapeRoom(numStations, config.difficulty, 'Winnie the Pooh', teamSetup);
+  } else if (config.theme === 'peppa-pig' || (config.customTheme && config.customTheme.toLowerCase().includes('peppa'))) {
+    return generatePeppaPigEscapeRoom(numStations, config.difficulty, 'Peppa Pig', teamSetup);
   }
   
   // Default generic response for any other theme using theme-specific words
@@ -158,6 +131,152 @@ export const generateEscapeRoom = (config: EscapeRoomConfig): EscapeRoomPlan => 
     stations: generateGenericStations(numStations, config.theme, config.difficulty, displayThemeName),
     supplies: generateGenericSupplies(config.theme, displayThemeName),
     prizes: ["Certificate of completion", `Small ${displayThemeName} themed toys`, "Candy treats", "Custom medals"]
+  };
+};
+
+// Helper functions to generate complete escape rooms for specific themes
+const generateHarryPotterEscapeRoom = (numStations: number, difficulty: string, themeName: string, teamSetup: string): EscapeRoomPlan => {
+  return {
+    title: `Hogwarts Mystery: The Chamber of Secrets`,
+    story: `A mysterious force has locked down Hogwarts, and dark magic is spreading through the castle. As young witches and wizards, you must work together to solve puzzles, cast spells, and find the source of the dark magic before it's too late. Professor McGonagall has left clues around the castle to help you on your quest.`,
+    teamSetup,
+    stations: generateHarryPotterStations(numStations, difficulty),
+    supplies: generateHarryPotterSupplies(),
+    prizes: ["House Cup replica", "Chocolate frogs", "Bertie Bott's Every Flavor Beans", "Wand for each participant", "Hogwarts House badges"]
+  };
+};
+
+const generateMinecraftEscapeRoom = (numStations: number, difficulty: string, themeName: string, teamSetup: string): EscapeRoomPlan => {
+  return {
+    title: `Minecraft: The Missing Diamonds`,
+    story: `The village's precious diamonds have been stolen by the Ender Dragon! As brave miners, you must venture through the blocky world, solve puzzles, craft items, and defeat challenges to recover the missing diamonds before the dragon uses them to gain ultimate power.`,
+    teamSetup,
+    stations: generateMinecraftStations(numStations, difficulty),
+    supplies: generateMinecraftSupplies(),
+    prizes: ["Minecraft character figurines", "Diamond-shaped candy", "Creeper stickers", "Minecraft wristbands", "Pixel art craft kits"]
+  };
+};
+
+const generateStarWarsEscapeRoom = (numStations: number, difficulty: string, themeName: string, teamSetup: string): EscapeRoomPlan => {
+  return {
+    title: `Star Wars: Escape from the Death Star`,
+    story: `You are Rebel spies who have infiltrated the Empire's Death Star to steal the plans. Your mission was successful, but now you must escape before Darth Vader captures you. Navigate through Imperial security, solve puzzles, and make your way to the hidden Rebel ship before time runs out!`,
+    teamSetup,
+    stations: generateStarWarsStations(numStations, difficulty),
+    supplies: generateStarWarsSupplies(),
+    prizes: ["Lightsaber toys", "Star Wars character masks", "Rebel Alliance pins", "Space-themed candy", "Star Wars trading cards"]
+  };
+};
+
+const generateDetectiveEscapeRoom = (numStations: number, difficulty: string, themeName: string, teamSetup: string): EscapeRoomPlan => {
+  return {
+    title: `The Case of the Missing Masterpiece`,
+    story: `A priceless painting has been stolen from the city museum, and the police are baffled. As expert detectives, you've been called in to crack the case. Follow the clues, decode messages from the thief, and piece together the evidence to recover the masterpiece and bring the culprit to justice.`,
+    teamSetup,
+    stations: generateDetectiveStations(numStations, difficulty),
+    supplies: generateDetectiveSupplies(),
+    prizes: ["Magnifying glasses", "Deerstalker hats", "Detective notebooks", "Invisible ink pens", "Mystery novels"]
+  };
+};
+
+const generateWinniePoohEscapeRoom = (numStations: number, difficulty: string, themeName: string, teamSetup: string): EscapeRoomPlan => {
+  return {
+    title: `Hundred Acre Wood Mystery`,
+    story: `Oh bother! Winnie the Pooh's honey pots have all gone missing, and his tumbly is getting rumbly! As Pooh's friends, you must help search the Hundred Acre Wood, solve puzzles from Christopher Robin, and follow clues to find the missing honey before Pooh's picnic with all his friends.`,
+    teamSetup,
+    stations: generateWinniePoohStations(numStations, difficulty),
+    supplies: generateWinniePoohSupplies(),
+    prizes: ["Honey-flavored treats", "Winnie the Pooh coloring books", "Plush Winnie the Pooh character keychains", "Red balloon toys", "Hundred Acre Wood map prints"]
+  };
+};
+
+const generatePeppaPigEscapeRoom = (numStations: number, difficulty: string, themeName: string, teamSetup: string): EscapeRoomPlan => {
+  return {
+    title: `Peppa's Muddy Puddle Adventure`,
+    story: `Peppa and George are planning a special surprise party, but all the party supplies have been scattered around by a big wind! As Peppa's friends, you need to help find all the missing party items by jumping in muddy puddles, solving puzzles, and working together before the party guests arrive!`,
+    teamSetup,
+    stations: generatePeppaPigStations(numStations, difficulty),
+    supplies: generatePeppaPigSupplies(),
+    prizes: ["Peppa Pig stickers", "Small Peppa Pig character toys", "Muddy puddle slime", "Peppa Pig party hats", "Colorful balloons"]
+  };
+};
+
+// New functions to handle additional themes
+const generateHorrorEscapeRoom = (numStations: number, difficulty: string, themeName: string, teamSetup: string, subtheme: string = ''): EscapeRoomPlan => {
+  let title = "Horror Mansion Escape";
+  let story = "You've found yourself trapped in a spooky mansion with strange occurrences all around. Work together to solve the puzzles and escape before it's too late!";
+  
+  // Special case for the movie "Smile"
+  if (subtheme === 'smile') {
+    title = "Smile: Escape the Curse";
+    story = "You've witnessed something terrifying - people with unnatural smiles who pass on a deadly curse. You have limited time to solve the mystery and break the curse before it claims you as its next victim!";
+  }
+  
+  return {
+    title,
+    story,
+    teamSetup,
+    stations: generateHorrorStations(numStations, difficulty, subtheme),
+    supplies: generateHorrorSupplies(subtheme),
+    prizes: ["Spooky themed candy", "Small flashlights", "Horror-themed bookmarks", "Glow-in-the-dark stickers", "Mystery mini-puzzles"]
+  };
+};
+
+const generateFrozenEscapeRoom = (numStations: number, difficulty: string, themeName: string, teamSetup: string): EscapeRoomPlan => {
+  return {
+    title: "Frozen: The Eternal Winter",
+    story: "Arendelle has been plunged into an eternal winter once again! As friends of Elsa and Anna, you must work together to discover what has caused this strange weather and help restore summer to the kingdom.",
+    teamSetup,
+    stations: generateFrozenStations(numStations, difficulty),
+    supplies: generateFrozenSupplies(),
+    prizes: ["Snowflake necklaces", "Frozen character stickers", "Blue and white bracelets", "Mini snow globes", "Frozen-themed candy"]
+  };
+};
+
+const generatePirateEscapeRoom = (numStations: number, difficulty: string, themeName: string, teamSetup: string): EscapeRoomPlan => {
+  return {
+    title: "Pirate's Lost Treasure",
+    story: "Ahoy, mateys! Captain Blackbeard's legendary treasure map has been torn into pieces. As brave pirates, you must solve the puzzles, find all the pieces of the map, and discover where the treasure is hidden before rival pirates beat you to it!",
+    teamSetup,
+    stations: generatePirateStations(numStations, difficulty),
+    supplies: generatePirateSupplies(),
+    prizes: ["Chocolate gold coins", "Pirate eye patches", "Treasure map bookmarks", "Pirate flag bandanas", "Skull and crossbones stickers"]
+  };
+};
+
+const generateSuperheroEscapeRoom = (numStations: number, difficulty: string, themeName: string, teamSetup: string): EscapeRoomPlan => {
+  return {
+    title: "Superhero Academy: Final Test",
+    story: "Congratulations on making it to the final test at Superhero Academy! To graduate and receive your superhero license, you must complete a series of challenges that will test your courage, intelligence, and teamwork. Only then will you be ready to join the ranks of Earth's greatest heroes!",
+    teamSetup,
+    stations: generateSuperheroStations(numStations, difficulty),
+    supplies: generateSuperheroSupplies(),
+    prizes: ["Superhero masks", "Cape keychains", "Power wristbands", "Superhero emblem stickers", "Action figure minis"]
+  };
+};
+
+const generateDinosaurEscapeRoom = (numStations: number, difficulty: string, themeName: string, teamSetup: string): EscapeRoomPlan => {
+  return {
+    title: "Dinosaur Park: The Great Escape",
+    story: "Welcome to Dinosaur Park! But wait - there's been a security breach and some dinosaurs have escaped from their enclosures. As park rangers, you must work together to solve puzzles, track the dinosaurs, and help secure the park before any visitors arrive!",
+    teamSetup,
+    stations: generateDinosaurStations(numStations, difficulty),
+    supplies: generateDinosaurSupplies(),
+    prizes: ["Dinosaur figurines", "Fossil excavation kits", "Dinosaur stickers", "Dino egg candies", "Prehistoric activity books"]
+  };
+};
+
+// For any truly custom theme that doesn't match our categories
+const generateCustomThemeEscapeRoom = (numStations: number, difficulty: string, themeName: string): EscapeRoomPlan => {
+  const displayThemeName = themeName || "Adventure";
+  
+  return {
+    title: `The ${displayThemeName} Challenge`,
+    story: `An exciting adventure in the world of ${displayThemeName} awaits! Participants will need to solve puzzles related to ${displayThemeName}, find clues, and work together to complete a series of themed challenges.`,
+    teamSetup: '',
+    stations: generateCustomThemeStations(numStations, difficulty, displayThemeName),
+    supplies: generateCustomThemeSupplies(displayThemeName),
+    prizes: ["Certificate of completion", `${displayThemeName}-themed prizes`, "Candy treats", "Custom medals"]
   };
 };
 
@@ -392,511 +511,4 @@ const generateHarryPotterStations = (count: number, difficulty: string): Station
       name: "Quidditch Pitch",
       task: "Complete a physical challenge: Transfer 'golden snitches' (ping pong balls) from one container to another using only a spoon held in your mouth. You need to catch 5 snitches to win.",
       answer: "Successfully transferring 5 balls",
-      hints: ["Work as a team", "Steady does it", "Maybe take turns"],
-      facilitatorInstructions: "Set up two containers about 10 feet apart. Fill one with yellow ping pong balls. Each team member can try to transfer balls. Once 5 are transferred, give them the next clue."
-    },
-    {
-      name: "Gringotts Bank",
-      task: "Crack the vault code: What is the sum of all the numbers in Platform 9¾, Vault 713, and the year Hogwarts was founded (993 A.D.)?",
-      answer: "1715.75 (9.75 + 713 + 993)",
-      hints: ["Add all three numbers together", "Don't forget the fraction in Platform 9¾", "The founding year is 993 A.D."],
-      facilitatorInstructions: "Have a 'vault' (box or cabinet) with a combination lock set to 1715 or 1716. Inside the vault is the final clue or treasure."
-    }
-  ];
-  
-  // If difficulty is easy, simplify the tasks
-  if (difficulty === 'easy') {
-    stations.forEach(station => {
-      station.hints.push("Here's a big hint: " + station.answer);
-    });
-  }
-  
-  // Return only the requested number of stations
-  return stations.slice(0, count);
-};
-
-// Helper function for Minecraft-themed stations
-const generateMinecraftStations = (count: number, difficulty: string): Station[] => {
-  const stations: Station[] = [
-    {
-      name: "The Crafting Table",
-      task: "Solve this Minecraft recipe puzzle: 8 cobblestone blocks arranged in a square with an empty middle makes what item? Unscramble these letters: EARFNUC",
-      answer: "FURNACE",
-      hints: ["It's used for smelting ores", "It cooks food", "It starts with 'F'"],
-      facilitatorInstructions: "Set up a mock crafting table with paper blocks. When they solve the puzzle, give them a 'furnace' prop that contains the next clue."
-    },
-    {
-      name: "Creeper's Maze",
-      task: "Navigate through this maze without touching the 'pressure plates' (paper squares on the floor). If you step on one, you must go back to the start. At the end, collect the 5 hidden emeralds (green paper cutouts).",
-      answer: "Successfully collecting all 5 emeralds",
-      hints: ["Watch your step carefully", "Look for patterns in the pressure plates", "The emeralds might be hidden under or behind objects"],
-      facilitatorInstructions: "Create a simple maze using furniture and tape paper 'pressure plates' on the floor. Hide 5 green paper 'emeralds' around the end of the maze."
-    },
-    {
-      name: "Mine for Diamonds",
-      task: "Dig through this 'ore' (container filled with beans, rice, or sand) to find 3 blue 'diamonds' (blue marbles or stones) hidden inside. Be careful not to touch the red 'redstone' (red marbles) or you'll lose a life.",
-      answer: "Successfully finding 3 diamonds",
-      hints: ["Dig carefully and systematically", "Use teamwork - one person can dig while others keep watch", "Try dividing the container into sections"],
-      facilitatorInstructions: "Fill a container with a sensory material and hide blue and red marbles inside. The children must find 3 blue marbles without touching the red ones."
-    },
-    {
-      name: "Zombie Defense",
-      task: "Build a protective barrier using only the provided materials (blocks, paper, tape) that can withstand a zombie attack (ball throws). Your structure must be at least 1 foot tall and survive 3 zombie attacks.",
-      answer: "Successfully building a structure that meets the requirements",
-      hints: ["Make a strong base", "Triangular structures are more stable", "Use tape sparingly but effectively"],
-      facilitatorInstructions: "Provide building materials and test the structures by gently throwing soft balls at them. The structure must remain standing after 3 throws."
-    },
-    {
-      name: "The Ender Puzzle",
-      task: "Decode this End Portal coordinate message: 'The nether portal opens at coordinates where X plus Y equals 64, X minus Y equals 0, and Z equals the number of eyes needed for an End Portal.' What are the coordinates?",
-      answer: "X=32, Y=32, Z=12",
-      hints: ["Solve the two equations to find X and Y", "An End Portal needs 12 Eyes of Ender", "Both X and Y must be whole numbers"],
-      facilitatorInstructions: "This is a math puzzle. X + Y = 64 and X - Y = 0 means X = 32 and Y = 32. The End Portal requires 12 Eyes of Ender, so Z = 12."
-    },
-    {
-      name: "Potion Brewing",
-      task: "Follow the brewing instructions to make the 'Potion of Diamond Finding'. Mix the blue powder (blue Kool-Aid) with water, add 3 drops of 'Creeper essence' (green food coloring), and sprinkle in 'Redstone dust' (red glitter). What color does the potion turn?",
-      answer: "Teal or Turquoise (blue-green)",
-      hints: ["Blue + green makes what color?", "Think about color mixing", "The red glitter doesn't change the liquid color"],
-      facilitatorInstructions: "Set up a safe 'brewing station' with the required materials. When mixed, blue and green create a teal color. The red glitter is just for show."
-    }
-  ];
-  
-  // If difficulty is easy, simplify the tasks
-  if (difficulty === 'easy') {
-    stations.forEach(station => {
-      station.hints.push("Here's a big hint: " + station.answer);
-    });
-  }
-  
-  // Return only the requested number of stations
-  return stations.slice(0, count);
-};
-
-// Helper function for Star Wars-themed stations
-const generateStarWarsStations = (count: number, difficulty: string): Station[] => {
-  const stations: Station[] = [
-    {
-      name: "Jedi Training",
-      task: "Complete the Jedi training course: Balance on one foot while holding a 'lightsaber' (pool noodle) and recite the Jedi code: 'There is no emotion, there is peace. There is no ignorance, there is knowledge. There is no passion, there is serenity. There is no chaos, there is harmony. There is no death, there is the Force.'",
-      answer: "Successfully reciting the code while balancing",
-      hints: ["Practice balance before trying to recite", "Break the code into smaller sections", "Focus on a fixed point while balancing"],
-      facilitatorInstructions: "Provide pool noodle 'lightsabers' and a printed copy of the Jedi code for reference. Children must balance on one foot while reciting as much of the code as appropriate for their age."
-    },
-    {
-      name: "Droid Repair",
-      task: "R2-D2 is malfunctioning! Solve this binary code to repair him: Convert 01010111 01001000 01011001 from binary to ASCII text.",
-      answer: "WHY",
-      hints: ["Each group of 8 digits is one letter", "01010111 = 87 in decimal = W in ASCII", "Look for patterns in the binary code"],
-      facilitatorInstructions: "Print a binary-to-ASCII conversion chart for reference. Children can use it to decode the message. Adjust complexity based on age group."
-    },
-    {
-      name: "Imperial Code Breaking",
-      task: "Intercept this Imperial transmission by solving the cipher. Each letter has been shifted 3 positions forward in the alphabet: 'PHHW DW WKH KDQJDU'",
-      answer: "MEET AT THE HANGAR",
-      hints: ["This is a Caesar cipher with shift 3", "D = A, E = B, F = C, etc.", "Try writing out the alphabet and counting backwards 3 letters for each character"],
-      facilitatorInstructions: "Provide alphabet strips to help with the cipher. For E = B, they should look 3 letters before E to find B."
-    },
-    {
-      name: "Escape the Trash Compactor",
-      task: "Your team is trapped in a trash compactor! Find these 5 hidden tools to escape: hydrospanner, fusion cutter, magnetic key, power cell, and comlink. All are hidden around the room.",
-      answer: "Successfully finding all 5 items",
-      hints: ["Look high and low", "Some items might be disguised as ordinary objects", "Check under or behind furniture"],
-      facilitatorInstructions: "Hide 5 labeled items around the room. Create simple props or just use paper cutouts labeled with each tool name."
-    },
-    {
-      name: "Blast the TIE Fighters",
-      task: "Defend your ship by hitting 3 TIE Fighters (paper targets) with your blaster (nerf gun or balls). You must hit all 3 targets within 1 minute to succeed.",
-      answer: "Successfully hitting all 3 targets",
-      hints: ["Take a moment to aim carefully", "Try different throwing/shooting techniques", "Teamwork: one person can retrieve ammunition while others shoot"],
-      facilitatorInstructions: "Set up 3 paper targets with TIE Fighter images. Provide soft balls or Nerf guns for 'blasting' them. Set a 1-minute timer."
-    },
-    {
-      name: "Navigate the Asteroid Field",
-      task: "Plot a safe course through the asteroid field by solving this puzzle: If each number represents the position of a safe passage point, find the missing number in this sequence: 2, 5, 10, 17, 26, ?",
-      answer: "37",
-      hints: ["Look at the difference between consecutive numbers", "The differences form a pattern: 3, 5, 7, 9, ?", "Each difference increases by 2"],
-      facilitatorInstructions: "This is a mathematical sequence puzzle. The difference between consecutive numbers increases by 2 each time: +3, +5, +7, +9, so the next difference is +11, making the answer 26+11=37."
-    }
-  ];
-  
-  // If difficulty is easy, simplify the tasks
-  if (difficulty === 'easy') {
-    stations.forEach(station => {
-      station.hints.push("Here's a big hint: " + station.answer);
-    });
-  }
-  
-  // Return only the requested number of stations
-  return stations.slice(0, count);
-};
-
-// Helper function for Detective-themed stations
-const generateDetectiveStations = (count: number, difficulty: string): Station[] => {
-  const stations: Station[] = [
-    {
-      name: "The Crime Scene",
-      task: "Examine the crime scene (table setup) and identify 5 clues that seem out of place or suspicious. Record your findings in your detective notebook.",
-      answer: "Finding the 5 planted clues: torn ticket stub, strange powder, dropped key, partial footprint, and a written note",
-      hints: ["Look for items that don't belong", "Check for anything unusual in color or position", "Don't forget to look underneath things"],
-      facilitatorInstructions: "Set up a 'crime scene' with 5 obvious clues: a torn ticket stub, some powder (salt or flour), a key, a partial footprint (made with a shoe and some washable paint), and a suspicious note."
-    },
-    {
-      name: "Fingerprint Analysis",
-      task: "Compare these 4 fingerprint samples (printouts) with the fingerprint found at the crime scene. Which suspect does it match: A, B, C, or D?",
-      answer: "Suspect C",
-      hints: ["Look for similar patterns in the fingerprint whorls", "Try turning the samples to match orientation", "Check for distinctive features like loops and arches"],
-      facilitatorInstructions: "Print 4 different fingerprint patterns labeled A-D and one 'crime scene' fingerprint that clearly matches C. For younger kids, make the differences more obvious."
-    },
-    {
-      name: "Coded Message",
-      task: "Decode this message found in the suspect's pocket: '7-15 20-15 20-8-5 13-21-19-5-21-13 1-20 13-9-4-14-9-7-8-20'",
-      answer: "GO TO THE MUSEUM AT MIDNIGHT",
-      hints: ["Each number represents a letter position in the alphabet", "1=A, 2=B, etc.", "Look for patterns in the numbers separated by dashes"],
-      facilitatorInstructions: "This is a simple letter-to-number substitution cipher. A=1, B=2, etc. Have an alphabet with corresponding numbers available for reference."
-    },
-    {
-      name: "Follow the Money",
-      task: "Track the suspicious financial transactions by solving this puzzle: The art dealer received $5,000 on Monday. Each day for the next four days, the amount doubled. How much was received on Friday?",
-      answer: "$80,000",
-      hints: ["Start with $5,000 and keep doubling", "Monday: $5,000, Tuesday: $10,000, Wednesday: $20,000...", "Remember to double the previous day's amount, not the original"],
-      facilitatorInstructions: "This is a mathematical progression puzzle. $5,000 → $10,000 → $20,000 → $40,000 → $80,000."
-    },
-    {
-      name: "Surveillance Photo",
-      task: "This surveillance photo (printed image) has been cut into 12 pieces. Reassemble it to identify the location where the suspects are planning to meet.",
-      answer: "The train station clock tower",
-      hints: ["Start with the corner pieces", "Look for connecting colors and lines", "The image will show a recognizable landmark"],
-      facilitatorInstructions: "Print a picture of a clock tower or other recognizable location, cut it into 12 puzzle pieces. Make cuts simpler for younger children."
-    },
-    {
-      name: "The Final Deduction",
-      task: "Based on all the evidence gathered, solve this final logic puzzle to identify the culprit: 'Four suspects were in the museum at the time of the theft: the curator, the security guard, the artist, and the donor. The curator was with the donor in the east wing. The security guard was seen on camera in the north wing. The stolen painting was in the west wing. The artist claimed to be alone in the south wing, but a witness saw someone matching the artist's description leaving the west wing with a large bag.' Who stole the painting?",
-      answer: "The artist",
-      hints: ["Map out where each person was supposed to be", "Consider who had an alibi and who didn't", "Think about the contradicting information"],
-      facilitatorInstructions: "This is a logic puzzle that requires putting together information. The artist claimed to be in the south wing but was seen in the west wing where the painting was stolen."
-    }
-  ];
-  
-  // If difficulty is easy, simplify the tasks
-  if (difficulty === 'easy') {
-    stations.forEach(station => {
-      station.hints.push("Here's a big hint: " + station.answer);
-    });
-  }
-  
-  // Return only the requested number of stations
-  return stations.slice(0, count);
-};
-
-// Helper function to generate Harry Potter themed supplies
-const generateHarryPotterSupplies = (): Supply[] => {
-  return [
-    { name: "Wands (can be made from chopsticks or twigs)", purpose: "For casting 'spells' during challenges", category: 'theme' },
-    { name: "House colored scarves or ribbons", purpose: "To identify teams", category: 'theme' },
-    { name: "Candles (unlit, for safety)", purpose: "For the Potions challenge", category: 'challenge' },
-    { name: "Small mirrors", purpose: "For the Transfiguration challenge", category: 'challenge' },
-    { name: "Lock and key or combination lock", purpose: "For the Gringotts challenge", category: 'challenge' },
-    { name: "Yellow ping pong balls", purpose: "As 'Golden Snitches' for the Quidditch challenge", category: 'challenge' },
-    { name: "Plastic spoons", purpose: "For the Quidditch challenge", category: 'challenge' },
-    { name: "Small cauldrons (can use black plastic cups)", purpose: "For holding clues or items", category: 'theme' },
-    { name: "Envelopes for clues", purpose: "To present each challenge", category: 'general' },
-    { name: "Small treasure box", purpose: "For the final prize", category: 'general' }
-  ];
-};
-
-// Helper function to generate Minecraft themed supplies
-const generateMinecraftSupplies = (): Supply[] => {
-  return [
-    { name: "Cardboard boxes decorated as Minecraft blocks", purpose: "For building challenges and decorations", category: 'theme' },
-    { name: "Blue and red marbles", purpose: "For the 'Mine for Diamonds' challenge", category: 'challenge' },
-    { name: "Bean bag or rice-filled container", purpose: "For the mining challenge", category: 'challenge' },
-    { name: "Green paper cutouts (emeralds)", purpose: "For the Creeper's Maze challenge", category: 'challenge' },
-    { name: "Building materials (paper blocks, tape)", purpose: "For the Zombie Defense challenge", category: 'challenge' },
-    { name: "Soft balls", purpose: "To represent Zombies attacking", category: 'challenge' },
-    { name: "Blue Kool-Aid powder and green food coloring", purpose: "For the Potion Brewing challenge", category: 'challenge' },
-    { name: "Plastic cups for 'potions'", purpose: "For the brewing station", category: 'challenge' },
-    { name: "Printouts of Minecraft characters", purpose: "For decorations", category: 'theme' },
-    { name: "Creeper face masks or props", purpose: "For team identification", category: 'theme' }
-  ];
-};
-
-// Helper function to generate Star Wars themed supplies
-const generateStarWarsSupplies = (): Supply[] => {
-  return [
-    { name: "Pool noodle lightsabers (different colors)", purpose: "For Jedi training and team identification", category: 'theme' },
-    { name: "Printed copy of the Jedi code", purpose: "For the Jedi Training challenge", category: 'challenge' },
-    { name: "Binary-to-ASCII conversion chart", purpose: "For the Droid Repair challenge", category: 'challenge' },
-    { name: "Alphabet strips for cipher solving", purpose: "For the Imperial Code Breaking challenge", category: 'challenge' },
-    { name: "Hidden tool props (labeled items)", purpose: "For the Trash Compactor challenge", category: 'challenge' },
-    { name: "TIE Fighter paper targets", purpose: "For the Blast the TIE Fighters challenge", category: 'challenge' },
-    { name: "Nerf guns or soft balls", purpose: "For the Blast the TIE Fighters challenge", category: 'challenge' },
-    { name: "Star Wars themed decorations", purpose: "To create the atmosphere", category: 'theme' },
-    { name: "R2-D2 or BB-8 props", purpose: "For decoration or to hold clues", category: 'theme' },
-    { name: "Timer or stopwatch", purpose: "For timed challenges", category: 'general' }
-  ];
-};
-
-// Helper function to generate Detective themed supplies
-const generateDetectiveSupplies = (): Supply[] => {
-  return [
-    { name: "Magnifying glasses", purpose: "For examining clues", category: 'theme' },
-    { name: "Detective notebooks and pencils", purpose: "For recording clues and theories", category: 'general' },
-    { name: "Fingerprint samples (printouts)", purpose: "For the Fingerprint Analysis challenge", category: 'challenge' },
-    { name: "Crime scene props (ticket stub, powder, key, etc.)", purpose: "For the Crime Scene challenge", category: 'challenge' },
-    { name: "Coded message printouts", purpose: "For the Coded Message challenge", category: 'challenge' },
-    { name: "Surveillance photo cut into puzzle pieces", purpose: "For the Surveillance Photo challenge", category: 'challenge' },
-    { name: "Deerstalker hats or detective badges", purpose: "For team identification", category: 'theme' },
-    { name: "Caution tape", purpose: "For creating the crime scene", category: 'theme' },
-    { name: "Logic puzzle handouts", purpose: "For the Final Deduction challenge", category: 'challenge' },
-    { name: "Evidence bags or envelopes", purpose: "For collecting and organizing clues", category: 'general' }
-  ];
-};
-
-// Helper function to generate generic stations
-const generateGenericStations = (count: number, themeId: string, difficulty: string, themeName: string): Station[] => {
-  // Theme-specific words for word puzzles
-  const themeWords: Record<string, string[]> = {
-    'pokemon': ['PIKACHU', 'CHARIZARD', 'SQUIRTLE', 'EEVEE', 'SNORLAX', 'MEWTWO'],
-    'avengers': ['IRONMAN', 'HULK', 'THOR', 'CAPTAIN', 'WIDOW', 'HAWKEYE'],
-    'lego': ['MINIFIG', 'BRICK', 'BASEPLATE', 'STUD', 'TECHNIC', 'DUPLO'],
-    'pirates': ['TREASURE', 'COMPASS', 'CAPTAIN', 'PARROT', 'ISLAND', 'PLANK'],
-    'space-explorers': ['ROCKET', 'PLANET', 'GALAXY', 'ASTEROID', 'COMET', 'ORBIT'],
-    'detective': ['MYSTERY', 'CLUES', 'SUSPECT', 'EVIDENCE', 'ALIBI', 'WITNESS'],
-    'zombie-apocalypse': ['UNDEAD', 'SURVIVAL', 'BUNKER', 'OUTBREAK', 'INFECTION', 'CURE'],
-    'heist': ['VAULT', 'SECURITY', 'DIAMONDS', 'GETAWAY', 'BLUEPRINT', 'ALARM'],
-    'cyberpunk': ['HACKER', 'NEURAL', 'IMPLANT', 'MEGACITY', 'CORPORATION', 'CYBORG'],
-    'horror': ['HAUNTED', 'GHOST', 'VAMPIRE', 'SHADOW', 'SCREAM', 'MANSION'],
-    'escape-island': ['SHIPWRECK', 'SURVIVORS', 'PARADISE', 'COCONUT', 'SIGNAL', 'RESCUE'],
-    'spy-mission': ['AGENT', 'SECRET', 'GADGET', 'MISSION', 'DISGUISE', 'ENEMY'],
-    'time-travel': ['PORTAL', 'FUTURE', 'HISTORY', 'TIMELINE', 'PARADOX', 'INVENTION'],
-    'murder-mystery': ['DETECTIVE', 'WEAPON', 'MOTIVE', 'SUSPECT', 'CLUES', 'INVESTIGATION'],
-    'fantasy-quest': ['WIZARD', 'DRAGON', 'KINGDOM', 'QUEST', 'POTION', 'MAGIC'],
-    'winnie-pooh': ['HONEY', 'POOH', 'PIGLET', 'TIGGER', 'RABBIT', 'EEYORE'],
-    'peppa-pig': ['PEPPA', 'GEORGE', 'MUDDY', 'PUDDLE', 'FAMILY', 'JUMP'],
-    'paw-patrol': ['CHASE', 'MARSHALL', 'SKYE', 'RUBBLE', 'ZUMA', 'ROCKY'],
-    'mickey-mouse': ['MICKEY', 'MINNIE', 'PLUTO', 'DONALD', 'GOOFY', 'DAISY'],
-    'bluey': ['BLUEY', 'BINGO', 'BANDIT', 'CHILLI', 'GAMES', 'PLAYFUL'],
-    'sesame-street': ['ELMO', 'COOKIE', 'GROVER', 'OSCAR', 'COUNT', 'ABBY'],
-    'cocomelon': ['NURSERY', 'RHYMES', 'SINGING', 'LEARNING', 'FAMILY', 'SCHOOL'],
-    'frozen': ['ELSA', 'ANNA', 'OLAF', 'KRISTOFF', 'SVEN', 'SNOWMAN'],
-    'dinosaurs': ['TREX', 'RAPTOR', 'FOSSIL', 'JURASSIC', 'SCALES', 'ROAR'],
-    'under-the-sea': ['CORAL', 'FISH', 'OCEAN', 'MERMAID', 'SHELL', 'REEF']
-  };
-  
-  // Get words for this theme or use defaults
-  const wordList = themeWords[themeId] || ['ADVENTURE', 'MYSTERY', 'PUZZLE', 'ESCAPE', 'CHALLENGE', 'TEAMWORK'];
-  
-  // Get a random word from the list and scramble it
-  const getScrambledWord = (wordList: string[]) => {
-    const word = wordList[Math.floor(Math.random() * wordList.length)];
-    return {
-      original: word,
-      scrambled: word.split('').sort(() => Math.random() - 0.5).join('')
-    };
-  };
-  
-  // Create a riddle appropriate for the theme
-  const getRiddle = (themeId: string) => {
-    const riddles: Record<string, { riddle: string, answer: string }[]> = {
-      'pokemon': [
-        {
-          riddle: "I evolve from a small yellow creature. I harness the power of lightning. Who am I?",
-          answer: "Pikachu"
-        },
-        {
-          riddle: "I'm a water type starter Pokémon. My final evolution has powerful water cannons on its shell. Who am I?",
-          answer: "Squirtle"
-        }
-      ],
-      'avengers': [
-        {
-          riddle: "I'm made of a rare metal from Africa. I was used to make a super suit and a shield. What am I?",
-          answer: "Vibranium"
-        },
-        {
-          riddle: "I'm the strongest Avenger, and I turn green when I'm angry. Who am I?",
-          answer: "Hulk"
-        }
-      ],
-      'winnie-pooh': [
-        {
-          riddle: "I'm yellow and round and love to eat a sweet sticky food made by bees. Who am I?",
-          answer: "Winnie the Pooh"
-        },
-        {
-          riddle: "I'm small and pink and very nervous, but I'm best friends with a bear. Who am I?",
-          answer: "Piglet"
-        }
-      ],
-      'peppa-pig': [
-        {
-          riddle: "I'm pink and love to jump in dirty water outside after it rains. Who am I?",
-          answer: "Peppa Pig"
-        },
-        {
-          riddle: "I'm Peppa's little brother and I love my toy dinosaur. Who am I?",
-          answer: "George"
-        }
-      ],
-      'paw-patrol': [
-        {
-          riddle: "I'm a Dalmatian pup who serves as a firefighter. Who am I?",
-          answer: "Marshall"
-        },
-        {
-          riddle: "I'm a German Shepherd who leads the Paw Patrol team. Who am I?",
-          answer: "Chase"
-        }
-      ],
-      'frozen': [
-        {
-          riddle: "I'm a princess with magical ice powers. Who am I?",
-          answer: "Elsa"
-        },
-        {
-          riddle: "I'm a snowman who loves warm hugs. Who am I?",
-          answer: "Olaf"
-        }
-      ],
-      'default': [
-        {
-          riddle: "I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?",
-          answer: "A map"
-        },
-        {
-          riddle: "What has a head and a tail, but no body?",
-          answer: "A coin"
-        }
-      ]
-    };
-    
-    // Find riddles for this theme or use general ones
-    const themeRiddles = riddles[themeId] || riddles['default'];
-    return themeRiddles[Math.floor(Math.random() * themeRiddles.length)];
-  };
-  
-  // Create hidden objects for this theme
-  const getHiddenObjects = (themeId: string): string[] => {
-    const themeObjects: Record<string, string[]> = {
-      'pokemon': ['Poké Ball', 'Pikachu toy', 'Trainer card', 'Gym badge', 'Potion bottle'],
-      'avengers': ['Captain America shield', 'Iron Man mask', 'Thor\'s hammer', 'Hulk fist', 'Black Widow emblem'],
-      'lego': ['Minifigure', 'Red 2x4 brick', 'Yellow head', 'Blue baseplate', 'Lego wheel'],
-      'pirates': ['Treasure map', 'Pirate flag', 'Plastic coin', 'Toy compass', 'Eye patch'],
-      'winnie-pooh': ['Honey pot', 'Red balloon', 'Tigger\'s tail', 'Eeyore\'s house', 'Piglet\'s scarf'],
-      'peppa-pig': ['Muddy puddle drawing', 'Toy dinosaur', 'Daddy Pig\'s glasses', 'Peppa\'s boots', 'Toy teddy'],
-      'paw-patrol': ['Pup tag', 'Chase\'s police hat', 'Marshall\'s fire hat', 'Ryder\'s pup pad', 'Paw Patrol badge'],
-      'frozen': ['Snowflake decoration', 'Elsa\'s glove', 'Carrot nose', 'Paper crown', 'Reindeer antlers'],
-      'mickey-mouse': ['Mickey ears', 'Red bow', 'White gloves', 'Yellow shoes', 'Mouse tail'],
-      'space-explorers': ['Toy rocket', 'Star cutout', 'Alien figure', 'Planet model', 'Astronaut picture'],
-      'dinosaurs': ['Dinosaur toy', 'Fossil imprint', 'Dinosaur egg', 'Dinosaur footprint', 'Dinosaur book'],
-      'under-the-sea': ['Seashell', 'Toy fish', 'Mermaid figure', 'Toy boat', 'Blue ribbon (water)'],
-      'default': ['Key', 'Map', 'Letter', 'Token', 'Symbol']
-    };
-    
-    return themeObjects[themeId] || themeObjects['default'];
-  };
-  
-  // Generate the stations
-  const scrambledWord = getScrambledWord(wordList);
-  const riddle = getRiddle(themeId);
-  const hiddenObjects = getHiddenObjects(themeId);
-  
-  const stations: Station[] = [
-    {
-      name: `${themeName} Word Puzzle`,
-      task: `Unscramble these letters to find a word related to ${themeName}: ${scrambledWord.scrambled}`,
-      answer: scrambledWord.original,
-      hints: ["Look for common letters that go together", `It's ${scrambledWord.original.length} letters long`, `It starts with '${scrambledWord.original[0]}'`],
-      facilitatorInstructions: `The answer is ${scrambledWord.original}. Have the children write down their answer. When correct, give them the next clue.`
-    },
-    {
-      name: `${themeName} Hidden Objects`,
-      task: `Find these 5 hidden ${themeName}-related objects in this room within 3 minutes: ${hiddenObjects.join(', ')}.`,
-      answer: `Successfully finding all objects: ${hiddenObjects.join(', ')}`,
-      hints: ["Look high and low", "Check under and behind furniture", "Some objects might be partially hidden"],
-      facilitatorInstructions: `Hide the following objects around the room: ${hiddenObjects.join(', ')}. Make them challenging but findable for the age group.`
-    },
-    {
-      name: `${themeName} Riddle Challenge`,
-      task: `Solve this riddle: ${riddle.riddle}`,
-      answer: riddle.answer,
-      hints: ["Think metaphorically", "Consider characters or objects related to the theme", "The answer is something from the theme"],
-      facilitatorInstructions: `The answer is "${riddle.answer}". When they solve it, give them the next clue or a piece of a larger puzzle.`
-    },
-    {
-      name: `${themeName} Physical Challenge`,
-      task: `Relay race: Each team member must cross the room while balancing a "${themeName}" item (bean bag) on their head. If it falls, you must go back to the start. Complete the relay in under 2 minutes.`,
-      answer: "Successfully completing the relay",
-      hints: ["Move slowly and steadily", "Keep your head level", "Use teamwork and encourage each other"],
-      facilitatorInstructions: "Set up a start and finish line about 15 feet apart. Use bean bags or soft items for balancing. Time the teams."
-    },
-    {
-      name: `${themeName} Code Breaking`,
-      task: `Decode this message using the key where A=1, B=2, etc.: "20-8-5 6-9-14-1-12 3-15-4-5 9-19 8-9-4-4-5-14"`,
-      answer: "THE FINAL CODE IS HIDDEN",
-      hints: ["Each number represents a letter position in the alphabet", "1=A, 2=B, etc.", "Group the numbers by dashes to find each letter"],
-      facilitatorInstructions: "This is a simple substitution cipher where each number represents a letter's position in the alphabet. Provide an alphabet chart for reference."
-    },
-    {
-      name: `${themeName} Final Puzzle`,
-      task: `Using the clues from previous stations, find the hidden treasure. The first letter of each answer spells out the location.`,
-      answer: "Varies based on previous stations",
-      hints: ["Write down the first letter of each answer", "The location is somewhere in this building/house", "It's a simple word that describes a location"],
-      facilitatorInstructions: "Design this final challenge to bring together elements from earlier stations. If previous stations spell out 'CHEST', hide the final prize in a chest or box."
-    }
-  ];
-  
-  // If difficulty is easy, simplify the tasks
-  if (difficulty === 'easy') {
-    stations.forEach(station => {
-      station.hints.push("Here's a big hint that almost gives it away: " + station.answer);
-    });
-  }
-  
-  // Return only the requested number of stations
-  return stations.slice(0, count);
-};
-
-// Helper function to generate generic supplies
-const generateGenericSupplies = (themeId: string, themeName: string): Supply[] => {
-  // Get theme-specific objects
-  const hiddenObjects = getThemeObjects(themeId);
-  
-  return [
-    { name: `${themeName}-themed decorations`, purpose: "To set the atmosphere", category: 'theme' },
-    { name: "Team identifiers (bandanas, badges, etc.)", purpose: "To identify teams", category: 'general' },
-    { name: "Pencils and paper", purpose: "For solving puzzles", category: 'general' },
-    { name: "Small containers or boxes", purpose: "For hiding clues", category: 'general' },
-    { name: "Locks and keys (or combination locks)", purpose: "For securing clues", category: 'challenge' },
-    { name: "Flashlights", purpose: "For finding hidden objects", category: 'challenge' },
-    { name: "Timer or stopwatch", purpose: "For timed challenges", category: 'general' },
-    { name: "Envelopes for clues", purpose: "To present each challenge", category: 'general' },
-    { name: "Small treasure box", purpose: "For the final prize", category: 'general' },
-    { name: `5 hidden objects: ${hiddenObjects.join(', ')}`, purpose: "For the Hidden Objects challenge", category: 'theme' }
-  ];
-};
-
-// Helper function to get theme-specific objects
-const getThemeObjects = (themeId: string): string[] => {
-  const themeObjects: Record<string, string[]> = {
-    'pokemon': ['Poké Ball', 'Pikachu toy', 'Trainer card', 'Gym badge', 'Potion bottle'],
-    'avengers': ['Captain America shield', 'Iron Man mask', 'Thor\'s hammer', 'Hulk fist', 'Black Widow emblem'],
-    'lego': ['Minifigure', 'Red 2x4 brick', 'Yellow head', 'Blue baseplate', 'Lego wheel'],
-    'pirates': ['Treasure map', 'Pirate flag', 'Plastic coin', 'Toy compass', 'Eye patch'],
-    'space-explorers': ['Toy rocket', 'Star cutout', 'Alien figure', 'Planet model', 'Astronaut picture'],
-    'detective': ['Magnifying glass', 'Notebook', 'Pencil', 'Fingerprint card', 'Mystery novel'],
-    'zombie-apocalypse': ['Toy flashlight', 'First aid kit', 'Map', 'Water bottle', 'Compass'],
-    'winnie-pooh': ['Honey pot', 'Red balloon', 'Tigger\'s tail', 'Eeyore\'s house', 'Piglet\'s scarf'],
-    'peppa-pig': ['Muddy puddle drawing', 'Toy dinosaur', 'Daddy Pig\'s glasses', 'Peppa\'s boots', 'Toy teddy'],
-    'paw-patrol': ['Pup tag', 'Chase\'s police hat', 'Marshall\'s fire hat', 'Ryder\'s pup pad', 'Paw Patrol badge'],
-    'frozen': ['Snowflake decoration', 'Elsa\'s glove', 'Carrot nose', 'Paper crown', 'Reindeer antlers'],
-    'mickey-mouse': ['Mickey ears', 'Red bow', 'White gloves', 'Yellow shoes', 'Mouse tail'],
-    'dinosaurs': ['Dinosaur toy', 'Fossil imprint', 'Dinosaur egg', 'Dinosaur footprint', 'Dinosaur book'],
-    'under-the-sea': ['Seashell', 'Toy fish', 'Mermaid figure', 'Toy boat', 'Blue ribbon (water)'],
-    'default': ['Key', 'Map', 'Letter', 'Token', 'Symbol']
-  };
-  
-  return themeObjects[themeId] || themeObjects['default'];
-};
-
+      hints: ["Work as a team", "Steady does it", "Maybe take

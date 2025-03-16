@@ -37,7 +37,13 @@ const ThemeSelector = ({ ageGroup, onThemeSelected }: ThemeSelectorProps) => {
   
   useEffect(() => {
     if (selectedTheme) {
-      onThemeSelected(selectedTheme, isCustom ? customTheme : undefined);
+      // When a custom theme is selected, pass it as the main theme
+      // This ensures the custom theme is used for generating challenges
+      if (isCustom && customTheme) {
+        onThemeSelected('custom', customTheme);
+      } else {
+        onThemeSelected(selectedTheme);
+      }
     }
   }, [selectedTheme, customTheme, isCustom, onThemeSelected]);
   
