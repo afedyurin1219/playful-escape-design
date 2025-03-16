@@ -12,7 +12,8 @@ interface PrintableLettersProps {
 const PrintableLetters: React.FC<PrintableLettersProps> = ({ contentType, content }) => {
   const printRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = () => {
+  const handlePrint = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent any default navigation
     const contentElement = printRef.current;
     if (!contentElement) return;
 
