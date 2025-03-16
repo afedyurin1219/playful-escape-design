@@ -78,7 +78,38 @@ ${escapeRoom.prizes.join(', ')}
   const handlePrint = (e: React.MouseEvent) => {
     // Prevent the default navigation behavior
     e.preventDefault();
+    
+    // Print the current window instead of opening a new one
+    const originalTitle = document.title;
+    document.title = `${escapeRoom.title} - Escape Room Plan`;
+    
+    // Add a print-specific style temporarily
+    const style = document.createElement('style');
+    style.id = 'print-style';
+    style.innerHTML = `
+      @media print {
+        nav, header button, .tab-content button {
+          display: none !important;
+        }
+        body {
+          padding: 20px;
+        }
+        .tab-content > div:not(.${activeTab}) {
+          display: block !important;
+        }
+        h1, h2 {
+          page-break-before: always;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Print the document
     window.print();
+    
+    // Clean up
+    document.head.removeChild(style);
+    document.title = originalTitle;
   };
   
   return (

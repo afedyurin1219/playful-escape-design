@@ -19,7 +19,7 @@ const PrintableLetters: React.FC<PrintableLettersProps> = ({ contentType, conten
     const contentElement = printRef.current;
     if (!contentElement) return;
 
-    // Use window.open with "_blank" but store the reference
+    // Create a new window without navigation
     const printWindow = window.open('', '_blank', 'noopener,noreferrer');
     if (!printWindow) {
       alert('Please allow pop-ups to print content');
