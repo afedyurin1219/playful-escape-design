@@ -91,7 +91,7 @@ const Creator = () => {
       {/* Header */}
       <header className="py-6 px-6 border-b border-gray-200 mb-8">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <a href="/" className="text-2xl font-display text-teal">Escape Room Designer</a>
+          <a href="/" className="text-2xl font-display text-teal">EscapeLab</a>
         </div>
       </header>
       
