@@ -214,10 +214,10 @@ ${escapeRoom.prizes.join(', ')}
                         
                         {/* Add printable content for tasks with letters or numbers */}
                         {hasPrintableContent(station.task) && 
-                          getPrintableContent(station.task) && (
+                          getPrintableContent(station.task, station.answer) && (
                             <PrintableLetters 
-                              contentType={getPrintableContent(station.task)!.type} 
-                              content={getPrintableContent(station.task)!.content} 
+                              contentType={getPrintableContent(station.task, station.answer)!.type} 
+                              content={getPrintableContent(station.task, station.answer)!.content} 
                             />
                           )
                         }
