@@ -259,7 +259,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="py-8 px-6 border-t border-gray-200">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
-          <p className="mb-4 md:mb-0">© {new Date().getFullYear()} EscapeLab</p>
+          <p className="mb-4 md:mb-0">© {new Date().getFullYear()} Escape Room Designer</p>
           <div className="flex space-x-6">
             <a href="#" className="text-charcoal-light hover:text-teal transition-colors">Privacy Policy</a>
             <a href="#" className="text-charcoal-light hover:text-teal transition-colors">Terms of Service</a>

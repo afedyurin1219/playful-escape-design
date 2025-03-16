@@ -85,7 +85,7 @@ ${escapeRoom.prizes.join(', ')}
       {/* Header */}
       <header className="py-6 px-6 border-b border-gray-200 mb-8">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <a href="/" className="text-2xl font-display text-teal">EscapeLab</a>
+          <a href="/" className="text-2xl font-display text-teal">Escape Room Designer</a>
           <div className="flex space-x-3">
             <Button 
               variant="outline" 
