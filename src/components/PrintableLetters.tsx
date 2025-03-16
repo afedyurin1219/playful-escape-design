@@ -12,11 +12,15 @@ interface PrintableLettersProps {
 const PrintableLetters: React.FC<PrintableLettersProps> = ({ contentType, content }) => {
   const printRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = () => {
+  const handlePrint = (e: React.MouseEvent) => {
+    // Prevent the default navigation behavior
+    e.preventDefault();
+    
     const contentElement = printRef.current;
     if (!contentElement) return;
 
-    const printWindow = window.open('', '_blank');
+    // Use window.open with "_blank" but store the reference
+    const printWindow = window.open('', '_blank', 'noopener,noreferrer');
     if (!printWindow) {
       alert('Please allow pop-ups to print content');
       return;

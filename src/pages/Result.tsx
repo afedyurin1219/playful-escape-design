@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -76,7 +75,9 @@ ${escapeRoom.prizes.join(', ')}
     });
   };
   
-  const handlePrint = () => {
+  const handlePrint = (e: React.MouseEvent) => {
+    // Prevent the default navigation behavior
+    e.preventDefault();
     window.print();
   };
   
