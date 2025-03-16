@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -374,37 +373,39 @@ ${escapeRoom.prizes.join(', ')}
       </main>
       
       {/* Print-specific styles */}
-      <style jsx global>{`
-        @media print {
-          @page {
-            margin: 1cm;
+      <style>
+        {`
+          @media print {
+            @page {
+              margin: 1cm;
+            }
+            
+            body {
+              font-size: 12pt;
+            }
+            
+            h1 {
+              font-size: 24pt;
+            }
+            
+            h2 {
+              font-size: 18pt;
+            }
+            
+            h3 {
+              font-size: 14pt;
+            }
+            
+            .print-hidden {
+              display: none !important;
+            }
+            
+            .shadow-card {
+              box-shadow: none !important;
+            }
           }
-          
-          body {
-            font-size: 12pt;
-          }
-          
-          h1 {
-            font-size: 24pt;
-          }
-          
-          h2 {
-            font-size: 18pt;
-          }
-          
-          h3 {
-            font-size: 14pt;
-          }
-          
-          .print-hidden {
-            display: none !important;
-          }
-          
-          .shadow-card {
-            box-shadow: none !important;
-          }
-        }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
