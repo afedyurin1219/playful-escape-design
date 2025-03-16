@@ -40,6 +40,9 @@ export const generateEscapeRoom = (config: EscapeRoomConfig): EscapeRoomPlan => 
   // Get theme name (either selected theme or custom theme)
   const themeName = config.customTheme || config.theme;
   
+  // Get a formatted theme name for display in challenges
+  const displayThemeName = getDisplayThemeName(themeName);
+  
   // Sample story generation based on age group and theme
   let story = '';
   let title = '';
@@ -118,20 +121,240 @@ export const generateEscapeRoom = (config: EscapeRoomConfig): EscapeRoomPlan => 
       supplies: generateDetectiveSupplies(),
       prizes: ["Magnifying glasses", "Deerstalker hats", "Detective notebooks", "Invisible ink pens", "Mystery novels"]
     };
+  } else if (config.theme === 'winnie-pooh' || config.customTheme?.toLowerCase().includes('winnie') || config.customTheme?.toLowerCase().includes('pooh')) {
+    title = "Hundred Acre Wood Mystery";
+    story = "Oh bother! Winnie the Pooh's honey pots have all gone missing, and his tumbly is getting rumbly! As Pooh's friends, you must help search the Hundred Acre Wood, solve puzzles from Christopher Robin, and follow clues to find the missing honey before Pooh's picnic with all his friends.";
+    
+    return {
+      title,
+      story,
+      teamSetup,
+      stations: generateWinniePoohStations(numStations, config.difficulty),
+      supplies: generateWinniePoohSupplies(),
+      prizes: ["Honey-flavored treats", "Winnie the Pooh coloring books", "Plush Winnie the Pooh character keychains", "Red balloon toys", "Hundred Acre Wood map prints"]
+    };
+  } else if (config.theme === 'peppa-pig' || config.customTheme?.toLowerCase().includes('peppa')) {
+    title = "Peppa's Muddy Puddle Adventure";
+    story = "Peppa and George are planning a special surprise party, but all the party supplies have been scattered around by a big wind! As Peppa's friends, you need to help find all the missing party items by jumping in muddy puddles, solving puzzles, and working together before the party guests arrive!";
+    
+    return {
+      title,
+      story,
+      teamSetup,
+      stations: generatePeppaPigStations(numStations, config.difficulty),
+      supplies: generatePeppaPigSupplies(),
+      prizes: ["Peppa Pig stickers", "Small Peppa Pig character toys", "Muddy puddle slime", "Peppa Pig party hats", "Colorful balloons"]
+    };
   }
   
-  // Default generic response for any other theme
-  title = `The ${themeName} Challenge`;
-  story = `An exciting adventure in the world of ${themeName} awaits! Participants will need to solve puzzles, find clues, and work together to complete a series of challenges.`;
+  // Default generic response for any other theme using theme-specific words
+  title = `The ${displayThemeName} Challenge`;
+  story = `An exciting adventure in the world of ${displayThemeName} awaits! Participants will need to solve puzzles, find clues, and work together to complete a series of challenges.`;
   
   return {
     title,
     story,
     teamSetup,
-    stations: generateGenericStations(numStations, config.theme, config.difficulty),
-    supplies: generateGenericSupplies(config.theme),
-    prizes: ["Certificate of completion", "Small themed toys", "Candy treats", "Custom medals"]
+    stations: generateGenericStations(numStations, config.theme, config.difficulty, displayThemeName),
+    supplies: generateGenericSupplies(config.theme, displayThemeName),
+    prizes: ["Certificate of completion", `Small ${displayThemeName} themed toys`, "Candy treats", "Custom medals"]
   };
+};
+
+// Helper function to convert theme IDs to display names
+const getDisplayThemeName = (themeId: string): string => {
+  const themeMap: Record<string, string> = {
+    'peppa-pig': 'Peppa Pig',
+    'winnie-pooh': 'Winnie the Pooh',
+    'paw-patrol': 'Paw Patrol',
+    'mickey-mouse': 'Mickey Mouse',
+    'bluey': 'Bluey',
+    'sesame-street': 'Sesame Street',
+    'cocomelon': 'Cocomelon',
+    'frozen': 'Frozen',
+    'dinosaurs': 'Dinosaurs',
+    'under-the-sea': 'Under the Sea',
+    'harry-potter-junior': 'Harry Potter Junior',
+    'pokemon': 'Pokemon',
+    'minecraft': 'Minecraft',
+    'star-wars-junior': 'Star Wars Junior',
+    'avengers': 'Avengers',
+    'jurassic-park': 'Jurassic Park',
+    'lego': 'LEGO Adventure',
+    'pirates': 'Pirates',
+    'space-explorers': 'Space Explorers',
+    'detective': 'Junior Detective',
+    'harry-potter': 'Harry Potter',
+    'star-wars': 'Star Wars',
+    'marvel': 'Marvel Universe',
+    'stranger-things': 'Stranger Things',
+    'percy-jackson': 'Percy Jackson',
+    'hunger-games': 'Hunger Games',
+    'minecraft-advanced': 'Minecraft Advanced',
+    'fortnite': 'Fortnite',
+    'science-lab': 'Science Lab',
+    'tomb-raider': 'Tomb Raider',
+    'detective-noir': 'Detective Noir',
+    'zombie-apocalypse': 'Zombie Apocalypse',
+    'heist': 'The Heist',
+    'cyberpunk': 'Cyberpunk',
+    'horror': 'Horror Mansion',
+    'escape-island': 'Escape Island',
+    'spy-mission': 'Spy Mission',
+    'time-travel': 'Time Travel',
+    'murder-mystery': 'Murder Mystery',
+    'fantasy-quest': 'Fantasy Quest'
+  };
+  
+  return themeMap[themeId] || themeId;
+};
+
+// Helper function for Winnie the Pooh themed stations
+const generateWinniePoohStations = (count: number, difficulty: string): Station[] => {
+  const stations: Station[] = [
+    {
+      name: "Honey Hunt",
+      task: "Help Pooh find his honey! Unscramble these letters to find 5 places where Pooh might hide his honey: EERT, TOPWEREFY, OOLG, ETRUCMPHSIROR INROB SEHOU, BBRISTSA EDNARG",
+      answer: "TREE, FLOWERPOT, LOG, CHRISTOPHER ROBIN HOUSE, RABBITS GARDEN",
+      hints: ["These are all places in the Hundred Acre Wood", "Think about where Pooh and his friends live", "One is where flowers grow"],
+      facilitatorInstructions: "Have pictures or drawings of these locations around the room. When they unscramble a word, they should look for the corresponding location to find the next clue."
+    },
+    {
+      name: "Eeyore's Tail",
+      task: "Oh dear! Eeyore has lost his tail again. Search the room to find 3 possible tails (ribbons pinned to different objects). Then solve this riddle to determine which is the real tail: 'I am pink and bright and tied up tight. I help hold things together, but on a donkey I'm light as a feather.'",
+      answer: "The pink ribbon",
+      hints: ["Eeyore's tail has a bow on it", "Think about the color that might make Eeyore embarrassed", "In the books, what color is the bow on Eeyore's tail?"],
+      facilitatorInstructions: "Hide three different colored ribbons around the room (pink, blue, and yellow). The pink one is the correct answer."
+    },
+    {
+      name: "Tigger's Bounce Challenge",
+      task: "Tigger loves to bounce! Create a bouncing pattern by hopping on the numbered spots in the correct sequence. The formula is: 'Start at 1, then add 2, then add 3, then add 1, then add 4.' What 5 numbers will you land on?",
+      answer: "1, 3, 6, 7, 11",
+      hints: ["Start at spot number 1", "1 + 2 = 3, so the second spot is 3", "3 + 3 = 6, so the third spot is 6"],
+      facilitatorInstructions: "Place numbered paper spots on the floor. Children must physically hop from spot to spot following the pattern. If a child has mobility issues, they can trace the path with their finger or a pointer."
+    },
+    {
+      name: "Piglet's Brave Quest",
+      task: "Piglet is very small and very scared, but he's also very brave! Help Piglet navigate through his fears by matching each fear with its solution: 1. Heffalumps, 2. Woozles, 3. Strong winds, 4. Getting lost, 5. The dark. Solutions: A. Map, B. Flashlight, C. Pooh's hand, D. Sturdy house, E. Brave thoughts.",
+      answer: "1-E, 2-C, 3-D, 4-A, 5-B",
+      hints: ["Think about what might help with each fear", "What would help you find your way if you were lost?", "What would make you feel better in the dark?"],
+      facilitatorInstructions: "Create cards with the fears and solutions. Children must match them correctly. For younger kids, you can use pictures instead of words."
+    },
+    {
+      name: "Roo's Jumping Game",
+      task: "Like Tigger, Roo loves to jump! Transfer 10 'Roo balls' (ping pong balls) from one container to another by bouncing them into the target. You must bounce each ball at least once before it lands in the container.",
+      answer: "Successfully transferring 10 balls",
+      hints: ["Try bouncing the ball on the table or floor", "Work as a team and take turns", "Aim carefully"],
+      facilitatorInstructions: "Set up two containers about 5 feet apart. Fill one with 10 ping pong balls. Children must bounce the balls from the first container into the second one."
+    },
+    {
+      name: "Owl's Wisdom Test",
+      task: "Wise old Owl has a puzzle for you! Count how many of each letter appears in this sentence from one of Owl's stories: 'THE HUNDRED ACRE WOOD IS WHERE CHRISTOPHER ROBIN PLAYS WITH POOH BEAR.' Count only the letters: H, O, E, Y.",
+      answer: "H:4, O:7, E:5, Y:3",
+      hints: ["Go through the sentence letter by letter", "Keep track of your count on paper", "O appears in words like HUNDRED and WOOD"],
+      facilitatorInstructions: "Provide the children with paper and pencils to keep track of their counts. For younger children, you can provide a simpler sentence."
+    }
+  ];
+  
+  // If difficulty is easy, simplify the tasks
+  if (difficulty === 'easy') {
+    stations.forEach(station => {
+      station.hints.push("Here's a big hint: " + station.answer);
+    });
+  }
+  
+  // Return only the requested number of stations
+  return stations.slice(0, count);
+};
+
+// Helper function for Peppa Pig themed stations
+const generatePeppaPigStations = (count: number, difficulty: string): Station[] => {
+  const stations: Station[] = [
+    {
+      name: "Muddy Puddle Jump",
+      task: "Peppa loves jumping in muddy puddles! Follow the puddle path by stepping only on the puddles that match this pattern: 'small, big, small, big, big.' There are 10 puddles laid out - which ones should you jump in?",
+      answer: "Puddles 1, 2, 3, 4, and 6",
+      hints: ["Start with the first puddle", "Follow the size pattern: small, big, small, big, big", "If puddle 1 is small, then puddle 2 must be big"],
+      facilitatorInstructions: "Lay out 10 paper 'puddles' of varying sizes in a path. Label them 1-10. Children must identify and step only on the ones that follow the pattern."
+    },
+    {
+      name: "George's Dinosaur Hunt",
+      task: "George loves his dinosaur! Find the 5 hidden dinosaur pictures around the room and arrange them from smallest to largest. What color is the middle-sized dinosaur?",
+      answer: "Green",
+      hints: ["Look high and low for the dinosaur pictures", "Once you find all 5, compare their sizes", "The middle one is the 3rd dinosaur when arranged by size"],
+      facilitatorInstructions: "Hide 5 dinosaur pictures of different sizes and colors around the room. The middle-sized one should be green."
+    },
+    {
+      name: "Grandpa Pig's Garden Puzzle",
+      task: "Unscramble these words to find 5 things that grow in Grandpa Pig's garden: OTATOP, ROTRAC, TUCICEL, BBCAGAE, RWBAYRRSTE",
+      answer: "POTATO, CARROT, LETTUCE, CABBAGE, STRAWBERRY",
+      hints: ["These are all vegetables and fruits", "Some grow underground", "One is red and sweet"],
+      facilitatorInstructions: "Have plastic toy vegetables or pictures available. When children solve each word, they can match it to the corresponding item."
+    },
+    {
+      name: "Daddy Pig's Big Tummy Laugh",
+      task: "Daddy Pig has a big laugh! Listen to these 5 recorded laughs and identify which one is Daddy Pig's. His laugh contains exactly 5 'ho' sounds and ends with a snort.",
+      answer: "Laugh number 3",
+      hints: ["Count the 'ho' sounds in each laugh", "Listen for the snort at the end", "Daddy Pig's laugh is deep and jolly"],
+      facilitatorInstructions: "Record or play 5 different laughs from a device. Make sure laugh #3 has exactly 5 'ho' sounds and ends with a snort."
+    },
+    {
+      name: "Peppa's Family Matching Game",
+      task: "Match each Peppa Pig character to their favorite activity: 1. Peppa, 2. George, 3. Mummy Pig, 4. Daddy Pig. Activities: A. Working at home, B. Jumping in muddy puddles, C. Playing with dinosaurs, D. Driving the car.",
+      answer: "1-B, 2-C, 3-A, 4-D",
+      hints: ["What does Peppa love to do more than anything?", "George always carries his dinosaur", "Think about what the grown-ups do in the show"],
+      facilitatorInstructions: "Create cards with the characters and activities. Children must match them correctly."
+    },
+    {
+      name: "Miss Rabbit's Jobs",
+      task: "Miss Rabbit has many jobs! Solve this riddle to find out which job she's doing today: 'I fly in the sky but I'm not a bird, I take people places and have a red button. What am I driving?'",
+      answer: "Helicopter",
+      hints: ["Miss Rabbit drives many vehicles", "This vehicle can hover", "It has spinning blades on top"],
+      facilitatorInstructions: "After solving the riddle, the children can be given a toy helicopter or a picture of one that contains the next clue."
+    }
+  ];
+  
+  // If difficulty is easy, simplify the tasks
+  if (difficulty === 'easy') {
+    stations.forEach(station => {
+      station.hints.push("Here's a big hint: " + station.answer);
+    });
+  }
+  
+  // Return only the requested number of stations
+  return stations.slice(0, count);
+};
+
+// Helper function for Winnie the Pooh themed supplies
+const generateWinniePoohSupplies = (): Supply[] => {
+  return [
+    { name: "Small honey pots (can be plastic cups decorated like honey pots)", purpose: "For the Honey Hunt challenge and decorations", category: 'theme' },
+    { name: "Colorful ribbons (especially pink ones)", purpose: "For Eeyore's Tail challenge", category: 'challenge' },
+    { name: "Numbered paper spots", purpose: "For Tigger's Bounce Challenge", category: 'challenge' },
+    { name: "Fear and solution cards", purpose: "For Piglet's Brave Quest", category: 'challenge' },
+    { name: "Ping pong balls", purpose: "As 'Roo balls' for Roo's Jumping Game", category: 'challenge' },
+    { name: "Two containers for the balls", purpose: "For Roo's Jumping Game", category: 'challenge' },
+    { name: "Paper and pencils", purpose: "For Owl's Wisdom Test", category: 'challenge' },
+    { name: "Winnie the Pooh character cutouts or stuffed toys", purpose: "For decoration and to mark stations", category: 'theme' },
+    { name: "Hundred Acre Wood map (hand-drawn is fine)", purpose: "For decoration and orientation", category: 'theme' },
+    { name: "Red balloons", purpose: "For decoration (like Winnie the Pooh with a balloon)", category: 'theme' }
+  ];
+};
+
+// Helper function for Peppa Pig themed supplies
+const generatePeppaPigSupplies = (): Supply[] => {
+  return [
+    { name: "Paper 'puddles' of different sizes", purpose: "For the Muddy Puddle Jump challenge", category: 'challenge' },
+    { name: "Dinosaur pictures of different sizes and colors", purpose: "For George's Dinosaur Hunt", category: 'challenge' },
+    { name: "Toy vegetables or pictures", purpose: "For Grandpa Pig's Garden Puzzle", category: 'challenge' },
+    { name: "Device to play recorded laughs", purpose: "For Daddy Pig's Big Tummy Laugh", category: 'challenge' },
+    { name: "Character and activity cards", purpose: "For Peppa's Family Matching Game", category: 'challenge' },
+    { name: "Toy helicopter or picture", purpose: "For Miss Rabbit's Jobs", category: 'challenge' },
+    { name: "Peppa Pig character cutouts", purpose: "For decoration", category: 'theme' },
+    { name: "Pink and red decorations", purpose: "To match Peppa's colors", category: 'theme' },
+    { name: "Muddy puddle themed items (brown/blue circles)", purpose: "For decoration", category: 'theme' },
+    { name: "Peppa house picture or model", purpose: "For decoration", category: 'theme' }
+  ];
 };
 
 // Helper function to generate Harry Potter themed stations
@@ -431,7 +654,7 @@ const generateDetectiveSupplies = (): Supply[] => {
 };
 
 // Helper function to generate generic stations
-const generateGenericStations = (count: number, theme: string, difficulty: string): Station[] => {
+const generateGenericStations = (count: number, themeId: string, difficulty: string, themeName: string): Station[] => {
   // Theme-specific words for word puzzles
   const themeWords: Record<string, string[]> = {
     'pokemon': ['PIKACHU', 'CHARIZARD', 'SQUIRTLE', 'EEVEE', 'SNORLAX', 'MEWTWO'],
@@ -448,11 +671,21 @@ const generateGenericStations = (count: number, theme: string, difficulty: strin
     'spy-mission': ['AGENT', 'SECRET', 'GADGET', 'MISSION', 'DISGUISE', 'ENEMY'],
     'time-travel': ['PORTAL', 'FUTURE', 'HISTORY', 'TIMELINE', 'PARADOX', 'INVENTION'],
     'murder-mystery': ['DETECTIVE', 'WEAPON', 'MOTIVE', 'SUSPECT', 'CLUES', 'INVESTIGATION'],
-    'fantasy-quest': ['WIZARD', 'DRAGON', 'KINGDOM', 'QUEST', 'POTION', 'MAGIC']
+    'fantasy-quest': ['WIZARD', 'DRAGON', 'KINGDOM', 'QUEST', 'POTION', 'MAGIC'],
+    'winnie-pooh': ['HONEY', 'POOH', 'PIGLET', 'TIGGER', 'RABBIT', 'EEYORE'],
+    'peppa-pig': ['PEPPA', 'GEORGE', 'MUDDY', 'PUDDLE', 'FAMILY', 'JUMP'],
+    'paw-patrol': ['CHASE', 'MARSHALL', 'SKYE', 'RUBBLE', 'ZUMA', 'ROCKY'],
+    'mickey-mouse': ['MICKEY', 'MINNIE', 'PLUTO', 'DONALD', 'GOOFY', 'DAISY'],
+    'bluey': ['BLUEY', 'BINGO', 'BANDIT', 'CHILLI', 'GAMES', 'PLAYFUL'],
+    'sesame-street': ['ELMO', 'COOKIE', 'GROVER', 'OSCAR', 'COUNT', 'ABBY'],
+    'cocomelon': ['NURSERY', 'RHYMES', 'SINGING', 'LEARNING', 'FAMILY', 'SCHOOL'],
+    'frozen': ['ELSA', 'ANNA', 'OLAF', 'KRISTOFF', 'SVEN', 'SNOWMAN'],
+    'dinosaurs': ['TREX', 'RAPTOR', 'FOSSIL', 'JURASSIC', 'SCALES', 'ROAR'],
+    'under-the-sea': ['CORAL', 'FISH', 'OCEAN', 'MERMAID', 'SHELL', 'REEF']
   };
   
   // Get words for this theme or use defaults
-  const wordList = themeWords[theme] || ['ADVENTURE', 'MYSTERY', 'PUZZLE', 'ESCAPE', 'CHALLENGE', 'TEAMWORK'];
+  const wordList = themeWords[themeId] || ['ADVENTURE', 'MYSTERY', 'PUZZLE', 'ESCAPE', 'CHALLENGE', 'TEAMWORK'];
   
   // Get a random word from the list and scramble it
   const getScrambledWord = (wordList: string[]) => {
@@ -464,102 +697,149 @@ const generateGenericStations = (count: number, theme: string, difficulty: strin
   };
   
   // Create a riddle appropriate for the theme
-  const getRiddle = (theme: string) => {
-    const riddles = [
-      {
-        theme: 'general',
-        riddle: "I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?",
-        answer: "A map"
-      },
-      {
-        theme: 'general',
-        riddle: "What has a head and a tail, but no body?",
-        answer: "A coin"
-      },
-      {
-        theme: 'general',
-        riddle: "The more you take, the more you leave behind. What am I?",
-        answer: "Footprints"
-      },
-      {
-        theme: 'general',
-        riddle: "What has many keys but can't open a single lock?",
-        answer: "A piano"
-      },
-      {
-        theme: 'pokemon',
-        riddle: "I evolve from a small yellow creature. I harness the power of lightning. What Pokémon am I?",
-        answer: "Pikachu"
-      },
-      {
-        theme: 'avengers',
-        riddle: "I'm made of a rare metal from Africa. I was used to make a super suit and a shield. What am I?",
-        answer: "Vibranium"
-      }
-    ];
+  const getRiddle = (themeId: string) => {
+    const riddles: Record<string, { riddle: string, answer: string }[]> = {
+      'pokemon': [
+        {
+          riddle: "I evolve from a small yellow creature. I harness the power of lightning. Who am I?",
+          answer: "Pikachu"
+        },
+        {
+          riddle: "I'm a water type starter Pokémon. My final evolution has powerful water cannons on its shell. Who am I?",
+          answer: "Squirtle"
+        }
+      ],
+      'avengers': [
+        {
+          riddle: "I'm made of a rare metal from Africa. I was used to make a super suit and a shield. What am I?",
+          answer: "Vibranium"
+        },
+        {
+          riddle: "I'm the strongest Avenger, and I turn green when I'm angry. Who am I?",
+          answer: "Hulk"
+        }
+      ],
+      'winnie-pooh': [
+        {
+          riddle: "I'm yellow and round and love to eat a sweet sticky food made by bees. Who am I?",
+          answer: "Winnie the Pooh"
+        },
+        {
+          riddle: "I'm small and pink and very nervous, but I'm best friends with a bear. Who am I?",
+          answer: "Piglet"
+        }
+      ],
+      'peppa-pig': [
+        {
+          riddle: "I'm pink and love to jump in dirty water outside after it rains. Who am I?",
+          answer: "Peppa Pig"
+        },
+        {
+          riddle: "I'm Peppa's little brother and I love my toy dinosaur. Who am I?",
+          answer: "George"
+        }
+      ],
+      'paw-patrol': [
+        {
+          riddle: "I'm a Dalmatian pup who serves as a firefighter. Who am I?",
+          answer: "Marshall"
+        },
+        {
+          riddle: "I'm a German Shepherd who leads the Paw Patrol team. Who am I?",
+          answer: "Chase"
+        }
+      ],
+      'frozen': [
+        {
+          riddle: "I'm a princess with magical ice powers. Who am I?",
+          answer: "Elsa"
+        },
+        {
+          riddle: "I'm a snowman who loves warm hugs. Who am I?",
+          answer: "Olaf"
+        }
+      ],
+      'default': [
+        {
+          riddle: "I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?",
+          answer: "A map"
+        },
+        {
+          riddle: "What has a head and a tail, but no body?",
+          answer: "A coin"
+        }
+      ]
+    };
     
-    // Find a riddle for this theme or use a general one
-    const themeRiddles = riddles.filter(r => r.theme === theme);
-    const validRiddles = themeRiddles.length > 0 ? themeRiddles : riddles.filter(r => r.theme === 'general');
-    return validRiddles[Math.floor(Math.random() * validRiddles.length)];
+    // Find riddles for this theme or use general ones
+    const themeRiddles = riddles[themeId] || riddles['default'];
+    return themeRiddles[Math.floor(Math.random() * themeRiddles.length)];
   };
   
   // Create hidden objects for this theme
-  const getHiddenObjects = (theme: string) => {
+  const getHiddenObjects = (themeId: string): string[] => {
     const themeObjects: Record<string, string[]> = {
       'pokemon': ['Poké Ball', 'Pikachu toy', 'Trainer card', 'Gym badge', 'Potion bottle'],
       'avengers': ['Captain America shield', 'Iron Man mask', 'Thor\'s hammer', 'Hulk fist', 'Black Widow emblem'],
       'lego': ['Minifigure', 'Red 2x4 brick', 'Yellow head', 'Blue baseplate', 'Lego wheel'],
       'pirates': ['Treasure map', 'Pirate flag', 'Plastic coin', 'Toy compass', 'Eye patch'],
+      'winnie-pooh': ['Honey pot', 'Red balloon', 'Tigger\'s tail', 'Eeyore\'s house', 'Piglet\'s scarf'],
+      'peppa-pig': ['Muddy puddle drawing', 'Toy dinosaur', 'Daddy Pig\'s glasses', 'Peppa\'s boots', 'Toy teddy'],
+      'paw-patrol': ['Pup tag', 'Chase\'s police hat', 'Marshall\'s fire hat', 'Ryder\'s pup pad', 'Paw Patrol badge'],
+      'frozen': ['Snowflake decoration', 'Elsa\'s glove', 'Carrot nose', 'Paper crown', 'Reindeer antlers'],
+      'mickey-mouse': ['Mickey ears', 'Red bow', 'White gloves', 'Yellow shoes', 'Mouse tail'],
+      'space-explorers': ['Toy rocket', 'Star cutout', 'Alien figure', 'Planet model', 'Astronaut picture'],
+      'dinosaurs': ['Dinosaur toy', 'Fossil imprint', 'Dinosaur egg', 'Dinosaur footprint', 'Dinosaur book'],
+      'under-the-sea': ['Seashell', 'Toy fish', 'Mermaid figure', 'Toy boat', 'Blue ribbon (water)'],
       'default': ['Key', 'Map', 'Letter', 'Token', 'Symbol']
     };
     
-    return themeObjects[theme] || themeObjects['default'];
+    return themeObjects[themeId] || themeObjects['default'];
   };
   
   // Generate the stations
   const scrambledWord = getScrambledWord(wordList);
-  const riddle = getRiddle(theme);
-  const hiddenObjects = getHiddenObjects(theme);
+  const riddle = getRiddle(themeId);
+  const hiddenObjects = getHiddenObjects(themeId);
   
   const stations: Station[] = [
     {
-      name: `${theme} Word Puzzle`,
-      task: `Unscramble these letters to find a word related to ${theme}: ${scrambledWord.scrambled}`,
+      name: `${themeName} Word Puzzle`,
+      task: `Unscramble these letters to find a word related to ${themeName}: ${scrambledWord.scrambled}`,
       answer: scrambledWord.original,
       hints: ["Look for common letters that go together", `It's ${scrambledWord.original.length} letters long`, `It starts with '${scrambledWord.original[0]}'`],
       facilitatorInstructions: `The answer is ${scrambledWord.original}. Have the children write down their answer. When correct, give them the next clue.`
     },
     {
-      name: `${theme} Hidden Objects`,
-      task: `Find these 5 hidden ${theme}-related objects in this room within 3 minutes: ${hiddenObjects.join(', ')}.`,
+      name: `${themeName} Hidden Objects`,
+      task: `Find these 5 hidden ${themeName}-related objects in this room within 3 minutes: ${hiddenObjects.join(', ')}.`,
       answer: `Successfully finding all objects: ${hiddenObjects.join(', ')}`,
       hints: ["Look high and low", "Check under and behind furniture", "Some objects might be partially hidden"],
       facilitatorInstructions: `Hide the following objects around the room: ${hiddenObjects.join(', ')}. Make them challenging but findable for the age group.`
     },
     {
-      name: `${theme} Riddle Challenge`,
+      name: `${themeName} Riddle Challenge`,
       task: `Solve this riddle: ${riddle.riddle}`,
       answer: riddle.answer,
-      hints: ["Think metaphorically", "Consider objects related to the theme", "The answer is something common"],
+      hints: ["Think metaphorically", "Consider characters or objects related to the theme", "The answer is something from the theme"],
       facilitatorInstructions: `The answer is "${riddle.answer}". When they solve it, give them the next clue or a piece of a larger puzzle.`
     },
     {
-      name: `${theme} Physical Challenge`,
-      task: `Relay race: Each team member must cross the room while balancing a "${theme}" item (bean bag) on their head. If it falls, you must go back to the start. Complete the relay in under 2 minutes.`,
+      name: `${themeName} Physical Challenge`,
+      task: `Relay race: Each team member must cross the room while balancing a "${themeName}" item (bean bag) on their head. If it falls, you must go back to the start. Complete the relay in under 2 minutes.`,
       answer: "Successfully completing the relay",
       hints: ["Move slowly and steadily", "Keep your head level", "Use teamwork and encourage each other"],
       facilitatorInstructions: "Set up a start and finish line about 15 feet apart. Use bean bags or soft items for balancing. Time the teams."
     },
     {
-      name: `${theme} Code Breaking`,
+      name: `${themeName} Code Breaking`,
       task: `Decode this message using the key where A=1, B=2, etc.: "20-8-5 6-9-14-1-12 3-15-4-5 9-19 8-9-4-4-5-14"`,
       answer: "THE FINAL CODE IS HIDDEN",
       hints: ["Each number represents a letter position in the alphabet", "1=A, 2=B, etc.", "Group the numbers by dashes to find each letter"],
       facilitatorInstructions: "This is a simple substitution cipher where each number represents a letter's position in the alphabet. Provide an alphabet chart for reference."
     },
     {
-      name: `${theme} Final Puzzle`,
+      name: `${themeName} Final Puzzle`,
       task: `Using the clues from previous stations, find the hidden treasure. The first letter of each answer spells out the location.`,
       answer: "Varies based on previous stations",
       hints: ["Write down the first letter of each answer", "The location is somewhere in this building/house", "It's a simple word that describes a location"],
@@ -579,9 +859,12 @@ const generateGenericStations = (count: number, theme: string, difficulty: strin
 };
 
 // Helper function to generate generic supplies
-const generateGenericSupplies = (theme: string): Supply[] => {
+const generateGenericSupplies = (themeId: string, themeName: string): Supply[] => {
+  // Get theme-specific objects
+  const hiddenObjects = getThemeObjects(themeId);
+  
   return [
-    { name: `${theme}-themed decorations`, purpose: "To set the atmosphere", category: 'theme' },
+    { name: `${themeName}-themed decorations`, purpose: "To set the atmosphere", category: 'theme' },
     { name: "Team identifiers (bandanas, badges, etc.)", purpose: "To identify teams", category: 'general' },
     { name: "Pencils and paper", purpose: "For solving puzzles", category: 'general' },
     { name: "Small containers or boxes", purpose: "For hiding clues", category: 'general' },
@@ -590,12 +873,12 @@ const generateGenericSupplies = (theme: string): Supply[] => {
     { name: "Timer or stopwatch", purpose: "For timed challenges", category: 'general' },
     { name: "Envelopes for clues", purpose: "To present each challenge", category: 'general' },
     { name: "Small treasure box", purpose: "For the final prize", category: 'general' },
-    { name: `5 hidden objects: ${getThemeObjects(theme).join(', ')}`, purpose: "For specific challenges", category: 'theme' }
+    { name: `5 hidden objects: ${hiddenObjects.join(', ')}`, purpose: "For the Hidden Objects challenge", category: 'theme' }
   ];
 };
 
 // Helper function to get theme-specific objects
-const getThemeObjects = (theme: string): string[] => {
+const getThemeObjects = (themeId: string): string[] => {
   const themeObjects: Record<string, string[]> = {
     'pokemon': ['Poké Ball', 'Pikachu toy', 'Trainer card', 'Gym badge', 'Potion bottle'],
     'avengers': ['Captain America shield', 'Iron Man mask', 'Thor\'s hammer', 'Hulk fist', 'Black Widow emblem'],
@@ -604,8 +887,16 @@ const getThemeObjects = (theme: string): string[] => {
     'space-explorers': ['Toy rocket', 'Star cutout', 'Alien figure', 'Planet model', 'Astronaut picture'],
     'detective': ['Magnifying glass', 'Notebook', 'Pencil', 'Fingerprint card', 'Mystery novel'],
     'zombie-apocalypse': ['Toy flashlight', 'First aid kit', 'Map', 'Water bottle', 'Compass'],
+    'winnie-pooh': ['Honey pot', 'Red balloon', 'Tigger\'s tail', 'Eeyore\'s house', 'Piglet\'s scarf'],
+    'peppa-pig': ['Muddy puddle drawing', 'Toy dinosaur', 'Daddy Pig\'s glasses', 'Peppa\'s boots', 'Toy teddy'],
+    'paw-patrol': ['Pup tag', 'Chase\'s police hat', 'Marshall\'s fire hat', 'Ryder\'s pup pad', 'Paw Patrol badge'],
+    'frozen': ['Snowflake decoration', 'Elsa\'s glove', 'Carrot nose', 'Paper crown', 'Reindeer antlers'],
+    'mickey-mouse': ['Mickey ears', 'Red bow', 'White gloves', 'Yellow shoes', 'Mouse tail'],
+    'dinosaurs': ['Dinosaur toy', 'Fossil imprint', 'Dinosaur egg', 'Dinosaur footprint', 'Dinosaur book'],
+    'under-the-sea': ['Seashell', 'Toy fish', 'Mermaid figure', 'Toy boat', 'Blue ribbon (water)'],
     'default': ['Key', 'Map', 'Letter', 'Token', 'Symbol']
   };
   
-  return themeObjects[theme] || themeObjects['default'];
+  return themeObjects[themeId] || themeObjects['default'];
 };
+
