@@ -444,8 +444,6 @@ const generatePeppaPigStations = (count: number, difficulty: string): Station[] 
   return stations.slice(0, count);
 };
 
-// Now adding the new generator functions for the custom themes and horror themes
-
 // Helper function for Horror themed stations
 const generateHorrorStations = (count: number, difficulty: string, subtheme: string): Station[] => {
   let stations: Station[] = [];
@@ -522,4 +520,21 @@ const generateHorrorStations = (count: number, difficulty: string, subtheme: str
       },
       {
         name: "The Final Seance",
-        task: "Complete the ritual by placing the candles in the correct positions around the pentagram. Solve this riddle to find the order:
+        task: "Complete the ritual by placing the candles in the correct positions around the pentagram. Solve this riddle to find the order: 'When darkness falls and spirits rise, five points of light will touch the skies.'",
+        answer: "Place candles at the five points of the star in clockwise order, starting from the top",
+        hints: ["Think about the points of a pentagram", "The order matters - start from the top", "Follow the path of the ritual - clockwise direction"],
+        facilitatorInstructions: "Provide a pentagram drawn on paper or cloth and 5 candles (battery-operated for safety). Participants must place them correctly to reveal the final message."
+      }
+    ];
+  }
+  
+  // If difficulty is easy, simplify the tasks
+  if (difficulty === 'easy') {
+    stations.forEach(station => {
+      station.hints.push("Here's a big hint: " + station.answer);
+    });
+  }
+  
+  // Return only the requested number of stations
+  return stations.slice(0, count);
+};
