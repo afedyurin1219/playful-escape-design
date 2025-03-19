@@ -267,13 +267,13 @@ const generateDinosaurEscapeRoom = (numStations: number, difficulty: string, the
 };
 
 // For any truly custom theme that doesn't match our categories
-const generateCustomThemeEscapeRoom = (numStations: number, difficulty: string, themeName: string): EscapeRoomPlan => {
+const generateCustomThemeEscapeRoom = (numStations: number, difficulty: string, themeName: string, teamSetup: string): EscapeRoomPlan => {
   const displayThemeName = themeName || "Adventure";
   
   return {
     title: `The ${displayThemeName} Challenge`,
     story: `An exciting adventure in the world of ${displayThemeName} awaits! Participants will need to solve puzzles related to ${displayThemeName}, find clues, and work together to complete a series of themed challenges.`,
-    teamSetup: '',
+    teamSetup,
     stations: generateCustomThemeStations(numStations, difficulty, displayThemeName),
     supplies: generateCustomThemeSupplies(displayThemeName),
     prizes: ["Certificate of completion", `${displayThemeName}-themed prizes`, "Candy treats", "Custom medals"]
@@ -444,71 +444,82 @@ const generatePeppaPigStations = (count: number, difficulty: string): Station[] 
   return stations.slice(0, count);
 };
 
-// Helper function for Winnie the Pooh themed supplies
-const generateWinniePoohSupplies = (): Supply[] => {
-  return [
-    { name: "Small honey pots (can be plastic cups decorated like honey pots)", purpose: "For the Honey Hunt challenge and decorations", category: 'theme' },
-    { name: "Colorful ribbons (especially pink ones)", purpose: "For Eeyore's Tail challenge", category: 'challenge' },
-    { name: "Numbered paper spots", purpose: "For Tigger's Bounce Challenge", category: 'challenge' },
-    { name: "Fear and solution cards", purpose: "For Piglet's Brave Quest", category: 'challenge' },
-    { name: "Ping pong balls", purpose: "As 'Roo balls' for Roo's Jumping Game", category: 'challenge' },
-    { name: "Two containers for the balls", purpose: "For Roo's Jumping Game", category: 'challenge' },
-    { name: "Paper and pencils", purpose: "For Owl's Wisdom Test", category: 'challenge' },
-    { name: "Winnie the Pooh character cutouts or stuffed toys", purpose: "For decoration and to mark stations", category: 'theme' },
-    { name: "Hundred Acre Wood map (hand-drawn is fine)", purpose: "For decoration and orientation", category: 'theme' },
-    { name: "Red balloons", purpose: "For decoration (like Winnie the Pooh with a balloon)", category: 'theme' }
-  ];
-};
+// Now adding the new generator functions for the custom themes and horror themes
 
-// Helper function for Peppa Pig themed supplies
-const generatePeppaPigSupplies = (): Supply[] => {
-  return [
-    { name: "Paper 'puddles' of different sizes", purpose: "For the Muddy Puddle Jump challenge", category: 'challenge' },
-    { name: "Dinosaur pictures of different sizes and colors", purpose: "For George's Dinosaur Hunt", category: 'challenge' },
-    { name: "Toy vegetables or pictures", purpose: "For Grandpa Pig's Garden Puzzle", category: 'challenge' },
-    { name: "Device to play recorded laughs", purpose: "For Daddy Pig's Big Tummy Laugh", category: 'challenge' },
-    { name: "Character and activity cards", purpose: "For Peppa's Family Matching Game", category: 'challenge' },
-    { name: "Toy helicopter or picture", purpose: "For Miss Rabbit's Jobs", category: 'challenge' },
-    { name: "Peppa Pig character cutouts", purpose: "For decoration", category: 'theme' },
-    { name: "Pink and red decorations", purpose: "To match Peppa's colors", category: 'theme' },
-    { name: "Muddy puddle themed items (brown/blue circles)", purpose: "For decoration", category: 'theme' },
-    { name: "Peppa house picture or model", purpose: "For decoration", category: 'theme' }
-  ];
-};
-
-// Helper function to generate Harry Potter themed stations
-const generateHarryPotterStations = (count: number, difficulty: string): Station[] => {
-  const stations: Station[] = [
-    {
-      name: "Potions Class",
-      task: "Decipher Professor Snape's recipe by solving this riddle: 'I'm tall when I'm young, and short when I'm old. What am I?'",
-      answer: "A candle",
-      hints: ["It changes over time", "It gives light", "It melts down"],
-      facilitatorInstructions: "Hide the next clue inside or under a candle. Make sure children don't light the candle - it's just a prop."
-    },
-    {
-      name: "Transfiguration Challenge",
-      task: "Rearrange these letters to reveal a spell: MSAIDRUGU (9 letters)",
-      answer: "RIDIKULUS",
-      hints: ["It's used against a Boggart", "It turns something scary into something funny", "It starts with 'R'"],
-      facilitatorInstructions: "Have children write down their answer. When correct, give them a small mirror that will be used in the next challenge."
-    },
-    {
-      name: "Defense Against the Dark Arts",
-      task: "To defeat the Dementor, find the code hidden in this message: 'Happiness can be found even in the darkest of times, if one only remembers to turn on the light.' Count the number of times the letters E, X, P, E, C, T, O appear.",
-      answer: "3211111 (or 3,2,1,1,1,1,1)",
-      hints: ["Focus on the letters that spell a specific charm", "Count each letter individually", "The charm is used against Dementors"],
-      facilitatorInstructions: "The children need to count each letter of 'EXPECTO' in the quote. Have them use this code to open a lock or reveal the next clue."
-    },
-    {
-      name: "Herbology",
-      task: "What plant makes a sound that can be fatal to anyone who hears it? Unscramble: YADRGANMNA",
-      answer: "MANDRAKE",
-      hints: ["It's shaped like a human", "Wearing earmuffs protects you", "It's used in petrification cures"],
-      facilitatorInstructions: "Hide earmuffs or pictures of earmuffs around the room. When they solve the puzzle, they need to all put on the earmuffs to receive the next clue."
-    },
-    {
-      name: "Quidditch Pitch",
-      task: "Complete a physical challenge: Transfer 'golden snitches' (ping pong balls) from one container to another using only a spoon held in your mouth. You need to catch 5 snitches to win.",
-      answer: "Successfully transferring 5 balls",
-      hints: ["Work as a team", "Steady does it", "Maybe take
+// Helper function for Horror themed stations
+const generateHorrorStations = (count: number, difficulty: string, subtheme: string): Station[] => {
+  let stations: Station[] = [];
+  
+  // Special case for "Smile" movie
+  if (subtheme === 'smile') {
+    stations = [
+      {
+        name: "The Cursed Phone Call",
+        task: "You've received a mysterious phone call. Decode the message by matching each symbol to a letter using the key provided. The message contains instructions on how to delay the curse.",
+        answer: "LOOK BEHIND THE MIRROR",
+        hints: ["Focus on the patterns in the symbols", "Some symbols repeat - they represent the same letter", "The letter 'O' appears twice in the message"],
+        facilitatorInstructions: "Provide a phone with a recorded message and a paper with symbols. Hide a clue behind a mirror in the room."
+      },
+      {
+        name: "The Therapy Session",
+        task: "Dr. Madeline Cotter left notes about the curse. Find all pages of her journal that are scattered around the room and arrange them in the correct order based on the dates.",
+        answer: "Page order: 3, 1, 5, 2, 4",
+        hints: ["Look at the dates on each page", "Some pages may be hidden inside books or under objects", "When arranged correctly, they form a coherent story"],
+        facilitatorInstructions: "Hide torn journal pages around the room. Each page should have a visible date and part of Dr. Cotter's research."
+      },
+      {
+        name: "Break the Chain",
+        task: "To break the curse, you need to create a circle of protection. Arrange the candles in the correct pattern by solving this riddle: 'I have four sides of equal length, but I am not a square. What shape am I when my corners don't meet at right angles?'",
+        answer: "Rhombus",
+        hints: ["It's a four-sided shape", "All sides are equal in length", "The angles are not 90 degrees"],
+        facilitatorInstructions: "Provide candles (battery-operated for safety) that need to be arranged in a rhombus shape. Once arranged correctly, reveal the next clue."
+      },
+      {
+        name: "The Possessed Doll",
+        task: "This doll appears to be possessed by the curse. Find the hidden compartment by solving this sequence: 2, 6, 18, 54, ?",
+        answer: "162",
+        hints: ["Each number is related to the previous one", "Think about multiplication", "Each number is multiplied by the same value to get the next one"],
+        facilitatorInstructions: "Use a doll prop with a hidden compartment that opens when the correct sequence is entered on a lock or dial."
+      },
+      {
+        name: "The Final Ritual",
+        task: "To complete the ritual and break the curse, you must recite the incantation while looking directly at your own reflection. But the incantation is scrambled. Unscramble: 'ESNSNTI RFEA EERFSMSI ASIN ETERLAN EPO'",
+        answer: "SENSE FEAR FREE SMILE INSANE ETERNAL HOPE",
+        hints: ["These are all words from the movie", "There are 6 words in total", "The first word has to do with perception"],
+        facilitatorInstructions: "Provide a mirror and the scrambled words. Participants must unscramble and then recite the correct incantation while looking at themselves in the mirror."
+      }
+    ];
+  } else {
+    // Generic horror stations
+    stations = [
+      {
+        name: "The Haunted Attic",
+        task: "The attic holds ancient secrets. Find the three hidden symbols and combine them to unlock the old chest.",
+        answer: "Triangle + Circle + Square",
+        hints: ["Look for symbols etched into wooden beams", "One symbol is visible only in the dark", "The symbols represent the phases of the moon"],
+        facilitatorInstructions: "Hide symbols around the room - one under regular light, one that appears under blacklight, and one inside a book."
+      },
+      {
+        name: "The Whispering Spirits",
+        task: "Listen to the recorded spirit voices and identify the three names being whispered. Arrange them in alphabetical order to unlock the spirit board.",
+        answer: "Clara, Edward, Victoria",
+        hints: ["Listen carefully for distinct names", "There are three different voices", "One name starts with a V"],
+        facilitatorInstructions: "Prepare an audio recording with whispered names. Provide headphones and a notepad for writing down names."
+      },
+      {
+        name: "The Cursed Doll Collection",
+        task: "Find the doll that doesn't belong. Examine the collection carefully for the one with a different feature.",
+        answer: "The doll with mismatched eyes",
+        hints: ["Look at the faces carefully", "Check for consistency in features", "One doll has something different about its eyes"],
+        facilitatorInstructions: "Arrange a collection of similar dolls, with one having subtly different colored eyes or a hidden mark."
+      },
+      {
+        name: "The Mysterious Diary",
+        task: "Decode the last entry in the diary using the cipher key. What was the final message from the mansion's last owner?",
+        answer: "BEWARE THE THIRTEENTH HOUR",
+        hints: ["Use the cipher key to translate each symbol", "The message is a warning", "It mentions a specific time"],
+        facilitatorInstructions: "Create a diary with encoded entries and provide a cipher key that participants must use to decode the message."
+      },
+      {
+        name: "The Final Seance",
+        task: "Complete the ritual by placing the candles in the correct positions around the pentagram. Solve this riddle to find the order:
