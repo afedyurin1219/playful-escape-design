@@ -1,9 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { EscapeRoomPlan, EscapeRoomConfig } from '../components/EscapeRoomGenerator';
 import { Button } from '@/components/ui/button';
-import { Printer, Home, FileDown, Copy } from 'lucide-react';
+import { Printer, Home, FileDown, Copy, ExternalLink } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import PrintableLetters from '../components/PrintableLetters';
 import { hasPrintableContent, getPrintableContent } from '../utils/printUtils';
@@ -32,6 +33,12 @@ const Result = () => {
   }
   
   const { escapeRoom, config } = state;
+  
+  // Function to generate Amazon search link for a supply
+  const getAmazonLink = (supplyName: string) => {
+    const searchQuery = encodeURIComponent(supplyName);
+    return `https://www.amazon.com/s?k=${searchQuery}`;
+  };
   
   const handleCopyToClipboard = () => {
     const summary = `
@@ -287,8 +294,20 @@ ${escapeRoom.prizes.join(', ')}
                         .filter(supply => supply.category === 'challenge')
                         .map((supply, index) => (
                           <li key={index} className="pb-2 border-b border-gray-100 last:border-0">
-                            <span className="font-medium">{supply.name}</span>
-                            <p className="text-sm text-gray-600">{supply.purpose}</p>
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <span className="font-medium">{supply.name}</span>
+                                <p className="text-sm text-gray-600">{supply.purpose}</p>
+                              </div>
+                              <a 
+                                href={getAmazonLink(supply.name)} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-teal hover:text-teal-600 flex items-center gap-1 text-sm mt-1 print:hidden"
+                              >
+                                <ExternalLink className="h-3 w-3" /> Amazon
+                              </a>
+                            </div>
                           </li>
                         ))}
                     </ul>
