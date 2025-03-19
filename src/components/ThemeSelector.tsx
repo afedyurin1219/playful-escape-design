@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { getThemesByAgeGroup, Theme } from './ThemeData';
-import { toast } from 'sonner';
 
 interface ThemeSelectorProps {
   ageGroup: string;
@@ -38,28 +37,19 @@ const ThemeSelector = ({ ageGroup, onThemeSelected }: ThemeSelectorProps) => {
   
   useEffect(() => {
     if (selectedTheme) {
-      // When a custom theme is selected, pass it as the main theme
-      // This ensures the custom theme is used for generating challenges
-      if (isCustom && customTheme) {
-        onThemeSelected('custom', customTheme);
-        toast.success(`Custom theme "${customTheme}" selected!`);
-      } else {
-        onThemeSelected(selectedTheme);
-      }
+      onThemeSelected(selectedTheme, isCustom ? customTheme : undefined);
     }
   }, [selectedTheme, customTheme, isCustom, onThemeSelected]);
   
   const handleThemeSelect = (themeId: string) => {
     setSelectedTheme(themeId);
     setIsCustom(false);
-    toast.success("Theme selected!");
   };
   
   const handleCustomThemeSelect = () => {
     if (customTheme.trim()) {
       setSelectedTheme('custom');
       setIsCustom(true);
-      toast.success(`Custom theme "${customTheme}" selected!`);
     }
   };
 
