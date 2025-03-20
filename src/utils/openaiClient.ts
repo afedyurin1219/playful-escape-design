@@ -2,30 +2,37 @@
 // OpenAI API client for generating escape room stations
 
 /**
+ * Validates if the provided string is a valid OpenAI API key format
+ */
+export const isValidOpenAIKey = (key: string): boolean => {
+  // Standard OpenAI API keys start with 'sk-' followed by a string of characters
+  // Project keys (sk-proj-*) are not valid for direct API access
+  return key && typeof key === 'string' && key.startsWith('sk-') && !key.startsWith('sk-proj-');
+};
+
+/**
  * Call OpenAI API to generate content based on a prompt
  */
 export const generateWithOpenAI = async (prompt: string): Promise<string> => {
   try {
     console.log('Calling OpenAI API with prompt about:', prompt.substring(0, 50) + '...');
     
-    // Get API key from localStorage or use the default one
+    // Get API key from localStorage
     let apiKey = localStorage.getItem('openai_api_key');
     
-    // If no key in localStorage, use default key
-    if (!apiKey) {
-      apiKey = process.env.OPENAI_API_KEY || 'your-api-key-here';
-      console.log('Using default API key');
-    } else {
-      console.log('Using API key from localStorage');
-    }
-    
     // Check if API key is available and valid
-    if (!apiKey || apiKey === 'your-api-key-here') {
-      console.log('No valid API key available, using fallback stations');
-      throw new Error('No valid API key available, using fallback stations');
+    if (!apiKey || !isValidOpenAIKey(apiKey)) {
+      console.log('API key validation failed:', apiKey ? 'Invalid format' : 'Missing key');
+      
+      // Log first few characters if available for debugging
+      if (apiKey) {
+        console.log('Key format:', apiKey.substring(0, 10) + '...');
+      }
+      
+      throw new Error('Invalid OpenAI API key. Please provide a valid key that starts with "sk-" (not "sk-proj-").');
     }
     
-    console.log('Making OpenAI API request with API key starting with:', apiKey.substring(0, 5) + '...');
+    console.log('Making OpenAI API request with valid API key');
     
     // Make the API request to OpenAI
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -51,7 +58,7 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
     }
 
     const data = await response.json();
-    console.log('OpenAI API response received:', data);
+    console.log('OpenAI API response received');
     
     const content = data.choices[0]?.message?.content;
     

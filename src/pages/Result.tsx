@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -5,6 +6,7 @@ import { EscapeRoomPlan, EscapeRoomConfig, Station } from '../components/EscapeR
 import { useToast } from '@/components/ui/use-toast';
 import { generateStationWithGPT } from '../utils/stationGenerator';
 import ApiKeyInput from '../components/ApiKeyInput';
+import { isValidOpenAIKey } from '../utils/openaiClient';
 
 // Import components
 import ResultHeader from '../components/result/ResultHeader';
@@ -31,6 +33,26 @@ const Result = () => {
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   
   const state = location.state as LocationState;
+  
+  // Check if API key is valid on component mount
+  useEffect(() => {
+    const validateStoredApiKey = () => {
+      const apiKey = localStorage.getItem('openai_api_key');
+      
+      // If API key exists but is invalid, show dialog
+      if (apiKey && !isValidOpenAIKey(apiKey)) {
+        console.log('Invalid API key format detected in localStorage');
+        toast({
+          title: "Invalid API Key Format",
+          description: "Your saved API key is not in a valid format. Please provide a standard OpenAI API key.",
+          variant: "destructive"
+        });
+        setShowApiKeyDialog(true);
+      }
+    };
+    
+    validateStoredApiKey();
+  }, [toast]);
   
   useEffect(() => {
     if (!state?.escapeRoom) {
@@ -151,6 +173,10 @@ const Result = () => {
   
   const handleSaveApiKey = (apiKey: string) => {
     localStorage.setItem('openai_api_key', apiKey);
+    toast({
+      title: "API Key Updated",
+      description: "You can now generate stations with your API key.",
+    });
   };
   
   return (
@@ -223,39 +249,17 @@ const Result = () => {
         </motion.div>
       </main>
       
-      <style>
-        {`
-          @media print {
-            @page {
-              margin: 1cm;
-            }
-            
-            body {
-              font-size: 12pt;
-            }
-            
-            h1 {
-              font-size: 24pt;
-            }
-            
-            h2 {
-              font-size: 18pt;
-            }
-            
-            h3 {
-              font-size: 14pt;
-            }
-            
-            .print-hidden {
-              display: none !important;
-            }
-            
-            .shadow-card {
-              box-shadow: none !important;
-            }
-          }
-        `}
-      </style>
+      <style>{`
+        @media print {
+          @page { margin: 1cm; }
+          body { font-size: 12pt; }
+          h1 { font-size: 24pt; }
+          h2 { font-size: 18pt; }
+          h3 { font-size: 14pt; }
+          .print-hidden { display: none !important; }
+          .shadow-card { box-shadow: none !important; }
+        }
+      `}</style>
     </div>
   );
 };

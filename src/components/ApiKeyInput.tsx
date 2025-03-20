@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
+import { AlertCircle } from 'lucide-react';
 
 interface ApiKeyInputProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface ApiKeyInputProps {
 
 const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
   const [apiKey, setApiKey] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Load API key from localStorage if available
@@ -21,15 +23,31 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
     if (savedKey) {
       setApiKey(savedKey);
     }
+    setError(null);
   }, [isOpen]);
 
+  const validateApiKey = (key: string): boolean => {
+    if (!key.trim()) {
+      setError("API key cannot be empty");
+      return false;
+    }
+    
+    if (!key.startsWith('sk-')) {
+      setError("API key must start with 'sk-'");
+      return false;
+    }
+    
+    if (key.startsWith('sk-proj-')) {
+      setError("Project keys (starting with 'sk-proj-') are not supported. Please use a standard API key.");
+      return false;
+    }
+    
+    setError(null);
+    return true;
+  };
+
   const handleSave = () => {
-    if (!apiKey.trim() || apiKey === 'your-api-key-here') {
-      toast({
-        title: "Valid API Key Required",
-        description: "Please enter a valid OpenAI API key to continue.",
-        variant: "destructive"
-      });
+    if (!validateApiKey(apiKey)) {
       return;
     }
 
@@ -63,13 +81,24 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
             type="password"
             placeholder="sk-..."
             value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            className="w-full"
+            onChange={(e) => {
+              setApiKey(e.target.value);
+              if (error) validateApiKey(e.target.value);
+            }}
+            className={`w-full ${error ? 'border-red-500' : ''}`}
           />
-          <p className="text-sm text-gray-500 mt-2">
-            You can get an API key from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-teal underline">OpenAI's dashboard</a>.
-            Keys usually start with "sk-" (not "sk-proj-").
-          </p>
+          
+          {error && (
+            <div className="flex items-center mt-2 text-red-500 text-sm">
+              <AlertCircle className="h-4 w-4 mr-1" />
+              {error}
+            </div>
+          )}
+          
+          <div className="text-sm text-gray-500 mt-2">
+            <p>You can get an API key from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-teal underline">OpenAI's dashboard</a>.</p>
+            <p className="mt-1">Valid keys start with "sk-" and are not project keys (sk-proj-*).</p>
+          </div>
         </div>
         
         <DialogFooter>
