@@ -32,6 +32,7 @@ CRITICAL REQUIREMENTS:
 2. The puzzle/task MUST be directly related to "${currentTheme}" lore, objects, or concepts
 3. All content MUST be age-appropriate for ${config.ageGroup} year olds
 4. EVERY ELEMENT must explicitly connect to the "${currentTheme}" theme - NO generic puzzles or riddles
+5. DO NOT use content from other themes - ONLY use ${currentTheme} theme elements
 
 Format your response as a JSON object with the following fields:
 {
@@ -43,7 +44,7 @@ Format your response as a JSON object with the following fields:
 }`;
 
     try {
-      // Try to call OpenAI API (will fail in demo mode)
+      // Try to call OpenAI API
       const content = await generateWithOpenAI(prompt);
       
       try {

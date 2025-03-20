@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -14,6 +14,12 @@ interface ApiKeyInputProps {
 const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
   const [apiKey, setApiKey] = useState('');
   const { toast } = useToast();
+
+  // Check for the default key on component mount
+  useEffect(() => {
+    const defaultKey = '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';
+    setApiKey(defaultKey);
+  }, []);
 
   const handleSave = () => {
     if (!apiKey.trim()) {

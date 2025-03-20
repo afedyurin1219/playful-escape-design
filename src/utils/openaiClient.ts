@@ -8,13 +8,16 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
   try {
     console.log('Calling OpenAI API with prompt about:', prompt.substring(0, 50) + '...');
     
-    // API key should be configured by the user
-    // This is a demo mode using fallback stations
-    console.log('Using fallback stations instead of OpenAI API');
-    throw new Error('Demo mode: Using fallback stations');
+    // Using the provided API key
+    const OPENAI_API_KEY = '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';
     
-    // Code below won't execute in demo mode but is kept for when a valid API key is provided
-    /*
+    // Check if API key is available
+    if (!OPENAI_API_KEY) {
+      console.log('No API key available, using fallback stations');
+      throw new Error('No API key available, using fallback stations');
+    }
+    
+    // Make the API request to OpenAI
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -44,7 +47,6 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
 
     console.log('Successfully received response from OpenAI');
     return content;
-    */
   } catch (error) {
     console.error('OpenAI API error:', error);
     throw error;
