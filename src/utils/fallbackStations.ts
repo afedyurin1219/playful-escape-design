@@ -192,34 +192,132 @@ export const themeStations: Record<string, Station[]> = {
       ],
       facilitatorInstructions: "Create a ransom note using newspaper cutouts with the hidden message embedded. Include red herring letters to increase difficulty."
     }
+  ],
+  "hunger-games": [
+    {
+      name: "Capitol Security Override",
+      task: "Hack into the Capitol's security system by decoding President Snow's personal password. The clues are hidden in the names of previous Hunger Games victors.",
+      answer: "RoseBlood75",
+      hints: [
+        "President Snow is known for his love of roses",
+        "The last two tributes from District 12 before Katniss hold a clue",
+        "The year of the first Quarter Quell is significant"
+      ],
+      facilitatorInstructions: "Create a terminal interface with Victor records that contain hidden clues. Include a countdown timer representing Peacekeepers approaching."
+    },
+    {
+      name: "Arena Survival Station",
+      task: "Identify which plants are safe to eat in the arena. Sort the provided plant samples into 'Edible' and 'Poisonous' categories using Katniss's plant knowledge.",
+      answer: "Edible: Katniss roots, pine bark, dandelion, blackberries / Poisonous: nightlock berries, white baneberry, hemlock",
+      hints: [
+        "Berries with smooth skin and black color are deadly",
+        "Plants with umbrella-shaped flowers are often poisonous",
+        "Katniss was named after an edible aquatic plant with arrow-shaped leaves"
+      ],
+      facilitatorInstructions: "Print images of various plants or use artificial plant samples. Include Katniss's family plant book with some torn pages."
+    },
+    {
+      name: "Tracker Jacker Venom Antidote",
+      task: "Prepare the antidote for Tracker Jacker venom by correctly identifying the sequence of ingredients needed. The recipe is encoded in a Capitol medical guide.",
+      answer: "Rue's leaves, crushed, applied as paste",
+      hints: [
+        "Rue showed this remedy to Katniss in the arena",
+        "The leaves have a distinctive shape shown in the guide",
+        "Application method is as important as the ingredients"
+      ],
+      facilitatorInstructions: "Create sealed containers with different leaf types. Include a medical guide with partially destroyed pages containing the recipe."
+    }
+  ],
+  "pirate": [
+    {
+      name: "Captain's Hidden Treasure Map",
+      task: "Reassemble the torn pieces of the captain's treasure map and decode the location markings using the pirate's cipher wheel.",
+      answer: "X marks the spot: Skull Island, 10 paces north of the twin palms",
+      hints: [
+        "The compass rose on the map points to true treasure",
+        "Pirates often used landmarks rather than coordinates",
+        "The captain always started counting paces with his right foot"
+      ],
+      facilitatorInstructions: "Create torn map pieces and a cipher wheel with maritime symbols. Include red herring map pieces that don't fit."
+    },
+    {
+      name: "Ship's Navigation Challenge",
+      task: "Plot a safe course through the treacherous reefs by correctly identifying the star patterns that guided ancient pirates through these waters.",
+      answer: "North Star, Orion's Belt, Southern Cross",
+      hints: [
+        "The North Star is fixed in the northern sky",
+        "Orion's Belt consists of three bright stars in a row",
+        "The Southern Cross points to the south celestial pole"
+      ],
+      facilitatorInstructions: "Create a star chart with various constellations. Include a pirate's logbook with partial navigation notes."
+    },
+    {
+      name: "Cursed Doubloon Puzzle",
+      task: "Lift the curse from the pirate's gold by arranging the doubloons in the correct pattern as shown in the ghost captain's riddle.",
+      answer: "Skull and crossbones pattern with 13 coins",
+      hints: [
+        "The number of coins is significant to pirate superstition",
+        "The pattern represents the flag of the ghost captain's ship",
+        "The center coin must face heads up, all others tails up"
+      ],
+      facilitatorInstructions: "Provide 15 prop coins (only 13 are needed) and a cryptic rhyming riddle from the ghost captain explaining the pattern."
+    }
   ]
+};
+
+// Add theme aliases to handle different ways users might refer to the same theme
+const themeAliases: Record<string, string[]> = {
+  "star-wars": ["star wars", "jedi", "sith", "force", "skywalker", "darth vader"],
+  "harry-potter": ["harry potter", "hogwarts", "wizard", "witchcraft", "magic school"],
+  "minecraft": ["minecraft", "mining", "crafting", "blocks", "steve"],
+  "superhero": ["superhero", "marvel", "dc", "comics", "avengers", "justice league"],
+  "zombie-apocalypse": ["zombie", "apocalypse", "undead", "walking dead", "infected"],
+  "space-exploration": ["space", "astronaut", "nasa", "galaxy", "planets", "cosmic", "mars", "moon"],
+  "detective": ["detective", "mystery", "crime", "sherlock", "investigation", "sleuth"],
+  "hunger-games": ["hunger games", "katniss", "panem", "capitol", "district", "tribute", "mockingjay"],
+  "pirate": ["pirate", "treasure", "captain", "ship", "sea", "sailor", "caribbean", "buccaneer"]
+};
+
+/**
+ * Find the best matching theme key for a given theme input
+ */
+const findBestMatchingTheme = (theme: string): string => {
+  const normalizedInput = theme.toLowerCase().trim();
+  
+  // 1. Try direct match with a theme key
+  const directMatch = Object.keys(themeStations).find(key => 
+    key.toLowerCase() === normalizedInput
+  );
+  
+  if (directMatch) return directMatch;
+  
+  // 2. Try matching with theme aliases
+  for (const [themeKey, aliases] of Object.entries(themeAliases)) {
+    if (aliases.some(alias => normalizedInput.includes(alias) || alias.includes(normalizedInput))) {
+      return themeKey;
+    }
+  }
+  
+  // 3. Try partial matching with theme keys
+  for (const themeKey of Object.keys(themeStations)) {
+    const normalizedThemeKey = themeKey.toLowerCase();
+    if (normalizedInput.includes(normalizedThemeKey) || normalizedThemeKey.includes(normalizedInput)) {
+      return themeKey;
+    }
+  }
+  
+  // 4. If still no match, return the first available theme
+  console.log(`No matching theme found for "${theme}", using default theme`);
+  return Object.keys(themeStations)[0];
 };
 
 /**
  * Generate a fallback station based on theme when API generation fails
  */
 export const generateFallbackStation = (theme: string, stationIndex: number): Station => {
-  const normalizedTheme = theme.toLowerCase().replace(/\s+/g, '-');
-  
-  // Try to match the theme exactly, or find a partial match
-  let themeKey = Object.keys(themeStations).find(key => 
-    normalizedTheme === key
-  );
-  
-  // If no exact match, try a partial match
-  if (!themeKey) {
-    themeKey = Object.keys(themeStations).find(key => 
-      normalizedTheme.includes(key) || key.includes(normalizedTheme)
-    );
-  }
-  
-  // If still no match, default to the first theme
-  if (!themeKey) {
-    console.log(`No matching theme found for "${theme}", using default theme`);
-    themeKey = Object.keys(themeStations)[0];
-  } else {
-    console.log(`Using theme "${themeKey}" for "${theme}"`);
-  }
+  // Find best matching theme
+  const themeKey = findBestMatchingTheme(theme);
+  console.log(`Using theme "${themeKey}" for requested theme "${theme}"`);
   
   const themeCollection = themeStations[themeKey];
   
