@@ -3,10 +3,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { EscapeRoomPlan, EscapeRoomConfig, Station } from '../components/EscapeRoomGenerator';
 import { Button } from '@/components/ui/button';
-import { Printer, Home, FileDown, Copy, ExternalLink, MoreVertical } from 'lucide-react';
+import { Printer, Home, FileDown, Copy, ExternalLink, MoreVertical, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import PrintableLetters from '../components/PrintableLetters';
 import { hasPrintableContent, getPrintableContent } from '../utils/printUtils';
+import { generateStationWithGPT } from '../utils/stationGenerator';
+import ApiKeyInput from '../components/ApiKeyInput';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -31,6 +33,9 @@ const Result = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [stations, setStations] = useState<Station[]>([]);
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
+  const [currentStationIndex, setCurrentStationIndex] = useState<number | null>(null);
+  const [isGeneratingStation, setIsGeneratingStation] = useState(false);
   
   const state = location.state as LocationState;
   
@@ -55,25 +60,62 @@ const Result = () => {
   };
   
   // Function to handle station change
-  const handleChangeStation = (index: number) => {
-    // Generate a new station - for simplicity, this creates a placeholder station
-    // In a real implementation, this would generate a properly themed station
-    const newStation: Station = {
-      name: `New Station ${index + 1}`,
-      task: "This is a new task you can customize.",
-      answer: "Custom answer",
-      hints: ["First hint", "Second hint"],
-      facilitatorInstructions: "Instructions for facilitator."
-    };
+  const handleChangeStation = async (index: number) => {
+    setCurrentStationIndex(index);
     
-    const updatedStations = [...stations];
-    updatedStations[index] = newStation;
-    setStations(updatedStations);
+    // Check if API key is already stored
+    const apiKey = localStorage.getItem('openai_api_key');
     
-    toast({
-      title: "Station updated",
-      description: `Station ${index + 1} has been changed.`,
-    });
+    if (!apiKey) {
+      // Show API key input modal
+      setIsApiKeyModalOpen(true);
+    } else {
+      // Proceed with generation
+      generateNewStation(index, apiKey);
+    }
+  };
+  
+  // Function to generate a new station using ChatGPT
+  const generateNewStation = async (index: number, apiKey: string) => {
+    // Set API key for the request
+    import.meta.env.VITE_OPENAI_API_KEY = apiKey;
+    
+    setIsGeneratingStation(true);
+    
+    try {
+      // Get the current theme
+      const theme = config.customTheme || config.theme;
+      
+      // Generate a new station with ChatGPT
+      const newStation = await generateStationWithGPT(config, index, theme);
+      
+      // Update stations array
+      const updatedStations = [...stations];
+      updatedStations[index] = newStation;
+      setStations(updatedStations);
+      
+      toast({
+        title: "Station updated",
+        description: `"${newStation.name}" has been generated.`,
+      });
+    } catch (error) {
+      console.error('Error generating station:', error);
+      toast({
+        title: "Generation failed",
+        description: "Failed to generate a new station. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingStation(false);
+      setCurrentStationIndex(null);
+    }
+  };
+  
+  // Function to handle API key save
+  const handleApiKeySave = (apiKey: string) => {
+    if (currentStationIndex !== null) {
+      generateNewStation(currentStationIndex, apiKey);
+    }
   };
   
   // Function to handle station deletion
@@ -271,16 +313,25 @@ ${escapeRoom.prizes.join(', ')}
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <MoreVertical className="h-4 w-4" />
+                                {isGeneratingStation && currentStationIndex === index ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <MoreVertical className="h-4 w-4" />
+                                )}
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleChangeStation(index)}>
-                                Change station
+                              <DropdownMenuItem 
+                                onClick={() => handleChangeStation(index)}
+                                disabled={isGeneratingStation}
+                              >
+                                {isGeneratingStation && currentStationIndex === index ? 
+                                  'Generating...' : 'Change station'}
                               </DropdownMenuItem>
                               <DropdownMenuItem 
                                 onClick={() => handleDeleteStation(index)}
                                 className="text-destructive"
+                                disabled={isGeneratingStation}
                               >
                                 Delete
                               </DropdownMenuItem>
@@ -442,6 +493,12 @@ ${escapeRoom.prizes.join(', ')}
           </div>
         </motion.div>
       </main>
+      
+      <ApiKeyInput 
+        isOpen={isApiKeyModalOpen} 
+        onClose={() => setIsApiKeyModalOpen(false)}
+        onSave={handleApiKeySave}
+      />
       
       <style>
         {`
