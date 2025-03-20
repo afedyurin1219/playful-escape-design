@@ -8,7 +8,6 @@ import { useToast } from '@/components/ui/use-toast';
 import PrintableLetters from '../components/PrintableLetters';
 import { hasPrintableContent, getPrintableContent } from '../utils/printUtils';
 import { generateStationWithGPT } from '../utils/stationGenerator';
-import ApiKeyInput from '../components/ApiKeyInput';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -33,7 +32,6 @@ const Result = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [stations, setStations] = useState<Station[]>([]);
-  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [currentStationIndex, setCurrentStationIndex] = useState<number | null>(null);
   const [isGeneratingStation, setIsGeneratingStation] = useState(false);
   
@@ -62,24 +60,6 @@ const Result = () => {
   // Function to handle station change
   const handleChangeStation = async (index: number) => {
     setCurrentStationIndex(index);
-    
-    // Check if API key is already stored
-    const apiKey = localStorage.getItem('openai_api_key');
-    
-    if (!apiKey) {
-      // Show API key input modal
-      setIsApiKeyModalOpen(true);
-    } else {
-      // Proceed with generation
-      generateNewStation(index, apiKey);
-    }
-  };
-  
-  // Function to generate a new station using ChatGPT
-  const generateNewStation = async (index: number, apiKey: string) => {
-    // Set API key for the request
-    import.meta.env.VITE_OPENAI_API_KEY = apiKey;
-    
     setIsGeneratingStation(true);
     
     try {
@@ -108,13 +88,6 @@ const Result = () => {
     } finally {
       setIsGeneratingStation(false);
       setCurrentStationIndex(null);
-    }
-  };
-  
-  // Function to handle API key save
-  const handleApiKeySave = (apiKey: string) => {
-    if (currentStationIndex !== null) {
-      generateNewStation(currentStationIndex, apiKey);
     }
   };
   
@@ -493,12 +466,6 @@ ${escapeRoom.prizes.join(', ')}
           </div>
         </motion.div>
       </main>
-      
-      <ApiKeyInput 
-        isOpen={isApiKeyModalOpen} 
-        onClose={() => setIsApiKeyModalOpen(false)}
-        onSave={handleApiKeySave}
-      />
       
       <style>
         {`

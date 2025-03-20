@@ -1,6 +1,8 @@
 
 import { Station, EscapeRoomConfig } from '../components/EscapeRoomGenerator';
 
+const OPENAI_API_KEY = "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";
+
 const generateStationWithGPT = async (
   config: EscapeRoomConfig,
   stationIndex: number,
@@ -22,7 +24,7 @@ Format your response as a JSON object with the following fields:
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY || ''}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
