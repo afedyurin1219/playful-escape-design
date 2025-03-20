@@ -1,9 +1,6 @@
 
 // OpenAI API client for generating escape room stations
 
-// API key
-const OPENAI_API_KEY = "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";
-
 /**
  * Call OpenAI API to generate content based on a prompt
  */
@@ -11,6 +8,13 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
   try {
     console.log('Calling OpenAI API with prompt about:', prompt.substring(0, 50) + '...');
     
+    // API key should be configured by the user
+    // This is a demo mode using fallback stations
+    console.log('Using fallback stations instead of OpenAI API');
+    throw new Error('Demo mode: Using fallback stations');
+    
+    // Code below won't execute in demo mode but is kept for when a valid API key is provided
+    /*
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -40,6 +44,7 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
 
     console.log('Successfully received response from OpenAI');
     return content;
+    */
   } catch (error) {
     console.error('OpenAI API error:', error);
     throw error;

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -26,6 +27,7 @@ const Result = () => {
   const [stations, setStations] = useState<Station[]>([]);
   const [currentStationIndex, setCurrentStationIndex] = useState<number | null>(null);
   const [isGeneratingStation, setIsGeneratingStation] = useState(false);
+  const [lastGeneratedTimestamp, setLastGeneratedTimestamp] = useState<Record<number, number>>({});
   
   const state = location.state as LocationState;
   
@@ -45,12 +47,25 @@ const Result = () => {
   
   // Function to handle station change
   const handleChangeStation = async (index: number) => {
+    // Don't regenerate if already generating
+    if (isGeneratingStation) return;
+    
+    // Prevent rapid successive generations for the same station
+    const now = Date.now();
+    const lastGenerated = lastGeneratedTimestamp[index] || 0;
+    if (now - lastGenerated < 2000) {
+      console.log('Throttling generation requests');
+      return;
+    }
+    
     setCurrentStationIndex(index);
     setIsGeneratingStation(true);
+    setLastGeneratedTimestamp({...lastGeneratedTimestamp, [index]: now});
     
     try {
-      // Get the current theme
+      // Get the current theme - ensuring we use the exact theme the user selected
       const theme = config.customTheme || config.theme;
+      console.log(`Generating station for theme: ${theme}`);
       
       // Generate a new station with ChatGPT
       const newStation = await generateStationWithGPT(config, index, theme);

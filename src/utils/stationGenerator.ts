@@ -3,6 +3,9 @@ import { Station, EscapeRoomConfig } from '../components/EscapeRoomGenerator';
 import { generateWithOpenAI } from './openaiClient';
 import { generateFallbackStation } from './fallbackStations';
 
+// Cache to track already generated stations per position
+const generatedStationsCache = new Map<string, string[]>();
+
 /**
  * Generate a themed station using OpenAI API with fallback to predefined stations
  */
@@ -12,6 +15,15 @@ const generateStationWithGPT = async (
   currentTheme: string
 ): Promise<Station> => {
   try {
+    // Initialize the cache entry for this theme if it doesn't exist
+    const cacheKey = currentTheme.toLowerCase();
+    if (!generatedStationsCache.has(cacheKey)) {
+      generatedStationsCache.set(cacheKey, []);
+    }
+    
+    // Get the list of already generated station names for this theme
+    const generatedStationNames = generatedStationsCache.get(cacheKey) || [];
+    
     const prompt = `Create a creative and engaging escape room station that is DEEPLY AND EXPLICITLY tied to a "${currentTheme}" theme for ${config.ageGroup} year olds.
 Difficulty level: ${config.difficulty}
 
@@ -30,32 +42,77 @@ Format your response as a JSON object with the following fields:
   "facilitatorInstructions": "Instructions for setting up and running this themed station"
 }`;
 
-    // Call OpenAI API
-    const content = await generateWithOpenAI(prompt);
-    
     try {
-      // Try to parse the response as JSON
-      const stationData = JSON.parse(content);
+      // Try to call OpenAI API (will fail in demo mode)
+      const content = await generateWithOpenAI(prompt);
       
-      // Validate that the station is theme-specific
-      if (!isStationThemeSpecific(stationData, currentTheme)) {
-        console.log('Generated station not theme-specific enough, falling back to predefined stations');
-        return generateFallbackStation(currentTheme, stationIndex);
+      try {
+        // Try to parse the response as JSON
+        const stationData = JSON.parse(content);
+        
+        // Validate that the station is theme-specific
+        if (!isStationThemeSpecific(stationData, currentTheme)) {
+          console.log('Generated station not theme-specific enough, falling back to predefined stations');
+          return generateUniqueStation(currentTheme, stationIndex, generatedStationNames);
+        }
+        
+        // Add this station name to the cache
+        generatedStationsCache.get(cacheKey)?.push(stationData.name);
+        
+        return stationData as Station;
+      } catch (parseError) {
+        console.error('Failed to parse OpenAI response as JSON:', parseError);
+        
+        // Fall back to predefined stations
+        return generateUniqueStation(currentTheme, stationIndex, generatedStationNames);
       }
-      
-      return stationData as Station;
-    } catch (parseError) {
-      console.error('Failed to parse OpenAI response as JSON:', parseError);
+    } catch (error) {
+      console.error('Error generating station with OpenAI:', error);
       
       // Fall back to predefined stations
-      return generateFallbackStation(currentTheme, stationIndex);
+      return generateUniqueStation(currentTheme, stationIndex, generatedStationNames);
     }
   } catch (error) {
-    console.error('Error generating station:', error);
+    console.error('Error in station generation process:', error);
     
-    // Fall back to predefined stations
-    return generateFallbackStation(currentTheme, stationIndex);
+    // Ultimate fallback
+    return generateUniqueStation(currentTheme, stationIndex, []);
   }
+};
+
+/**
+ * Generate a unique station that hasn't been used yet
+ */
+const generateUniqueStation = (
+  theme: string, 
+  stationIndex: number, 
+  usedStationNames: string[]
+): Station => {
+  console.log(`Generating unique station for theme: ${theme}, avoiding: ${usedStationNames.join(', ')}`);
+  
+  let attempts = 0;
+  let station: Station;
+  
+  // Try up to 10 times to get a unique station
+  do {
+    station = generateFallbackStation(theme, stationIndex + attempts);
+    attempts++;
+    
+    // Break after 10 attempts to avoid infinite loop
+    if (attempts > 10) {
+      console.log('Could not find a unique station after 10 attempts, using the last generated one');
+      break;
+    }
+  } while (usedStationNames.includes(station.name));
+  
+  // Add this station name to the cache
+  const cacheKey = theme.toLowerCase();
+  if (!generatedStationsCache.has(cacheKey)) {
+    generatedStationsCache.set(cacheKey, []);
+  }
+  generatedStationsCache.get(cacheKey)?.push(station.name);
+  
+  return station;
 };
 
 /**
