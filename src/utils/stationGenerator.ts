@@ -1,8 +1,7 @@
-
 import { Station, EscapeRoomConfig } from '../components/EscapeRoomGenerator';
 
-// This should be your actual OpenAI API key - the current one is invalid
-const OPENAI_API_KEY = "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";
+// Updated OpenAI API key
+const OPENAI_API_KEY = "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";
 
 // Predefined stations by theme - used when API fails or for faster development
 const themeStations: Record<string, Station[]> = {
