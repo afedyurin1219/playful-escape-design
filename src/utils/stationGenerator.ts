@@ -14,10 +14,11 @@ const generateStationWithGPT = async (
   try {
     const prompt = `Create a creative and age-appropriate escape room station for ${config.ageGroup} year olds with a ${currentTheme} theme. 
 The difficulty level should be ${config.difficulty}.
+IMPORTANT: The station MUST be specifically related to the ${currentTheme} theme. All puzzles, tasks, and content should directly reference elements of ${currentTheme}.
 Format your response as a JSON object with the following fields:
 {
-  "name": "Station name that fits the theme",
-  "task": "Detailed description of the task or puzzle to solve",
+  "name": "Station name that explicitly references the ${currentTheme} theme",
+  "task": "Detailed description of the task or puzzle to solve that is directly related to ${currentTheme}",
   "answer": "The solution or answer to the puzzle",
   "hints": ["Hint 1", "Hint 2", "Hint 3"],
   "facilitatorInstructions": "Instructions for the person running the activity"

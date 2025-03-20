@@ -109,6 +109,89 @@ export const themeStations: Record<string, Station[]> = {
       ],
       facilitatorInstructions: "Create an encoded message using superhero symbols as a cipher. Provide partial decoding key with some symbols already translated."
     }
+  ],
+  "zombie-apocalypse": [
+    {
+      name: "Quarantine Zone Breach",
+      task: "Decode the security clearance to access the safe zone. The military communication device is damaged and you need to repair the circuitry by connecting the correct wires based on the infection spread patterns.",
+      answer: "Red-Green-Blue-Yellow-Black",
+      hints: [
+        "The pattern follows the chronological order of city infections",
+        "The first infected city connects to the red wire",
+        "The military evacuation routes provide a clue to the sequence"
+      ],
+      facilitatorInstructions: "Create a prop circuit board with colored wires and a map showing infection spread patterns with dates."
+    },
+    {
+      name: "Antidote Formula",
+      task: "Synthesize the zombie virus antidote by identifying the correct chemical compounds from the scattered research notes. Each compound is represented by a symbol, and you must arrange them in the correct sequence.",
+      answer: "Triangle-Circle-Square-Hexagon-Star",
+      hints: [
+        "The first compound was discovered in a military lab",
+        "The sequence mimics the virus's protein structure",
+        "The last compound stabilizes the entire formula"
+      ],
+      facilitatorInstructions: "Provide torn research notes with chemical symbols and clues about their order. Include red herrings to increase difficulty."
+    },
+    {
+      name: "Survivor's Supply Cache",
+      task: "Unlock the hidden supply cache by solving the survivor's riddle: 'When the dead walk, I am your best friend. I have no blade but can end what breathes. My voice is loud but my silence is deadly. What am I?'",
+      answer: "A gun",
+      hints: [
+        "This tool is commonly used for defense in a zombie apocalypse",
+        "It makes noise when used",
+        "It can be found in police stations and military bases"
+      ],
+      facilitatorInstructions: "Create a locked box with survival supplies. The answer must be entered into a combination lock using a simple letter-to-number cipher (A=1, B=2, etc)."
+    }
+  ],
+  "space-exploration": [
+    {
+      name: "Oxygen System Failure",
+      task: "The space station's oxygen system is failing. Restore it by solving the atmospheric composition equation: If O₂ needs to be at 21%, CO₂ at 0.04%, and N₂ at 78%, what percentage should the noble gases be set to?",
+      answer: "0.96%",
+      hints: [
+        "All percentages must add up to 100%",
+        "There are four main components in the atmosphere",
+        "The noble gases make up the smallest percentage"
+      ],
+      facilitatorInstructions: "Create a control panel with dials for adjusting gas percentages. Include a oxygen level warning light that turns green when correct."
+    },
+    {
+      name: "Asteroid Navigation",
+      task: "Plot a safe course through the asteroid field by identifying the correct sequence of directional thrusts based on the asteroid pattern projections.",
+      answer: "Up-Right-Right-Down-Left-Up",
+      hints: [
+        "The largest asteroid must be avoided first",
+        "Minimal fuel usage requires no more than 6 maneuvers",
+        "The final maneuver should position you toward the space station"
+      ],
+      facilitatorInstructions: "Create a star map with asteroid positions and a spacecraft model that participants need to physically move through the course."
+    }
+  ],
+  "detective": [
+    {
+      name: "Crime Scene Analysis",
+      task: "Identify the suspect by analyzing the fingerprints found at the crime scene and matching them to the database of known criminals.",
+      answer: "Suspect #3 - The Butler",
+      hints: [
+        "Focus on the whorls and ridges of each print",
+        "The suspect has a distinctive scar on their right thumb",
+        "Check the wine glass for the clearest print"
+      ],
+      facilitatorInstructions: "Provide fingerprint cards for each suspect and a magnifying glass. The matching print should have subtle but identifiable differences."
+    },
+    {
+      name: "Cryptic Ransom Note",
+      task: "Decode the kidnapper's ransom note by identifying the pattern in the seemingly random letters. The note will reveal the drop location.",
+      answer: "The Old Clock Tower at Midnight",
+      hints: [
+        "Every third letter is part of the message",
+        "Ignore punctuation when counting letters",
+        "The message begins with 'The'"
+      ],
+      facilitatorInstructions: "Create a ransom note using newspaper cutouts with the hidden message embedded. Include red herring letters to increase difficulty."
+    }
   ]
 };
 
@@ -117,9 +200,26 @@ export const themeStations: Record<string, Station[]> = {
  */
 export const generateFallbackStation = (theme: string, stationIndex: number): Station => {
   const normalizedTheme = theme.toLowerCase().replace(/\s+/g, '-');
-  const themeKey = Object.keys(themeStations).find(key => 
-    normalizedTheme.includes(key) || key.includes(normalizedTheme)
-  ) || Object.keys(themeStations)[0];
+  
+  // Try to match the theme exactly, or find a partial match
+  let themeKey = Object.keys(themeStations).find(key => 
+    normalizedTheme === key
+  );
+  
+  // If no exact match, try a partial match
+  if (!themeKey) {
+    themeKey = Object.keys(themeStations).find(key => 
+      normalizedTheme.includes(key) || key.includes(normalizedTheme)
+    );
+  }
+  
+  // If still no match, default to the first theme
+  if (!themeKey) {
+    console.log(`No matching theme found for "${theme}", using default theme`);
+    themeKey = Object.keys(themeStations)[0];
+  } else {
+    console.log(`Using theme "${themeKey}" for "${theme}"`);
+  }
   
   const themeCollection = themeStations[themeKey];
   

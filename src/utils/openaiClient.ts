@@ -9,6 +9,8 @@ const OPENAI_API_KEY = "sk-proj-U_HYQrzUqBx4SYcjok7Dqz_lXIanwyXc_3j0EtOvBt-uCiFN
  */
 export const generateWithOpenAI = async (prompt: string): Promise<string> => {
   try {
+    console.log('Calling OpenAI API with prompt about:', prompt.substring(0, 50) + '...');
+    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -36,6 +38,7 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
       throw new Error('No content returned from OpenAI API');
     }
 
+    console.log('Successfully received response from OpenAI');
     return content;
   } catch (error) {
     console.error('OpenAI API error:', error);
