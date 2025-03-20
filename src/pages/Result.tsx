@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { EscapeRoomPlan, EscapeRoomConfig, Station } from '../components/EscapeRoomGenerator';
 import { useToast } from '@/components/ui/use-toast';
 import { generateStationWithGPT } from '../utils/stationGenerator';
+import ApiKeyInput from '../components/ApiKeyInput';
 
 // Import components
 import ResultHeader from '../components/result/ResultHeader';
@@ -28,6 +28,7 @@ const Result = () => {
   const [currentStationIndex, setCurrentStationIndex] = useState<number | null>(null);
   const [isGeneratingStation, setIsGeneratingStation] = useState(false);
   const [lastGeneratedTimestamp, setLastGeneratedTimestamp] = useState<Record<number, number>>({});
+  const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   
   const state = location.state as LocationState;
   
@@ -55,6 +56,13 @@ const Result = () => {
     const lastGenerated = lastGeneratedTimestamp[index] || 0;
     if (now - lastGenerated < 2000) {
       console.log('Throttling generation requests');
+      return;
+    }
+    
+    // Check if we have an API key
+    const apiKey = localStorage.getItem('openai_api_key');
+    if (!apiKey) {
+      setShowApiKeyDialog(true);
       return;
     }
     
@@ -105,6 +113,13 @@ const Result = () => {
   
   // Function to add a new station
   const handleAddStation = async () => {
+    // Check if we have an API key
+    const apiKey = localStorage.getItem('openai_api_key');
+    if (!apiKey) {
+      setShowApiKeyDialog(true);
+      return;
+    }
+    
     setIsGeneratingStation(true);
     setCurrentStationIndex(null);
     
@@ -134,6 +149,10 @@ const Result = () => {
     }
   };
   
+  const handleSaveApiKey = (apiKey: string) => {
+    localStorage.setItem('openai_api_key', apiKey);
+  };
+  
   return (
     <div className="min-h-screen bg-ivory text-charcoal pb-16 print:p-0">
       <ResultHeader title={escapeRoom.title} story={escapeRoom.story} />
@@ -144,6 +163,13 @@ const Result = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
+          {/* API Key Dialog */}
+          <ApiKeyInput 
+            isOpen={showApiKeyDialog} 
+            onClose={() => setShowApiKeyDialog(false)}
+            onSave={handleSaveApiKey}
+          />
+          
           <div className="mb-8 text-center">
             <h1 className="text-4xl font-display text-teal mb-3">{escapeRoom.title}</h1>
             <p className="text-lg max-w-3xl mx-auto">{escapeRoom.story}</p>

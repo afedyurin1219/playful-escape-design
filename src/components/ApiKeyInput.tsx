@@ -15,17 +15,19 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
   const [apiKey, setApiKey] = useState('');
   const { toast } = useToast();
 
-  // Check for the default key on component mount
+  // Load API key from localStorage if available
   useEffect(() => {
-    const defaultKey = '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';
-    setApiKey(defaultKey);
-  }, []);
+    const savedKey = localStorage.getItem('openai_api_key');
+    if (savedKey) {
+      setApiKey(savedKey);
+    }
+  }, [isOpen]);
 
   const handleSave = () => {
-    if (!apiKey.trim()) {
+    if (!apiKey.trim() || apiKey === 'your-api-key-here') {
       toast({
-        title: "API Key Required",
-        description: "Please enter an OpenAI API key to continue.",
+        title: "Valid API Key Required",
+        description: "Please enter a valid OpenAI API key to continue.",
         variant: "destructive"
       });
       return;
@@ -39,7 +41,7 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
     
     toast({
       title: "API Key Saved",
-      description: "Your OpenAI API key has been saved for this session.",
+      description: "Your OpenAI API key has been saved in your browser.",
     });
     
     onClose();
@@ -51,7 +53,7 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
         <DialogHeader>
           <DialogTitle>OpenAI API Key Required</DialogTitle>
           <DialogDescription>
-            To generate new themed stations, please enter your OpenAI API key. 
+            To generate themed stations, please enter your OpenAI API key.
             Your key will be stored locally in your browser and is never sent to our servers.
           </DialogDescription>
         </DialogHeader>
@@ -66,6 +68,7 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
           />
           <p className="text-sm text-gray-500 mt-2">
             You can get an API key from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-teal underline">OpenAI's dashboard</a>.
+            Keys usually start with "sk-" (not "sk-proj-").
           </p>
         </div>
         

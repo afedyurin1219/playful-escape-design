@@ -8,23 +8,31 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
   try {
     console.log('Calling OpenAI API with prompt about:', prompt.substring(0, 50) + '...');
     
-    // Using the provided API key
-    const OPENAI_API_KEY = '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';
+    // Get API key from localStorage or use the default one
+    let apiKey = localStorage.getItem('openai_api_key');
     
-    // Check if API key is available
-    if (!OPENAI_API_KEY) {
-      console.log('No API key available, using fallback stations');
-      throw new Error('No API key available, using fallback stations');
+    // If no key in localStorage, use default key
+    if (!apiKey) {
+      apiKey = process.env.OPENAI_API_KEY || 'your-api-key-here';
+      console.log('Using default API key');
+    } else {
+      console.log('Using API key from localStorage');
     }
     
-    console.log('Making OpenAI API request with valid API key');
+    // Check if API key is available and valid
+    if (!apiKey || apiKey === 'your-api-key-here') {
+      console.log('No valid API key available, using fallback stations');
+      throw new Error('No valid API key available, using fallback stations');
+    }
+    
+    console.log('Making OpenAI API request with API key starting with:', apiKey.substring(0, 5) + '...');
     
     // Make the API request to OpenAI
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
