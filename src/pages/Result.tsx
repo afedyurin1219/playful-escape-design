@@ -89,6 +89,37 @@ const Result = () => {
     });
   };
   
+  // Function to add a new station
+  const handleAddStation = async () => {
+    setIsGeneratingStation(true);
+    setCurrentStationIndex(null);
+    
+    try {
+      // Get the current theme
+      const theme = config.customTheme || config.theme;
+      
+      // Generate a new station with ChatGPT
+      const newStation = await generateStationWithGPT(config, stations.length, theme);
+      
+      // Add new station to stations array
+      setStations([...stations, newStation]);
+      
+      toast({
+        title: "Station added",
+        description: `"${newStation.name}" has been added to your escape room.`,
+      });
+    } catch (error) {
+      console.error('Error generating station:', error);
+      toast({
+        title: "Generation failed",
+        description: "Failed to generate a new station. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingStation(false);
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-ivory text-charcoal pb-16 print:p-0">
       <ResultHeader title={escapeRoom.title} story={escapeRoom.story} />
@@ -137,6 +168,7 @@ const Result = () => {
                 currentStationIndex={currentStationIndex}
                 onChangeStation={handleChangeStation}
                 onDeleteStation={handleDeleteStation}
+                onAddStation={handleAddStation}
               />
             </div>
             
