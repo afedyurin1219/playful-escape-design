@@ -1,13 +1,24 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { EscapeRoomPlan, EscapeRoomConfig } from '../components/EscapeRoomGenerator';
+import { EscapeRoomPlan, EscapeRoomConfig, Station } from '../components/EscapeRoomGenerator';
 import { Button } from '@/components/ui/button';
-import { Printer, Home, FileDown, Copy, ExternalLink } from 'lucide-react';
+import { Printer, Home, FileDown, Copy, ExternalLink, MoreVertical } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import PrintableLetters from '../components/PrintableLetters';
 import { hasPrintableContent, getPrintableContent } from '../utils/printUtils';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface LocationState {
   escapeRoom: EscapeRoomPlan;
@@ -19,12 +30,15 @@ const Result = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
+  const [stations, setStations] = useState<Station[]>([]);
   
   const state = location.state as LocationState;
   
   useEffect(() => {
     if (!state?.escapeRoom) {
       navigate('/create');
+    } else {
+      setStations(state.escapeRoom.stations);
     }
   }, [state, navigate]);
   
@@ -38,6 +52,39 @@ const Result = () => {
   const getAmazonLink = (supplyName: string) => {
     const searchQuery = encodeURIComponent(supplyName);
     return `https://www.amazon.com/s?k=${searchQuery}`;
+  };
+  
+  // Function to handle station change
+  const handleChangeStation = (index: number) => {
+    // Generate a new station - for simplicity, this creates a placeholder station
+    // In a real implementation, this would generate a properly themed station
+    const newStation: Station = {
+      name: `New Station ${index + 1}`,
+      task: "This is a new task you can customize.",
+      answer: "Custom answer",
+      hints: ["First hint", "Second hint"],
+      facilitatorInstructions: "Instructions for facilitator."
+    };
+    
+    const updatedStations = [...stations];
+    updatedStations[index] = newStation;
+    setStations(updatedStations);
+    
+    toast({
+      title: "Station updated",
+      description: `Station ${index + 1} has been changed.`,
+    });
+  };
+  
+  // Function to handle station deletion
+  const handleDeleteStation = (index: number) => {
+    const updatedStations = stations.filter((_, i) => i !== index);
+    setStations(updatedStations);
+    
+    toast({
+      title: "Station deleted",
+      description: `Station ${index + 1} has been removed.`,
+    });
   };
   
   const handleCopyToClipboard = () => {
@@ -211,14 +258,36 @@ ${escapeRoom.prizes.join(', ')}
             </div>
             
             <div className={`stations mt-8 ${activeTab === 'stations' ? '' : 'print:block hidden'}`}>
-              <h2 className="text-2xl font-display mb-6 print:page-break-before">Stations ({escapeRoom.stations.length})</h2>
+              <h2 className="text-2xl font-display mb-6 print:page-break-before">Stations ({stations.length})</h2>
               <div className="space-y-6">
-                {escapeRoom.stations.map((station, index) => {
+                {stations.map((station, index) => {
                   const stationSupplies = getStationSupplies(station.name, escapeRoom.supplies);
                   
                   return (
-                    <div key={index} className="bg-white p-6 rounded-xl shadow-card print:shadow-none print:border print:border-gray-200 print:mb-6 print:p-4">
-                      <h3 className="text-xl font-medium mb-3">{index + 1}. {station.name}</h3>
+                    <div key={index} className="bg-white p-6 rounded-xl shadow-card print:shadow-none print:border print:border-gray-200 print:mb-6 print:p-4 relative">
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="text-xl font-medium">{index + 1}. {station.name}</h3>
+                        <div className="print:hidden">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleChangeStation(index)}>
+                                Change station
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => handleDeleteStation(index)}
+                                className="text-destructive"
+                              >
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
                       <div className="mb-4">
                         <h4 className="font-semibold text-charcoal-light mb-1">Task:</h4>
                         <p>{station.task}</p>
