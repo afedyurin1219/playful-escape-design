@@ -17,6 +17,8 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
       throw new Error('No API key available, using fallback stations');
     }
     
+    console.log('Making OpenAI API request with valid API key');
+    
     // Make the API request to OpenAI
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -25,12 +27,14 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
         max_tokens: 800,
       }),
     });
+
+    console.log('OpenAI API response status:', response.status);
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -39,6 +43,8 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
     }
 
     const data = await response.json();
+    console.log('OpenAI API response received:', data);
+    
     const content = data.choices[0]?.message?.content;
     
     if (!content) {

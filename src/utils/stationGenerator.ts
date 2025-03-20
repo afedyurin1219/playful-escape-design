@@ -43,13 +43,17 @@ Format your response as a JSON object with the following fields:
   "facilitatorInstructions": "Instructions for setting up and running this themed station"
 }`;
 
+    console.log(`Attempting to generate station for theme: "${currentTheme}"`);
+    
     try {
       // Try to call OpenAI API
       const content = await generateWithOpenAI(prompt);
+      console.log("Successfully received content from OpenAI");
       
       try {
         // Try to parse the response as JSON
         const stationData = JSON.parse(content);
+        console.log("Successfully parsed station data:", stationData.name);
         
         // Validate that the station is theme-specific
         if (!isStationThemeSpecific(stationData, currentTheme)) {
@@ -63,6 +67,7 @@ Format your response as a JSON object with the following fields:
         return stationData as Station;
       } catch (parseError) {
         console.error('Failed to parse OpenAI response as JSON:', parseError);
+        console.log('Raw content received:', content);
         
         // Fall back to predefined stations
         return generateUniqueStation(currentTheme, stationIndex, generatedStationNames);
