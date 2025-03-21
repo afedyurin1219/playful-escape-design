@@ -9,9 +9,22 @@
     <meta name="author" content="Lovable" />
     <meta property="og:image" content="/og-image.png" />
     <style>
-      /* Hide the lovable edit button */
-      .lovable-edit-button {
+      /* Hide the lovable edit button with stronger selectors */
+      .lovable-edit-button,
+      [data-lovable-edit="true"],
+      [class*="lovable-edit"] {
         display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        position: absolute !important;
+        width: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        clip: rect(0 0 0 0) !important;
+        -webkit-clip-path: inset(50%) !important;
+        clip-path: inset(50%) !important;
+        white-space: nowrap !important;
       }
     </style>
   </head>
