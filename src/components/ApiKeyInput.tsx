@@ -64,10 +64,9 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>OpenAI API Key (Optional)</DialogTitle>
+          <DialogTitle>OpenAI API Key Required</DialogTitle>
           <DialogDescription>
-            You can provide your own OpenAI API key for custom station generation.
-            The app will use our project API key by default for most operations.
+            <span className="text-red-500 font-semibold">IMPORTANT:</span> You must provide your own OpenAI API key to use this application.
             Your key will be stored locally in your browser and is never sent to our servers.
           </DialogDescription>
         </DialogHeader>
@@ -93,7 +92,8 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
           
           <div className="text-sm text-gray-500 mt-2">
             <p>You can get an API key from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-teal underline">OpenAI's dashboard</a>.</p>
-            <p className="mt-1">Valid keys start with "sk-" (including both standard and project keys).</p>
+            <p className="mt-1">Valid keys start with "sk-".</p>
+            <p className="mt-1 text-red-500">Never share your API key or commit it to version control.</p>
           </div>
         </div>
         

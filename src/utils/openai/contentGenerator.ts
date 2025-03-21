@@ -41,18 +41,26 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
 };
 
 /**
- * Generate story introduction using OpenAI with the specific API key
+ * Generate story introduction using OpenAI with the user's API key
  */
 export const generateStoryIntroduction = async (theme: string, ageGroup: string): Promise<string> => {
   try {
     console.log(`Generating story introduction for theme: ${theme}, age group: ${ageGroup}`);
     
+    // Get API key from localStorage
+    const apiKey = localStorage.getItem('openai_api_key');
+    
+    // Check if API key is valid
+    if (!apiKey || !isValidOpenAIKey(apiKey)) {
+      throw new Error('Valid API key required for story generation.');
+    }
+    
     // Create the prompt based on the theme and age group
     const prompt = `Write a story introduction for an escape room. The room theme is ${theme}. The audience is ${ageGroup} years old. Do not design challenges, only the story introduction. Limit - 5 sentences max.`;
     
-    // Make the API request to OpenAI using the project API key
+    // Make the API request to OpenAI using the user's API key
     const content = await callOpenAI(
-      PROJECT_API_KEY,
+      apiKey,
       [
         {"role": "system", "content": "You are an Escape Room designer."},
         {"role": "user", "content": prompt}
@@ -69,7 +77,7 @@ export const generateStoryIntroduction = async (theme: string, ageGroup: string)
 };
 
 /**
- * Generate a themed station using the OpenAI API with project key
+ * Generate a themed station using the OpenAI API with user's key
  */
 export const generateStationWithOpenAI = async (
   stationType: StationType,
@@ -79,6 +87,14 @@ export const generateStationWithOpenAI = async (
 ): Promise<any> => {
   try {
     console.log(`Generating ${stationType} station for theme: ${theme}, age group: ${ageGroup}`);
+    
+    // Get API key from localStorage
+    const apiKey = localStorage.getItem('openai_api_key');
+    
+    // Check if API key is valid
+    if (!apiKey || !isValidOpenAIKey(apiKey)) {
+      throw new Error('Valid API key required for station generation.');
+    }
     
     // Get the prompt template for this station type
     let promptTemplate = '';
@@ -116,9 +132,9 @@ Format as valid JSON with the following structure:
   "supplies": ["Supply 1", "Supply 2", "Supply 3"]
 }`;
     
-    // Make the API request to OpenAI using the project API key
+    // Make the API request to OpenAI using the user's API key
     const content = await callOpenAI(
-      PROJECT_API_KEY,
+      apiKey,
       [
         {"role": "system", "content": "You are an Escape Room designer specialized in creating unique, creative, and original themed stations. Respond with valid JSON only. Never use templates or generic puzzles. Do not add markdown code blocks."},
         {"role": "user", "content": prompt}
