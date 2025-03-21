@@ -1,10 +1,10 @@
-
 // Station types for the escape room generator
 
 export enum StationType {
   DECIPHER = 'decipher',
   BINARY_CODE = 'binary_code',
   HIDDEN_OBJECTS = 'hidden_objects',
+  PHYSICAL_CHALLENGE = 'physical_challenge',
   // ... more station types will be added here
 }
 
@@ -29,6 +29,11 @@ export const stationTypeInfoMap: Record<StationType, StationTypeInfo> = {
     name: 'Hidden Objects',
     description: 'A challenge where participants must find hidden objects in the room',
     promptTemplate: `Create a station within a bigger Escape Room. At this station, participants should find five hidden objects. The task and the objects should be based on the {theme} storyline. An example of a task is: [Your team is trapped in a trash compactor! Find these 5 hidden tools to escape: hydrospanner, fusion cutter, magnetic key, power cell, and comlink. All are hidden around the room.] Provide the following in JSON format: { "name": "Station Name", "task": "Full task description", "answer": "The objects that need to be found (comma-separated)", "hints": ["Hint 1", "Hint 2", "Hint 3"], "facilitatorInstructions": "Instructions for the person running the escape room including where to hide the objects", "supplies": ["List of objects that need to be hidden"] }`
+  },
+  [StationType.PHYSICAL_CHALLENGE]: {
+    name: 'Physical Challenge',
+    description: 'A challenge where participants must complete a physical activity',
+    promptTemplate: `Create a station within a bigger Escape Room. At this station, participants should perform a physical activity related to the {theme} storyline. An example of a task is: [Defend your ship by hitting 3 TIE Fighters (paper targets) with your blaster (nerf gun or balls). You must hit all 3 targets within 1 minute to succeed.] Provide the following in JSON format: { "name": "Station Name", "task": "Full task description", "answer": "Success condition (e.g., 'All 3 targets hit')", "hints": ["Hint 1", "Hint 2", "Hint 3"], "facilitatorInstructions": "Instructions for the person running the escape room including setup details and scoring", "supplies": ["List of all physical items needed for the challenge"] }`
   }
 };
 
