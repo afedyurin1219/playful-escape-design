@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -7,6 +8,14 @@ import { generateSingleStation, generateStations } from '../utils/stationGenerat
 import ApiKeyInput from '../components/ApiKeyInput';
 import { isValidOpenAIKey, generateStoryIntroduction } from '../utils/openaiClient';
 import { StationType } from '../utils/stationTypes';
+
+// Import components
+import ResultHeader from '../components/result/ResultHeader';
+import ResultActions from '../components/result/ResultActions';
+import OverviewTab from '../components/result/OverviewTab';
+import StationsTab from '../components/result/StationsTab';
+import SuppliesTab from '../components/result/SuppliesTab';
+import FacilitationTab from '../components/result/FacilitationTab';
 
 interface LocationState {
   escapeRoom: EscapeRoomPlan;
@@ -183,6 +192,14 @@ const Result = () => {
     } finally {
       setIsGeneratingStation(false);
     }
+  };
+  
+  const handleSaveApiKey = (apiKey: string) => {
+    localStorage.setItem('openai_api_key', apiKey);
+    toast({
+      title: "API Key Updated",
+      description: "Your API key has been saved for future use.",
+    });
   };
   
   const displayedStory = customStory || escapeRoom.story;
