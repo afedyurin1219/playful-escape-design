@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { EscapeRoomPlan, EscapeRoomConfig, Station } from '../components/EscapeRoomGenerator';
 import { useToast } from '@/components/ui/use-toast';
-import { generateStationWithGPT } from '../utils/stationGenerator';
+import { generateSingleStation, generateStations } from '../utils/stationGenerator';
 import ApiKeyInput from '../components/ApiKeyInput';
 import { isValidOpenAIKey, generateStoryIntroduction } from '../utils/openaiClient';
 
@@ -33,6 +33,7 @@ const Result = () => {
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   const [customStory, setCustomStory] = useState<string | null>(null);
   const [isLoadingStory, setIsLoadingStory] = useState(false);
+  const [isGeneratingInitialStations, setIsGeneratingInitialStations] = useState(false);
   
   const state = location.state as LocationState;
   
@@ -56,19 +57,49 @@ const Result = () => {
     validateStoredApiKey();
   }, [toast]);
   
-  // Initial data check and generate story
+  // Initial data check and generate story and stations
   useEffect(() => {
     if (!state?.escapeRoom) {
       navigate('/create');
     } else {
+      // First set the initial stations from the provided plan
       setStations(state.escapeRoom.stations);
       
-      // Generate a custom story introduction when the component loads
       if (state.config) {
+        // Then generate a custom story introduction
         generateCustomStory(state.config);
+        
+        // If there are no stations initially, generate them
+        if (state.escapeRoom.stations.length === 0) {
+          generateInitialStations(state.config);
+        }
       }
     }
   }, [state, navigate]);
+  
+  // Function to generate initial stations
+  const generateInitialStations = async (config: EscapeRoomConfig) => {
+    setIsGeneratingInitialStations(true);
+    
+    try {
+      const generatedStations = await generateStations(config);
+      setStations(generatedStations);
+      
+      toast({
+        title: "Stations Generated",
+        description: `Generated ${generatedStations.length} stations for your escape room.`,
+      });
+    } catch (error) {
+      console.error("Failed to generate stations:", error);
+      toast({
+        title: "Station Generation Failed",
+        description: "Could not generate stations. Please try adding them manually.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingInitialStations(false);
+    }
+  };
   
   // Function to generate custom story introduction
   const generateCustomStory = async (config: EscapeRoomConfig) => {
@@ -128,12 +159,8 @@ const Result = () => {
     setLastGeneratedTimestamp({...lastGeneratedTimestamp, [index]: now});
     
     try {
-      // Get the current theme - ensuring we use the exact theme the user selected
-      const theme = config.customTheme || config.theme;
-      console.log(`Generating station for theme: ${theme}`);
-      
-      // Generate a new station with ChatGPT
-      const newStation = await generateStationWithGPT(config, index, theme);
+      // Generate a new station
+      const newStation = await generateSingleStation(config, index);
       
       // Update stations array
       const updatedStations = [...stations];
@@ -181,11 +208,8 @@ const Result = () => {
     setCurrentStationIndex(null);
     
     try {
-      // Get the current theme
-      const theme = config.customTheme || config.theme;
-      
-      // Generate a new station with ChatGPT
-      const newStation = await generateStationWithGPT(config, stations.length, theme);
+      // Generate a new station
+      const newStation = await generateSingleStation(config, stations.length);
       
       // Add new station to stations array
       setStations([...stations, newStation]);
@@ -243,7 +267,7 @@ const Result = () => {
             )}
           </div>
           
-          <ResultActions escapeRoom={{...escapeRoom, story: displayedStory}} />
+          <ResultActions escapeRoom={{...escapeRoom, story: displayedStory, stations: stations}} />
           
           <div className="border-b border-gray-200 mb-6 print:hidden">
             <nav className="flex space-x-8">
@@ -265,14 +289,15 @@ const Result = () => {
           
           <div className="tab-content mb-16">
             <div className={`${activeTab === 'overview' ? '' : 'print:block hidden'}`}>
-              <OverviewTab escapeRoom={{...escapeRoom, story: displayedStory}} config={config} />
+              <OverviewTab escapeRoom={{...escapeRoom, story: displayedStory, stations: stations}} config={config} />
             </div>
             
             <div className={`${activeTab === 'stations' ? '' : 'print:block hidden'}`}>
               <StationsTab 
                 stations={stations} 
-                escapeRoom={{...escapeRoom, story: displayedStory}}
-                isGeneratingStation={isGeneratingStation}
+                escapeRoom={{...escapeRoom, story: displayedStory, stations: stations}}
+                config={config}
+                isGeneratingStation={isGeneratingStation || isGeneratingInitialStations}
                 currentStationIndex={currentStationIndex}
                 onChangeStation={handleChangeStation}
                 onDeleteStation={handleDeleteStation}
@@ -281,7 +306,7 @@ const Result = () => {
             </div>
             
             <div className={`${activeTab === 'supplies' ? '' : 'print:block hidden'}`}>
-              <SuppliesTab escapeRoom={{...escapeRoom, story: displayedStory}} />
+              <SuppliesTab escapeRoom={{...escapeRoom, story: displayedStory, stations: stations}} />
             </div>
             
             <div className={`${activeTab === 'facilitation' ? '' : 'print:block hidden'}`}>

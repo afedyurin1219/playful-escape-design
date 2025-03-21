@@ -128,3 +128,76 @@ export const generateStoryIntroduction = async (theme: string, ageGroup: string)
     return "An exciting adventure awaits! Participants will need to solve puzzles, find clues, and work together to complete a series of challenges.";
   }
 };
+
+/**
+ * Generate a themed station using the OpenAI API with project key
+ */
+export const generateStationWithOpenAI = async (
+  stationType: string,
+  theme: string,
+  ageGroup: string,
+  difficulty: string
+): Promise<any> => {
+  try {
+    console.log(`Generating ${stationType} station for theme: ${theme}, age group: ${ageGroup}`);
+    
+    // Use the specific project API key
+    const projectApiKey = "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";
+    
+    // Get the prompt template from the stationTypeInfoMap
+    const promptTemplate = stationType;
+    
+    // Replace placeholders in the prompt template
+    const prompt = promptTemplate
+      .replace('{theme}', theme)
+      .replace('{ageGroup}', ageGroup)
+      .replace('{difficulty}', difficulty);
+    
+    // Make the API request to OpenAI
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${projectApiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {"role": "system", "content": "You are an Escape Room designer specialized in creating themed stations."},
+          {"role": "user", "content": prompt}
+        ],
+        temperature: 0.7,
+        max_tokens: 800,
+      }),
+    });
+
+    console.log('OpenAI API response status for station generation:', response.status);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Station Generation API Error:', errorData);
+      throw new Error(`Error calling OpenAI API for station: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log('Station data received from OpenAI');
+    
+    const content = data.choices[0]?.message?.content;
+    
+    if (!content) {
+      throw new Error('No content returned from OpenAI for station');
+    }
+
+    try {
+      // Parse the JSON response
+      const stationData = JSON.parse(content);
+      return stationData;
+    } catch (parseError) {
+      console.error('Failed to parse OpenAI response as JSON:', parseError);
+      throw new Error('Invalid station data format returned');
+    }
+  } catch (error) {
+    console.error('Station generation error:', error);
+    throw error;
+  }
+};
