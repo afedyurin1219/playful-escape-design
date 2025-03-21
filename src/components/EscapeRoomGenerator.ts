@@ -23,6 +23,7 @@ export interface Station {
   answer: string;
   hints: string[];
   facilitatorInstructions: string;
+  type?: string; // Add type to track what kind of station this is
 }
 
 export interface Supply {

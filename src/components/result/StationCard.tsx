@@ -1,7 +1,8 @@
+
 import { useState } from 'react';
 import { Station, EscapeRoomConfig } from '../EscapeRoomGenerator';
 import { Button } from '@/components/ui/button';
-import { Loader2, MoreVertical } from 'lucide-react';
+import { Loader2, MoreVertical, RefreshCw } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import PrintableLetters from '../PrintableLetters';
 import { hasPrintableContent, getPrintableContent } from '../../utils/printUtils';
+import { Badge } from '@/components/ui/badge';
 
 interface StationCardProps {
   station: Station;
@@ -44,7 +46,14 @@ const StationCard = ({
   return (
     <div className="bg-white p-6 rounded-xl shadow-card print:shadow-none print:border print:border-gray-200 print:mb-6 print:p-4 relative">
       <div className="flex justify-between items-start mb-3">
-        <h3 className="text-xl font-medium">{index + 1}. {station.name}</h3>
+        <div className="flex flex-col">
+          <h3 className="text-xl font-medium">{index + 1}. {station.name}</h3>
+          {station.type && (
+            <Badge variant="outline" className="mt-1 w-fit">
+              {station.type}
+            </Badge>
+          )}
+        </div>
         <div className="print:hidden">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

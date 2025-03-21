@@ -1,4 +1,3 @@
-
 // OpenAI API client for generating escape room stations
 
 /**
@@ -191,6 +190,10 @@ export const generateStationWithOpenAI = async (
     try {
       // Parse the JSON response
       const stationData = JSON.parse(content);
+      
+      // Add the station type to the data
+      stationData.type = stationType;
+      
       return stationData;
     } catch (parseError) {
       console.error('Failed to parse OpenAI response as JSON:', parseError);

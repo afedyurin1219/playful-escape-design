@@ -27,6 +27,15 @@ const StationsTab = ({
   onDeleteStation,
   onAddStation
 }: StationsTabProps) => {
+  // Get the number of stations based on duration
+  const getStationCountByDuration = (duration: string): number => {
+    if (duration === '<30') return 3;
+    if (duration === '30-60') return 5;
+    return 7; // for 60-120
+  };
+
+  const recommendedStationCount = getStationCountByDuration(config.duration);
+  
   return (
     <div className="stations mt-8">
       <div className="flex justify-between items-center mb-6 print:page-break-before">
@@ -36,6 +45,7 @@ const StationsTab = ({
             {config.duration === '<30' && 'Quick escape room (under 30 minutes)'}
             {config.duration === '30-60' && 'Standard escape room (30-60 minutes)'}
             {config.duration === '60-120' && 'Extended escape room (1-2 hours)'}
+            {stations.length < recommendedStationCount && ` - We recommend adding ${recommendedStationCount - stations.length} more station(s)`}
           </p>
         </div>
         <Button 
