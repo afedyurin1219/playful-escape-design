@@ -19,7 +19,7 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
       
       // Log first few characters if available for debugging
       if (apiKey) {
-        console.log('Key format:', apiKey.substring(0, 10) + '...');
+        console.log('Key format:', apiKey.substring(0, 15) + '...');
       }
       
       throw new Error('Invalid OpenAI API key. Please provide a valid key that starts with "sk-".');

@@ -1,14 +1,21 @@
 
 /**
  * Validates if the provided string is a valid OpenAI API key format
- * Accepts both standard keys and project keys
+ * Accepts standard keys, project keys, and service account keys
  */
 export const isValidOpenAIKey = (key: string): boolean => {
-  // Accept both standard OpenAI API keys (sk-...) and project keys (sk-proj-...)
+  // If no key or not a string, return false
   if (!key || typeof key !== 'string') return false;
   
-  // Check if it's a standard key or project key with proper format
-  if (key.startsWith('sk-') && key.length > 20) {
+  // Check the different possible key formats
+  if (
+    // Standard API key format: sk-...
+    (key.startsWith('sk-') && key.length > 20) ||
+    // Project key format: sk-proj-...
+    (key.startsWith('sk-proj-') && key.length > 30) ||
+    // Service account key format: sk-svcacct-...
+    (key.startsWith('sk-svcacct-') && key.length > 30)
+  ) {
     return true;
   }
   

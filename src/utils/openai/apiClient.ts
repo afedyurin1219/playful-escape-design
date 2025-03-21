@@ -40,8 +40,14 @@ export const callOpenAI = async (
       console.error('API Error:', errorData);
       
       // Check for specific error types
-      if (errorData.error && errorData.error.code === 'invalid_api_key') {
-        throw new Error('Invalid API key. Please provide a valid OpenAI API key.');
+      if (errorData.error) {
+        if (errorData.error.code === 'invalid_api_key') {
+          throw new Error('Invalid API key. Please provide a valid OpenAI API key.');
+        }
+        
+        if (errorData.error.message) {
+          throw new Error(`OpenAI API Error: ${errorData.error.message}`);
+        }
       }
       
       throw new Error(`Error calling OpenAI API: ${response.status} ${response.statusText}`);

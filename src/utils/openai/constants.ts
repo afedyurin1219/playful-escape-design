@@ -2,7 +2,7 @@
 /**
  * Project API key used for story and station generation
  */
-export const PROJECT_API_KEY = "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";
+export const PROJECT_API_KEY = "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";
 
 /**
  * API configuration for OpenAI
