@@ -65,7 +65,7 @@ export const generateSingleStation = async (
     
     // Generate the station
     const station = await generateStationWithOpenAI(
-      promptTemplate,
+      type,
       theme,
       config.ageGroup,
       config.difficulty
