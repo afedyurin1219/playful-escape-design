@@ -31,7 +31,19 @@ export const generateStations = async (config: EscapeRoomConfig): Promise<Statio
     );
     
     const stations = await Promise.all(stationPromises);
-    return stations;
+    
+    // Verify that stations were generated successfully
+    const validStations = stations.filter(station => 
+      station && station.name && station.task && station.answer && station.hints
+    );
+    
+    console.log(`Generated ${validStations.length} valid stations out of ${stationCount} requested`);
+    
+    if (validStations.length < stationCount) {
+      console.warn("Some stations were not generated successfully");
+    }
+    
+    return validStations;
   } catch (error) {
     console.error('Failed to generate stations:', error);
     throw error;
@@ -53,18 +65,14 @@ export const generateSingleStation = async (
     // Get the theme (either selected theme or custom theme)
     const theme = config.customTheme || config.theme;
     
-    // Generate a cache key
-    const cacheKey = `${theme}-${config.ageGroup}-${type}-${index}`;
-    
-    // Check if we have a cached station
-    if (stationCache[cacheKey]) {
-      console.log(`Using cached station for ${cacheKey}`);
-      return stationCache[cacheKey];
-    }
+    // Generate a cache key that includes a timestamp to reduce caching
+    // This ensures more variety in generated stations
+    const timestamp = new Date().getTime();
+    const cacheKey = `${theme}-${config.ageGroup}-${type}-${index}-${timestamp % 1000000}`;
     
     console.log(`Generating station of type ${type} for theme: ${theme}`);
     
-    // Generate the station
+    // Generate the station using OpenAI
     const station = await generateStationWithOpenAI(
       type,
       theme,

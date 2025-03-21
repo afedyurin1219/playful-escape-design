@@ -1,3 +1,4 @@
+
 import { isValidOpenAIKey } from './validation';
 import { callOpenAI } from './apiClient';
 import { PROJECT_API_KEY } from './constants';
@@ -98,7 +99,18 @@ Additional details:
 - Age group: ${ageGroup}
 - Difficulty: ${difficulty}
 
-Format as valid JSON with no additional text.`;
+IMPORTANT: Make sure this station is COMPLETELY ORIGINAL and not copied from templates.
+Create a unique station that has not been seen before. Be creative!
+
+Format as valid JSON with the following structure:
+{
+  "name": "Station Name",
+  "task": "Detailed task description",
+  "answer": "The solution or expected outcome",
+  "hints": ["Hint 1", "Hint 2", "Hint 3"],
+  "facilitatorInstructions": "Instructions for the person running the escape room",
+  "supplies": ["Supply 1", "Supply 2", "Supply 3"]
+}`;
     
     // Make the API request to OpenAI using the project API key
     const content = await callOpenAI(
@@ -118,6 +130,11 @@ Format as valid JSON with no additional text.`;
       
       // Add the station type to the data
       stationData.type = stationType;
+      
+      // Verify that we have the required fields
+      if (!stationData.name || !stationData.task || !stationData.answer || !Array.isArray(stationData.hints)) {
+        throw new Error('Station data is missing required fields');
+      }
       
       return stationData;
     } catch (parseError) {

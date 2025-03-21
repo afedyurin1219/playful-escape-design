@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -62,17 +63,14 @@ const Result = () => {
     if (!state?.escapeRoom) {
       navigate('/create');
     } else {
-      // First set the initial stations from the provided plan
-      setStations(state.escapeRoom.stations);
-      
+      // Always generate stations from scratch using OpenAI, ignoring any existing stations
+      // This ensures we never use hardcoded stations
       if (state.config) {
-        // Then generate a custom story introduction
+        // Generate a custom story introduction
         generateCustomStory(state.config);
         
-        // If there are no stations initially, generate them
-        if (state.escapeRoom.stations.length === 0) {
-          generateInitialStations(state.config);
-        }
+        // Always generate new stations
+        generateInitialStations(state.config);
       }
     }
   }, [state, navigate]);
@@ -80,9 +78,15 @@ const Result = () => {
   // Function to generate initial stations
   const generateInitialStations = async (config: EscapeRoomConfig) => {
     setIsGeneratingInitialStations(true);
+    setStations([]); // Clear any existing stations to ensure we only use freshly generated ones
     
     try {
       const generatedStations = await generateStations(config);
+      
+      if (generatedStations.length === 0) {
+        throw new Error("Failed to generate stations");
+      }
+      
       setStations(generatedStations);
       
       toast({
@@ -93,7 +97,7 @@ const Result = () => {
       console.error("Failed to generate stations:", error);
       toast({
         title: "Station Generation Failed",
-        description: "Could not generate stations. Please try adding them manually.",
+        description: "Could not generate stations. Please try adding them manually or refresh the page.",
         variant: "destructive"
       });
     } finally {
@@ -239,6 +243,11 @@ const Result = () => {
       title: "API Key Updated",
       description: "You can now generate stations with your API key.",
     });
+    
+    // After saving the API key, generate initial stations if we don't have any
+    if (stations.length === 0 && config) {
+      generateInitialStations(config);
+    }
   };
   
   // Use the custom generated story if available, otherwise use the default
