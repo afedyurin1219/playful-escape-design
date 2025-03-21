@@ -64,9 +64,10 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>OpenAI API Key Required</DialogTitle>
+          <DialogTitle>OpenAI API Key (Optional)</DialogTitle>
           <DialogDescription>
-            To generate themed stations, please enter your OpenAI API key.
+            You can provide your own OpenAI API key for custom station generation.
+            The app will use our project API key by default for most operations.
             Your key will be stored locally in your browser and is never sent to our servers.
           </DialogDescription>
         </DialogHeader>

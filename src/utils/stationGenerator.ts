@@ -49,6 +49,7 @@ export const generateStations = async (config: EscapeRoomConfig): Promise<Statio
 
 /**
  * Generate a single station based on the configuration
+ * Always uses PROJECT_API_KEY instead of user's API key
  */
 export const generateSingleStation = async (
   config: EscapeRoomConfig, 
@@ -67,7 +68,7 @@ export const generateSingleStation = async (
     
     console.log(`Generating station of type ${type} for theme: ${theme} at ${timestamp}`);
     
-    // Always generate a fresh station using OpenAI
+    // Always generate a fresh station using OpenAI with PROJECT_API_KEY
     const station = await generateStationWithOpenAI(
       type,
       theme,

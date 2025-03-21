@@ -8,14 +8,6 @@ import ApiKeyInput from '../components/ApiKeyInput';
 import { isValidOpenAIKey, generateStoryIntroduction } from '../utils/openaiClient';
 import { StationType } from '../utils/stationTypes';
 
-// Import components
-import ResultHeader from '../components/result/ResultHeader';
-import ResultActions from '../components/result/ResultActions';
-import OverviewTab from '../components/result/OverviewTab';
-import StationsTab from '../components/result/StationsTab';
-import SuppliesTab from '../components/result/SuppliesTab';
-import FacilitationTab from '../components/result/FacilitationTab';
-
 interface LocationState {
   escapeRoom: EscapeRoomPlan;
   config: EscapeRoomConfig;
@@ -36,24 +28,6 @@ const Result = () => {
   const [isGeneratingInitialStations, setIsGeneratingInitialStations] = useState(false);
   
   const state = location.state as LocationState;
-  
-  useEffect(() => {
-    const validateStoredApiKey = () => {
-      const apiKey = localStorage.getItem('openai_api_key');
-      
-      if (apiKey && !isValidOpenAIKey(apiKey)) {
-        console.log('Invalid API key format detected in localStorage');
-        toast({
-          title: "Invalid API Key Format",
-          description: "Your saved API key is not in a valid format. Please provide a standard OpenAI API key.",
-          variant: "destructive"
-        });
-        setShowApiKeyDialog(true);
-      }
-    };
-    
-    validateStoredApiKey();
-  }, [toast]);
   
   useEffect(() => {
     if (!state?.escapeRoom) {
@@ -138,12 +112,6 @@ const Result = () => {
       return;
     }
     
-    const apiKey = localStorage.getItem('openai_api_key');
-    if (!apiKey) {
-      setShowApiKeyDialog(true);
-      return;
-    }
-    
     setCurrentStationIndex(index);
     setIsGeneratingStation(true);
     setLastGeneratedTimestamp({...lastGeneratedTimestamp, [index]: now});
@@ -189,12 +157,6 @@ const Result = () => {
   };
   
   const handleAddStation = async () => {
-    const apiKey = localStorage.getItem('openai_api_key');
-    if (!apiKey) {
-      setShowApiKeyDialog(true);
-      return;
-    }
-    
     setIsGeneratingStation(true);
     setCurrentStationIndex(null);
     
@@ -220,18 +182,6 @@ const Result = () => {
       });
     } finally {
       setIsGeneratingStation(false);
-    }
-  };
-  
-  const handleSaveApiKey = (apiKey: string) => {
-    localStorage.setItem('openai_api_key', apiKey);
-    toast({
-      title: "API Key Updated",
-      description: "You can now generate stations with your API key.",
-    });
-    
-    if (stations.length === 0 && config) {
-      generateInitialStations(config);
     }
   };
   
