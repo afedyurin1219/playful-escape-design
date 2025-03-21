@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -38,12 +37,10 @@ const Result = () => {
   
   const state = location.state as LocationState;
   
-  // Check if API key is valid on component mount
   useEffect(() => {
     const validateStoredApiKey = () => {
       const apiKey = localStorage.getItem('openai_api_key');
       
-      // If API key exists but is invalid, show dialog
       if (apiKey && !isValidOpenAIKey(apiKey)) {
         console.log('Invalid API key format detected in localStorage');
         toast({
@@ -58,35 +55,30 @@ const Result = () => {
     validateStoredApiKey();
   }, [toast]);
   
-  // Initial data check and generate story and stations
   useEffect(() => {
     if (!state?.escapeRoom) {
       navigate('/create');
     } else {
-      // Always generate stations from scratch using OpenAI, ignoring any existing stations
-      // This ensures we never use hardcoded stations
       if (state.config) {
-        // Generate a custom story introduction
         generateCustomStory(state.config);
-        
-        // Always generate new stations
         generateInitialStations(state.config);
       }
     }
   }, [state, navigate]);
   
-  // Function to generate initial stations
   const generateInitialStations = async (config: EscapeRoomConfig) => {
     setIsGeneratingInitialStations(true);
-    setStations([]); // Clear any existing stations to ensure we only use freshly generated ones
+    setStations([]);
     
     try {
+      console.log("Starting initial station generation with OpenAI...");
       const generatedStations = await generateStations(config);
       
       if (generatedStations.length === 0) {
         throw new Error("Failed to generate stations");
       }
       
+      console.log(`Successfully generated ${generatedStations.length} stations with OpenAI`);
       setStations(generatedStations);
       
       toast({
@@ -105,7 +97,6 @@ const Result = () => {
     }
   };
   
-  // Function to generate custom story introduction
   const generateCustomStory = async (config: EscapeRoomConfig) => {
     if (isLoadingStory) return;
     
@@ -115,7 +106,6 @@ const Result = () => {
       const theme = config.customTheme || config.theme;
       const ageGroup = config.ageGroup;
       
-      // Generate story introduction
       const story = await generateStoryIntroduction(theme, ageGroup);
       setCustomStory(story);
       
@@ -138,12 +128,9 @@ const Result = () => {
   
   const { escapeRoom, config } = state;
   
-  // Function to handle station change
   const handleChangeStation = async (index: number) => {
-    // Don't regenerate if already generating
     if (isGeneratingStation) return;
     
-    // Prevent rapid successive generations for the same station
     const now = Date.now();
     const lastGenerated = lastGeneratedTimestamp[index] || 0;
     if (now - lastGenerated < 2000) {
@@ -151,7 +138,6 @@ const Result = () => {
       return;
     }
     
-    // Check if we have an API key
     const apiKey = localStorage.getItem('openai_api_key');
     if (!apiKey) {
       setShowApiKeyDialog(true);
@@ -163,13 +149,14 @@ const Result = () => {
     setLastGeneratedTimestamp({...lastGeneratedTimestamp, [index]: now});
     
     try {
-      // Keep the existing station type when regenerating
+      console.log(`Regenerating station ${index} with OpenAI...`);
+      
       const existingType = stations[index]?.type as StationType | undefined;
       
-      // Generate a new station
       const newStation = await generateSingleStation(config, index, existingType);
       
-      // Update stations array
+      console.log(`Successfully regenerated station ${index}:`, newStation.name);
+      
       const updatedStations = [...stations];
       updatedStations[index] = newStation;
       setStations(updatedStations);
@@ -191,7 +178,6 @@ const Result = () => {
     }
   };
   
-  // Function to handle station deletion
   const handleDeleteStation = (index: number) => {
     const updatedStations = stations.filter((_, i) => i !== index);
     setStations(updatedStations);
@@ -202,9 +188,7 @@ const Result = () => {
     });
   };
   
-  // Function to add a new station
   const handleAddStation = async () => {
-    // Check if we have an API key
     const apiKey = localStorage.getItem('openai_api_key');
     if (!apiKey) {
       setShowApiKeyDialog(true);
@@ -215,10 +199,12 @@ const Result = () => {
     setCurrentStationIndex(null);
     
     try {
-      // Generate a new station with a random type
+      console.log("Generating new station with OpenAI...");
+      
       const newStation = await generateSingleStation(config, stations.length);
       
-      // Add new station to stations array
+      console.log(`Successfully generated new station: ${newStation.name}`);
+      
       setStations([...stations, newStation]);
       
       toast({
@@ -244,13 +230,11 @@ const Result = () => {
       description: "You can now generate stations with your API key.",
     });
     
-    // After saving the API key, generate initial stations if we don't have any
     if (stations.length === 0 && config) {
       generateInitialStations(config);
     }
   };
   
-  // Use the custom generated story if available, otherwise use the default
   const displayedStory = customStory || escapeRoom.story;
   
   return (
@@ -263,7 +247,6 @@ const Result = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          {/* API Key Dialog */}
           <ApiKeyInput 
             isOpen={showApiKeyDialog} 
             onClose={() => setShowApiKeyDialog(false)}

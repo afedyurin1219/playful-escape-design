@@ -1,4 +1,3 @@
-
 import { isValidOpenAIKey } from './validation';
 import { callOpenAI } from './apiClient';
 import { PROJECT_API_KEY } from './constants';
@@ -92,23 +91,27 @@ export const generateStationWithOpenAI = async (
       throw new Error(`Unknown station type: ${stationType}`);
     }
     
-    // Create a more detailed prompt that ensures proper JSON formatting
+    // Create a more detailed prompt that ensures proper JSON formatting and originality
     const prompt = `${promptTemplate}
     
 Additional details:
 - Age group: ${ageGroup}
 - Difficulty: ${difficulty}
+- Theme: ${theme}
 
-IMPORTANT: Make sure this station is COMPLETELY ORIGINAL and not copied from templates.
-Create a unique station that has not been seen before. Be creative!
+IMPORTANT REQUIREMENTS:
+- Create a COMPLETELY ORIGINAL and UNIQUE station for the theme "${theme}"
+- Do NOT use templates or generic puzzles
+- Make this station CREATIVE and SPECIFICALLY TIED to the ${theme} theme
+- Avoid copying common escape room puzzles
 
 Format as valid JSON with the following structure:
 {
-  "name": "Station Name",
-  "task": "Detailed task description",
-  "answer": "The solution or expected outcome",
-  "hints": ["Hint 1", "Hint 2", "Hint 3"],
-  "facilitatorInstructions": "Instructions for the person running the escape room",
+  "name": "Station Name - should be unique and creative",
+  "task": "Detailed task description explaining what participants need to do",
+  "answer": "The solution or expected outcome (must be specific and clear)",
+  "hints": ["Hint 1 (subtle)", "Hint 2 (more direct)", "Hint 3 (very direct)"],
+  "facilitatorInstructions": "Detailed instructions for the person running the escape room",
   "supplies": ["Supply 1", "Supply 2", "Supply 3"]
 }`;
     
@@ -116,10 +119,10 @@ Format as valid JSON with the following structure:
     const content = await callOpenAI(
       PROJECT_API_KEY,
       [
-        {"role": "system", "content": "You are an Escape Room designer specialized in creating themed stations. Respond with valid JSON only."},
+        {"role": "system", "content": "You are an Escape Room designer specialized in creating unique, creative, and original themed stations. Respond with valid JSON only. Never use templates or generic puzzles."},
         {"role": "user", "content": prompt}
       ],
-      { max_tokens: 800 }
+      { max_tokens: 1000 }  // Increased token limit for more detailed responses
     );
 
     console.log('Station data received from OpenAI');
@@ -139,24 +142,11 @@ Format as valid JSON with the following structure:
       return stationData;
     } catch (parseError) {
       console.error('Failed to parse OpenAI response as JSON:', parseError);
+      console.error('Raw response:', content);
       throw new Error('Invalid station data format returned');
     }
   } catch (error) {
     console.error('Station generation error:', error);
-    
-    // Return a fallback station if API call fails
-    return {
-      name: `${theme.charAt(0).toUpperCase() + theme.slice(1)} ${stationType} Challenge`,
-      task: `Solve the ${stationType} puzzle related to ${theme}.`,
-      answer: "Sample answer (would be customized in actual implementation)",
-      hints: [
-        "Look carefully at the clues provided",
-        "Consider how this relates to the theme",
-        "The answer involves matching the pattern"
-      ],
-      facilitatorInstructions: "Help participants if they get stuck. Provide the hints in order.",
-      supplies: ["Paper", "Pencils", "Clue cards"],
-      type: stationType
-    };
+    throw error;  // Re-throw the error instead of returning a fallback
   }
 };

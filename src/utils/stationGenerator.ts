@@ -3,9 +3,6 @@ import { Station, EscapeRoomConfig } from '../components/EscapeRoomGenerator';
 import { generateStationWithOpenAI } from './openai/contentGenerator';
 import { StationType, stationTypeInfoMap, getRandomStationTypes } from './stationTypes';
 
-// Cache to store generated stations
-const stationCache: Record<string, Station> = {};
-
 /**
  * Generate the appropriate number of stations based on the escape room configuration
  */
@@ -65,14 +62,12 @@ export const generateSingleStation = async (
     // Get the theme (either selected theme or custom theme)
     const theme = config.customTheme || config.theme;
     
-    // Generate a cache key that includes a timestamp to reduce caching
-    // This ensures more variety in generated stations
+    // Generate a unique timestamp to ensure we get different results each time
     const timestamp = new Date().getTime();
-    const cacheKey = `${theme}-${config.ageGroup}-${type}-${index}-${timestamp % 1000000}`;
     
-    console.log(`Generating station of type ${type} for theme: ${theme}`);
+    console.log(`Generating station of type ${type} for theme: ${theme} at ${timestamp}`);
     
-    // Generate the station using OpenAI
+    // Always generate a fresh station using OpenAI
     const station = await generateStationWithOpenAI(
       type,
       theme,
@@ -80,21 +75,19 @@ export const generateSingleStation = async (
       config.difficulty
     );
     
-    // Cache the station
-    stationCache[cacheKey] = station;
+    // Verify the generated station has all required fields
+    if (!station?.name || !station?.task || !station?.answer || !Array.isArray(station?.hints)) {
+      console.error('Generated station is missing required fields:', station);
+      throw new Error('Generated station is missing required fields');
+    }
     
+    console.log(`Successfully generated station: ${station.name}`);
     return station;
   } catch (error) {
     console.error('Failed to generate station:', error);
     
-    // Return a fallback station if generation fails
-    return {
-      name: `Station ${index + 1}`,
-      task: "This station could not be generated. Please try again or create a different station.",
-      answer: "N/A",
-      hints: ["Try refreshing the station"],
-      facilitatorInstructions: "This station needs to be regenerated or replaced.",
-      type: stationType || StationType.DECIPHER
-    };
+    // Re-throw the error instead of returning a fallback
+    // This ensures that the UI can handle the failure appropriately
+    throw error;
   }
 };
