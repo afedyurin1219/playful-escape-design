@@ -5,6 +5,7 @@ export enum StationType {
   BINARY_CODE = 'binary_code',
   HIDDEN_OBJECTS = 'hidden_objects',
   PHYSICAL_CHALLENGE = 'physical_challenge',
+  PHYSICAL_CHALLENGE_TWO = 'physical_challenge_two',
   PUZZLE = 'puzzle',
   RIDDLE = 'riddle',
   WORD_PUZZLE = 'word_puzzle',
@@ -37,6 +38,11 @@ export const stationTypeInfoMap: Record<StationType, StationTypeInfo> = {
     name: 'Physical Challenge',
     description: 'A challenge where participants must complete a physical activity',
     promptTemplate: `Create a station within a bigger Escape Room. At this station, participants should perform a physical activity related to the {theme} storyline. An example of a task is: [Defend your ship by hitting 3 TIE Fighters (paper targets) with your blaster (nerf gun or balls). You must hit all 3 targets within 1 minute to succeed.] Provide the following in JSON format: { "name": "Station Name", "task": "Full task description", "answer": "Success condition (e.g., 'All 3 targets hit')", "hints": ["Hint 1", "Hint 2", "Hint 3"], "facilitatorInstructions": "Instructions for the person running the escape room including setup details and scoring", "supplies": ["List of all physical items needed for the challenge"] }`
+  },
+  [StationType.PHYSICAL_CHALLENGE_TWO]: {
+    name: 'Dexterity Challenge',
+    description: 'A challenge where participants must demonstrate fine motor skills',
+    promptTemplate: `Create a station within a bigger Escape Room. At this station, participants should complete a dexterity challenge related to the {theme} storyline. An example of a task is: [Transfer 'golden treasures' (ping pong balls) from one container to another using only a spoon held in your mouth. You need to successfully transfer 5 objects to proceed.] Provide the following in JSON format: { "name": "Station Name", "task": "Full task description", "answer": "Success condition (e.g., '5 objects transferred')", "hints": ["Hint 1", "Hint 2", "Hint 3"], "facilitatorInstructions": "Instructions for the person running the escape room including setup details and scoring", "supplies": ["List of all physical items needed for the challenge"] }`
   },
   [StationType.PUZZLE]: {
     name: 'Puzzle',
