@@ -6,6 +6,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { generateSingleStation, generateStations } from '../utils/stationGenerator';
 import ApiKeyInput from '../components/ApiKeyInput';
 import { isValidOpenAIKey, generateStoryIntroduction } from '../utils/openaiClient';
+import { StationType } from '../utils/stationTypes';
 
 // Import components
 import ResultHeader from '../components/result/ResultHeader';
