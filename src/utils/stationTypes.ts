@@ -11,6 +11,7 @@ export enum StationType {
   RIDDLE = 'riddle',
   WORD_PUZZLE = 'word_puzzle',
   MATH_CHALLENGE = 'math_challenge',
+  CODE_CRACKING = 'code_cracking',
   // ... more station types will be added here
 }
 
@@ -65,6 +66,11 @@ export const stationTypeInfoMap: Record<StationType, StationTypeInfo> = {
     name: 'Math Challenge',
     description: 'A challenge where participants must solve a mathematical problem',
     promptTemplate: `Create a station within a bigger Escape Room. At this station, participants should crack a code by solving a math problem related to the {theme} storyline. An example of a task is: [Crack the vault code: What is the sum of all the numbers in Platform 9¾, Vault 713, and the year Hogwarts was founded (993 A.D.)?]. Provide the following in JSON format: { "name": "Station Name", "task": "Full task description", "answer": "The answer with explanation", "hints": ["Hint 1", "Hint 2", "Hint 3"], "facilitatorInstructions": "Instructions for the person running the escape room including the solution explanation", "supplies": ["List of items needed for the math challenge"] }`
+  },
+  [StationType.CODE_CRACKING]: {
+    name: 'Code Cracking',
+    description: 'A challenge where participants decode a message using a letter-to-number substitution',
+    promptTemplate: `Create a station within a bigger Escape Room. At this station, participants should decode a message using a letter-to-number substitution (A=1, B=2, etc.) related to the {theme} storyline. An example of a task is: [Decode this message using the key where A=1, B=2, etc.: "20-8-5 6-9-14-1-12 3-15-4-5 9-19 8-9-4-4-5-14"]. Provide the following in JSON format: { "name": "Station Name", "task": "Full task description", "answer": "The answer with explanation", "hints": ["Hint 1", "Hint 2", "Hint 3"], "facilitatorInstructions": "Instructions for the person running the escape room including the solution explanation", "supplies": ["List of items needed for the code cracking challenge"] }`
   }
 };
 
