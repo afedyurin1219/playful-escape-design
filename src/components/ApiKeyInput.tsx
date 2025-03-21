@@ -37,11 +37,6 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
       return false;
     }
     
-    if (key.startsWith('sk-proj-')) {
-      setError("Project keys (starting with 'sk-proj-') are not supported. Please use a standard API key.");
-      return false;
-    }
-    
     setError(null);
     return true;
   };
@@ -97,7 +92,7 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
           
           <div className="text-sm text-gray-500 mt-2">
             <p>You can get an API key from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-teal underline">OpenAI's dashboard</a>.</p>
-            <p className="mt-1">Valid keys start with "sk-" and are not project keys (sk-proj-*).</p>
+            <p className="mt-1">Valid keys start with "sk-" (including both standard and project keys).</p>
           </div>
         </div>
         

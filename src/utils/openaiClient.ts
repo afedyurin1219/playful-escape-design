@@ -3,11 +3,11 @@
 
 /**
  * Validates if the provided string is a valid OpenAI API key format
+ * Now accepting both standard keys and project keys
  */
 export const isValidOpenAIKey = (key: string): boolean => {
-  // Standard OpenAI API keys start with 'sk-' followed by a string of characters
-  // Project keys (sk-proj-*) are not valid for direct API access
-  return key && typeof key === 'string' && key.startsWith('sk-') && !key.startsWith('sk-proj-');
+  // Accept both standard OpenAI API keys (sk-...) and project keys (sk-proj-...)
+  return key && typeof key === 'string' && (key.startsWith('sk-'));
 };
 
 /**
@@ -29,10 +29,10 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
         console.log('Key format:', apiKey.substring(0, 10) + '...');
       }
       
-      throw new Error('Invalid OpenAI API key. Please provide a valid key that starts with "sk-" (not "sk-proj-").');
+      throw new Error('Invalid OpenAI API key. Please provide a valid key that starts with "sk-".');
     }
     
-    console.log('Making OpenAI API request with valid API key');
+    console.log('Making OpenAI API request with API key');
     
     // Make the API request to OpenAI
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -71,5 +71,60 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
   } catch (error) {
     console.error('OpenAI API error:', error);
     throw error;
+  }
+};
+
+/**
+ * Generate story introduction using OpenAI with the specific API key
+ */
+export const generateStoryIntroduction = async (theme: string, ageGroup: string): Promise<string> => {
+  try {
+    console.log(`Generating story introduction for theme: ${theme}, age group: ${ageGroup}`);
+    
+    // Use the specific project API key provided
+    const projectApiKey = "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";
+    
+    // Create the prompt based on the theme and age group
+    const prompt = `Write a story introduction for an escape room. The room theme is ${theme}. The audience is ${ageGroup} years old. Do not design challenges, only the story introduction. Limit - 5 sentences max.`;
+    
+    // Make the API request to OpenAI
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${projectApiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {"role": "system", "content": "You are an Escape Room designer."},
+          {"role": "user", "content": prompt}
+        ],
+        temperature: 0.7,
+      }),
+    });
+
+    console.log('OpenAI API response status for story generation:', response.status);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Story Generation API Error:', errorData);
+      throw new Error(`Error calling OpenAI API for story: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log('Story introduction received from OpenAI');
+    
+    const storyContent = data.choices[0]?.message?.content;
+    
+    if (!storyContent) {
+      throw new Error('No content returned from OpenAI for story introduction');
+    }
+
+    return storyContent;
+  } catch (error) {
+    console.error('Story generation error:', error);
+    // Return a fallback story if API call fails
+    return "An exciting adventure awaits! Participants will need to solve puzzles, find clues, and work together to complete a series of challenges.";
   }
 };

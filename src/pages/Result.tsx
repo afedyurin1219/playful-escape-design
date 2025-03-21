@@ -6,7 +6,7 @@ import { EscapeRoomPlan, EscapeRoomConfig, Station } from '../components/EscapeR
 import { useToast } from '@/components/ui/use-toast';
 import { generateStationWithGPT } from '../utils/stationGenerator';
 import ApiKeyInput from '../components/ApiKeyInput';
-import { isValidOpenAIKey } from '../utils/openaiClient';
+import { isValidOpenAIKey, generateStoryIntroduction } from '../utils/openaiClient';
 
 // Import components
 import ResultHeader from '../components/result/ResultHeader';
@@ -31,6 +31,8 @@ const Result = () => {
   const [isGeneratingStation, setIsGeneratingStation] = useState(false);
   const [lastGeneratedTimestamp, setLastGeneratedTimestamp] = useState<Record<number, number>>({});
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
+  const [customStory, setCustomStory] = useState<string | null>(null);
+  const [isLoadingStory, setIsLoadingStory] = useState(false);
   
   const state = location.state as LocationState;
   
@@ -54,13 +56,46 @@ const Result = () => {
     validateStoredApiKey();
   }, [toast]);
   
+  // Initial data check and generate story
   useEffect(() => {
     if (!state?.escapeRoom) {
       navigate('/create');
     } else {
       setStations(state.escapeRoom.stations);
+      
+      // Generate a custom story introduction when the component loads
+      if (state.config) {
+        generateCustomStory(state.config);
+      }
     }
   }, [state, navigate]);
+  
+  // Function to generate custom story introduction
+  const generateCustomStory = async (config: EscapeRoomConfig) => {
+    if (isLoadingStory) return;
+    
+    setIsLoadingStory(true);
+    
+    try {
+      const theme = config.customTheme || config.theme;
+      const ageGroup = config.ageGroup;
+      
+      // Generate story introduction
+      const story = await generateStoryIntroduction(theme, ageGroup);
+      setCustomStory(story);
+      
+      console.log("Story introduction generated successfully:", story);
+    } catch (error) {
+      console.error("Failed to generate story introduction:", error);
+      toast({
+        title: "Story Generation Failed",
+        description: "Could not generate a custom story introduction. Using default story instead.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingStory(false);
+    }
+  };
   
   if (!state?.escapeRoom) {
     return null;
@@ -179,9 +214,12 @@ const Result = () => {
     });
   };
   
+  // Use the custom generated story if available, otherwise use the default
+  const displayedStory = customStory || escapeRoom.story;
+  
   return (
     <div className="min-h-screen bg-ivory text-charcoal pb-16 print:p-0">
-      <ResultHeader title={escapeRoom.title} story={escapeRoom.story} />
+      <ResultHeader title={escapeRoom.title} story={customStory || ''} />
       
       <main className="max-w-6xl mx-auto px-6 print:px-0">
         <motion.div
@@ -198,10 +236,14 @@ const Result = () => {
           
           <div className="mb-8 text-center">
             <h1 className="text-4xl font-display text-teal mb-3">{escapeRoom.title}</h1>
-            <p className="text-lg max-w-3xl mx-auto">{escapeRoom.story}</p>
+            {isLoadingStory ? (
+              <p className="text-lg max-w-3xl mx-auto italic">Loading story introduction...</p>
+            ) : (
+              <p className="text-lg max-w-3xl mx-auto">{displayedStory}</p>
+            )}
           </div>
           
-          <ResultActions escapeRoom={escapeRoom} />
+          <ResultActions escapeRoom={{...escapeRoom, story: displayedStory}} />
           
           <div className="border-b border-gray-200 mb-6 print:hidden">
             <nav className="flex space-x-8">
@@ -223,13 +265,13 @@ const Result = () => {
           
           <div className="tab-content mb-16">
             <div className={`${activeTab === 'overview' ? '' : 'print:block hidden'}`}>
-              <OverviewTab escapeRoom={escapeRoom} config={config} />
+              <OverviewTab escapeRoom={{...escapeRoom, story: displayedStory}} config={config} />
             </div>
             
             <div className={`${activeTab === 'stations' ? '' : 'print:block hidden'}`}>
               <StationsTab 
                 stations={stations} 
-                escapeRoom={escapeRoom}
+                escapeRoom={{...escapeRoom, story: displayedStory}}
                 isGeneratingStation={isGeneratingStation}
                 currentStationIndex={currentStationIndex}
                 onChangeStation={handleChangeStation}
@@ -239,7 +281,7 @@ const Result = () => {
             </div>
             
             <div className={`${activeTab === 'supplies' ? '' : 'print:block hidden'}`}>
-              <SuppliesTab escapeRoom={escapeRoom} />
+              <SuppliesTab escapeRoom={{...escapeRoom, story: displayedStory}} />
             </div>
             
             <div className={`${activeTab === 'facilitation' ? '' : 'print:block hidden'}`}>
