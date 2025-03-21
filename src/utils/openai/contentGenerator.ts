@@ -63,7 +63,7 @@ export const generateStoryIntroduction = async (theme: string, ageGroup: string)
   } catch (error) {
     console.error('Story generation error:', error);
     // Return a fallback story if API call fails
-    return "An exciting adventure awaits! Participants will need to solve puzzles, find clues, and work together to complete a series of challenges.";
+    return "An exciting adventure awaits! Participants will need to solve puzzles, find clues, and work together to complete a series of challenges. Each station presents a unique problem to overcome. As you progress, you'll unlock secrets and discover hidden treasures. The clock is ticking, so work quickly to succeed!";
   }
 };
 
@@ -79,20 +79,28 @@ export const generateStationWithOpenAI = async (
   try {
     console.log(`Generating ${stationType} station for theme: ${theme}, age group: ${ageGroup}`);
     
-    // Get the prompt template from the stationTypeInfoMap
-    const promptTemplate = stationType;
-    
-    // Replace placeholders in the prompt template
-    const prompt = promptTemplate
-      .replace('{theme}', theme)
-      .replace('{ageGroup}', ageGroup)
-      .replace('{difficulty}', difficulty);
+    // Create a more detailed prompt that ensures proper JSON formatting
+    const prompt = `Create a station for an escape room with the following details:
+- Station type: ${stationType}
+- Theme: ${theme}
+- Age group: ${ageGroup}
+- Difficulty: ${difficulty}
+
+Respond with ONLY a JSON object that has these fields:
+- name: a creative name for the station
+- task: detailed description of what participants need to do
+- answer: the solution or correct answer
+- hints: an array of 3 progressive hints
+- facilitatorInstructions: instructions for the person running the station
+- supplies: array of necessary items
+
+Format as valid JSON with no additional text.`;
     
     // Make the API request to OpenAI using the project API key
     const content = await callOpenAI(
       PROJECT_API_KEY,
       [
-        {"role": "system", "content": "You are an Escape Room designer specialized in creating themed stations."},
+        {"role": "system", "content": "You are an Escape Room designer specialized in creating themed stations. Respond with valid JSON only."},
         {"role": "user", "content": prompt}
       ],
       { max_tokens: 800 }
@@ -114,6 +122,20 @@ export const generateStationWithOpenAI = async (
     }
   } catch (error) {
     console.error('Station generation error:', error);
-    throw error;
+    
+    // Return a fallback station if API call fails
+    return {
+      name: `${theme.charAt(0).toUpperCase() + theme.slice(1)} ${stationType} Challenge`,
+      task: `Solve the ${stationType} puzzle related to ${theme}.`,
+      answer: "Sample answer (would be customized in actual implementation)",
+      hints: [
+        "Look carefully at the clues provided",
+        "Consider how this relates to the theme",
+        "The answer involves matching the pattern"
+      ],
+      facilitatorInstructions: "Help participants if they get stuck. Provide the hints in order.",
+      supplies: ["Paper", "Pencils", "Clue cards"],
+      type: stationType
+    };
   }
 };
