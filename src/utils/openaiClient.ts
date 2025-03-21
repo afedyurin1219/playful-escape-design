@@ -1,3 +1,4 @@
+
 // OpenAI API client for generating escape room stations
 
 /**
@@ -81,7 +82,7 @@ export const generateStoryIntroduction = async (theme: string, ageGroup: string)
     console.log(`Generating story introduction for theme: ${theme}, age group: ${ageGroup}`);
     
     // Use the specific project API key provided
-    const projectApiKey = "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";
+    const projectApiKey = "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";
     
     // Create the prompt based on the theme and age group
     const prompt = `Write a story introduction for an escape room. The room theme is ${theme}. The audience is ${ageGroup} years old. Do not design challenges, only the story introduction. Limit - 5 sentences max.`;
@@ -141,7 +142,7 @@ export const generateStationWithOpenAI = async (
     console.log(`Generating ${stationType} station for theme: ${theme}, age group: ${ageGroup}`);
     
     // Use the specific project API key
-    const projectApiKey = "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";
+    const projectApiKey = "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";
     
     // Get the prompt template from the stationTypeInfoMap
     const promptTemplate = stationType;
