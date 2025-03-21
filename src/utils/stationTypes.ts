@@ -1,4 +1,3 @@
-
 // Station types for the escape room generator
 
 export enum StationType {
@@ -7,6 +6,7 @@ export enum StationType {
   HIDDEN_OBJECTS = 'hidden_objects',
   PHYSICAL_CHALLENGE = 'physical_challenge',
   PUZZLE = 'puzzle',
+  RIDDLE = 'riddle',
   // ... more station types will be added here
 }
 
@@ -41,6 +41,11 @@ export const stationTypeInfoMap: Record<StationType, StationTypeInfo> = {
     name: 'Puzzle',
     description: 'A challenge where participants must solve an IQ puzzle',
     promptTemplate: `Create a station within a bigger Escape Room. At this station, participants should solve an IQ puzzle related to the {theme} storyline. An example of a task is: [Plot a safe course through the asteroid field by solving this puzzle: If each number represents the position of a safe passage point, find the missing number in this sequence: 2, 5, 10, 17, 26, ?]. Provide the following in JSON format: { "name": "Station Name", "task": "Full task description", "answer": "The answer with explanation", "hints": ["Hint 1", "Hint 2", "Hint 3"], "facilitatorInstructions": "Instructions for the person running the escape room including the solution explanation", "supplies": ["List of items needed for the puzzle"] }`
+  },
+  [StationType.RIDDLE]: {
+    name: 'Riddle',
+    description: 'A challenge where participants must solve a themed riddle',
+    promptTemplate: `Create a station within a bigger Escape Room. At this station, participants should solve a riddle related to the {theme} storyline. An example of a task is: [Decipher Professor Snape's recipe by solving this riddle: 'I'm tall when I'm young, and short when I'm old. What am I?']. Provide the following in JSON format: { "name": "Station Name", "task": "Full task description", "answer": "The answer with explanation", "hints": ["Hint 1", "Hint 2", "Hint 3"], "facilitatorInstructions": "Instructions for the person running the escape room including the solution explanation", "supplies": ["List of items needed for the riddle challenge"] }`
   }
 };
 
