@@ -1,4 +1,3 @@
-
 import { isValidOpenAIKey } from './validation';
 import { callOpenAI } from './apiClient';
 import { PROJECT_API_KEY } from './constants';
@@ -72,7 +71,7 @@ export const generateStoryIntroduction = async (theme: string, ageGroup: string)
  * Generate a themed station using the OpenAI API with project key
  */
 export const generateStationWithOpenAI = async (
-  stationType: string,
+  stationType: StationType,
   theme: string,
   ageGroup: string,
   difficulty: string
@@ -81,11 +80,10 @@ export const generateStationWithOpenAI = async (
     console.log(`Generating ${stationType} station for theme: ${theme}, age group: ${ageGroup}`);
     
     // Get the prompt template for this station type
-    const stationTypeObj = Object.values(StationType).find(type => type === stationType);
     let promptTemplate = '';
     
-    if (stationTypeObj && stationTypeInfoMap[stationTypeObj]) {
-      promptTemplate = stationTypeInfoMap[stationTypeObj].promptTemplate;
+    if (stationTypeInfoMap[stationType]) {
+      promptTemplate = stationTypeInfoMap[stationType].promptTemplate;
       // Replace {theme} placeholder with actual theme
       promptTemplate = promptTemplate.replace('{theme}', theme);
     } else {

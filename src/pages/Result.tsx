@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -159,8 +158,11 @@ const Result = () => {
     setLastGeneratedTimestamp({...lastGeneratedTimestamp, [index]: now});
     
     try {
+      // Keep the existing station type when regenerating
+      const existingType = stations[index]?.type as StationType | undefined;
+      
       // Generate a new station
-      const newStation = await generateSingleStation(config, index);
+      const newStation = await generateSingleStation(config, index, existingType);
       
       // Update stations array
       const updatedStations = [...stations];
@@ -208,7 +210,7 @@ const Result = () => {
     setCurrentStationIndex(null);
     
     try {
-      // Generate a new station
+      // Generate a new station with a random type
       const newStation = await generateSingleStation(config, stations.length);
       
       // Add new station to stations array

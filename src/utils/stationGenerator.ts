@@ -1,6 +1,6 @@
 
 import { Station, EscapeRoomConfig } from '../components/EscapeRoomGenerator';
-import { generateStationWithOpenAI } from './openaiClient';
+import { generateStationWithOpenAI } from './openai/contentGenerator';
 import { StationType, stationTypeInfoMap, getRandomStationTypes } from './stationTypes';
 
 // Cache to store generated stations
@@ -22,6 +22,8 @@ export const generateStations = async (config: EscapeRoomConfig): Promise<Statio
     
     // Get random station types to use
     const stationTypes = getRandomStationTypes(stationCount);
+    
+    console.log(`Generating ${stationCount} stations with types:`, stationTypes);
     
     // Generate stations in parallel
     const stationPromises = stationTypes.map((type, index) => 
@@ -45,9 +47,8 @@ export const generateSingleStation = async (
   stationType?: StationType
 ): Promise<Station> => {
   try {
-    // If no specific station type is provided, use the first one for now
-    // In a more complete implementation, this would randomly select a type
-    const type = stationType || StationType.DECIPHER;
+    // If no specific station type is provided, pick a random one
+    const type = stationType || getRandomStationTypes(1)[0];
     
     // Get the theme (either selected theme or custom theme)
     const theme = config.customTheme || config.theme;
@@ -57,11 +58,11 @@ export const generateSingleStation = async (
     
     // Check if we have a cached station
     if (stationCache[cacheKey]) {
+      console.log(`Using cached station for ${cacheKey}`);
       return stationCache[cacheKey];
     }
     
-    // Get the prompt template for this station type
-    const promptTemplate = stationTypeInfoMap[type].promptTemplate;
+    console.log(`Generating station of type ${type} for theme: ${theme}`);
     
     // Generate the station
     const station = await generateStationWithOpenAI(
