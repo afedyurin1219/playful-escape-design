@@ -82,7 +82,7 @@ export const generateStoryIntroduction = async (theme: string, ageGroup: string)
     console.log(`Generating story introduction for theme: ${theme}, age group: ${ageGroup}`);
     
     // Use the specific project API key provided
-    const projectApiKey = "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";
+    const projectApiKey = "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";
     
     // Create the prompt based on the theme and age group
     const prompt = `Write a story introduction for an escape room. The room theme is ${theme}. The audience is ${ageGroup} years old. Do not design challenges, only the story introduction. Limit - 5 sentences max.`;
