@@ -1,3 +1,4 @@
+
 import { isValidOpenAIKey } from './validation';
 import { callOpenAI } from './apiClient';
 import { PROJECT_API_KEY } from './constants';
@@ -119,7 +120,7 @@ Format as valid JSON with the following structure:
     const content = await callOpenAI(
       PROJECT_API_KEY,
       [
-        {"role": "system", "content": "You are an Escape Room designer specialized in creating unique, creative, and original themed stations. Respond with valid JSON only. Never use templates or generic puzzles."},
+        {"role": "system", "content": "You are an Escape Room designer specialized in creating unique, creative, and original themed stations. Respond with valid JSON only. Never use templates or generic puzzles. Do not add markdown code blocks."},
         {"role": "user", "content": prompt}
       ],
       { max_tokens: 1000 }  // Increased token limit for more detailed responses
@@ -128,8 +129,16 @@ Format as valid JSON with the following structure:
     console.log('Station data received from OpenAI');
     
     try {
+      // Clean the response by removing any backticks, code fences or markdown
+      const cleanedContent = content
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .trim();
+      
+      console.log('Cleaned content for parsing:', cleanedContent.substring(0, 50) + '...');
+      
       // Parse the JSON response
-      const stationData = JSON.parse(content);
+      const stationData = JSON.parse(cleanedContent);
       
       // Add the station type to the data
       stationData.type = stationType;
