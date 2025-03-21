@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { AlertCircle } from 'lucide-react';
-import { PROJECT_API_KEY } from '@/utils/openai/constants';
+import { getProjectApiKey } from '@/utils/openai/constants';
 import { isValidOpenAIKey } from '@/utils/openai/validation';
 
 interface ApiKeyInputProps {
@@ -22,7 +22,8 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
 
   // Check if project API key is valid and load user API key from localStorage if available
   useEffect(() => {
-    const projectKeyValid = isValidOpenAIKey(PROJECT_API_KEY);
+    const projectKey = getProjectApiKey();
+    const projectKeyValid = isValidOpenAIKey(projectKey);
     setIsProjectKeyValid(projectKeyValid);
     
     const savedKey = localStorage.getItem('openai_api_key');

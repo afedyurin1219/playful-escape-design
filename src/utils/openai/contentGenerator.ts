@@ -1,7 +1,7 @@
 
 import { isValidOpenAIKey } from './validation';
 import { callOpenAI } from './apiClient';
-import { PROJECT_API_KEY } from './constants';
+import { PROJECT_API_KEY, getProjectApiKey } from './constants';
 import { StationType, stationTypeInfoMap } from '../stationTypes';
 
 /**
@@ -12,7 +12,7 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
     console.log('Calling OpenAI API with prompt about:', prompt.substring(0, 50) + '...');
     
     // Use project API key as the primary key
-    let apiKey = PROJECT_API_KEY;
+    let apiKey = getProjectApiKey();
     
     // If project key is invalid, try to get from localStorage as fallback
     if (!isValidOpenAIKey(apiKey)) {
@@ -48,7 +48,7 @@ export const generateStoryIntroduction = async (theme: string, ageGroup: string)
     console.log(`Generating story introduction for theme: ${theme}, age group: ${ageGroup}`);
     
     // Use project API key as the primary key
-    let apiKey = PROJECT_API_KEY;
+    let apiKey = getProjectApiKey();
     
     // If project key is invalid, try to get from localStorage as fallback
     if (!isValidOpenAIKey(apiKey)) {
@@ -95,7 +95,7 @@ export const generateStationWithOpenAI = async (
     console.log(`Generating ${stationType} station for theme: ${theme}, age group: ${ageGroup}`);
     
     // Use project API key as the primary key
-    let apiKey = PROJECT_API_KEY;
+    let apiKey = getProjectApiKey();
     
     // If project key is invalid, try to get from localStorage as fallback
     if (!isValidOpenAIKey(apiKey)) {
