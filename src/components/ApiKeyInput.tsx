@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { AlertCircle } from 'lucide-react';
+import { PROJECT_API_KEY } from '@/utils/openai/constants';
+import { isValidOpenAIKey } from '@/utils/openai/validation';
 
 interface ApiKeyInputProps {
   isOpen: boolean;
@@ -16,9 +18,13 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
   const [apiKey, setApiKey] = useState('');
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const [isProjectKeyValid, setIsProjectKeyValid] = useState(false);
 
-  // Load API key from localStorage if available
+  // Check if project API key is valid and load user API key from localStorage if available
   useEffect(() => {
+    const projectKeyValid = isValidOpenAIKey(PROJECT_API_KEY);
+    setIsProjectKeyValid(projectKeyValid);
+    
     const savedKey = localStorage.getItem('openai_api_key');
     if (savedKey) {
       setApiKey(savedKey);
@@ -64,10 +70,14 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>OpenAI API Key Required</DialogTitle>
+          <DialogTitle>OpenAI API Key {isProjectKeyValid ? '(Optional)' : '(Required)'}</DialogTitle>
           <DialogDescription>
-            <span className="text-red-500 font-semibold">IMPORTANT:</span> You must provide your own OpenAI API key to use this application.
-            Your key will be stored locally in your browser and is never sent to our servers.
+            {isProjectKeyValid ? (
+              <>A project API key is configured for basic functionality. You can optionally provide your own API key for additional features.</>
+            ) : (
+              <><span className="text-red-500 font-semibold">IMPORTANT:</span> No valid project API key is configured. You must provide your own API key to use this application.</>
+            )}
+            <p className="mt-2">Your key will be stored locally in your browser and is never sent to our servers.</p>
           </DialogDescription>
         </DialogHeader>
         
@@ -98,7 +108,9 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          {isProjectKeyValid && (
+            <Button variant="outline" onClick={onClose}>Use Project Key</Button>
+          )}
           <Button onClick={handleSave}>Save API Key</Button>
         </DialogFooter>
       </DialogContent>

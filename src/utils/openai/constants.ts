@@ -8,5 +8,7 @@ export const API_CONFIG = {
   defaultTemperature: 0.7,
 };
 
-// This is intentionally left empty - API key should be provided by users
+// IMPORTANT: Replace this empty string with your actual OpenAI API key
+// This key should be kept secure and not committed to public repositories
 export const PROJECT_API_KEY = '';
+

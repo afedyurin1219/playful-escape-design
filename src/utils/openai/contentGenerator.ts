@@ -11,19 +11,20 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
   try {
     console.log('Calling OpenAI API with prompt about:', prompt.substring(0, 50) + '...');
     
-    // Get API key from localStorage
-    let apiKey = localStorage.getItem('openai_api_key');
+    // Use project API key first, then fall back to user key if available
+    let apiKey = PROJECT_API_KEY;
+    
+    // If project key is not set, try to get from localStorage
+    if (!apiKey || !isValidOpenAIKey(apiKey)) {
+      apiKey = localStorage.getItem('openai_api_key') || '';
+      console.log('Using user-provided API key as fallback');
+    }
     
     // Check if API key is available and valid
     if (!apiKey || !isValidOpenAIKey(apiKey)) {
       console.log('API key validation failed:', apiKey ? 'Invalid format' : 'Missing key');
       
-      // Log first few characters if available for debugging
-      if (apiKey) {
-        console.log('Key format:', apiKey.substring(0, 15) + '...');
-      }
-      
-      throw new Error('Invalid OpenAI API key. Please provide a valid key that starts with "sk-".');
+      throw new Error('No valid OpenAI API key available. Please check your configuration.');
     }
     
     const content = await callOpenAI(
@@ -41,24 +42,30 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
 };
 
 /**
- * Generate story introduction using OpenAI with the user's API key
+ * Generate story introduction using OpenAI with the project API key
  */
 export const generateStoryIntroduction = async (theme: string, ageGroup: string): Promise<string> => {
   try {
     console.log(`Generating story introduction for theme: ${theme}, age group: ${ageGroup}`);
     
-    // Get API key from localStorage
-    const apiKey = localStorage.getItem('openai_api_key');
+    // Use project API key first
+    let apiKey = PROJECT_API_KEY;
     
-    // Check if API key is valid
+    // If project key is not set, try to get from localStorage as fallback
     if (!apiKey || !isValidOpenAIKey(apiKey)) {
-      throw new Error('Valid API key required for story generation.');
+      apiKey = localStorage.getItem('openai_api_key') || '';
+      console.log('Using user-provided API key as fallback for story generation');
+    }
+    
+    // Check if any valid API key is available
+    if (!apiKey || !isValidOpenAIKey(apiKey)) {
+      throw new Error('No valid OpenAI API key available for story generation.');
     }
     
     // Create the prompt based on the theme and age group
     const prompt = `Write a story introduction for an escape room. The room theme is ${theme}. The audience is ${ageGroup} years old. Do not design challenges, only the story introduction. Limit - 5 sentences max.`;
     
-    // Make the API request to OpenAI using the user's API key
+    // Make the API request to OpenAI
     const content = await callOpenAI(
       apiKey,
       [
@@ -77,7 +84,7 @@ export const generateStoryIntroduction = async (theme: string, ageGroup: string)
 };
 
 /**
- * Generate a themed station using the OpenAI API with user's key
+ * Generate a themed station using the OpenAI API with project key
  */
 export const generateStationWithOpenAI = async (
   stationType: StationType,
@@ -88,12 +95,18 @@ export const generateStationWithOpenAI = async (
   try {
     console.log(`Generating ${stationType} station for theme: ${theme}, age group: ${ageGroup}`);
     
-    // Get API key from localStorage
-    const apiKey = localStorage.getItem('openai_api_key');
+    // Use project API key first
+    let apiKey = PROJECT_API_KEY;
     
-    // Check if API key is valid
+    // If project key is not set, try to get from localStorage as fallback
     if (!apiKey || !isValidOpenAIKey(apiKey)) {
-      throw new Error('Valid API key required for station generation.');
+      apiKey = localStorage.getItem('openai_api_key') || '';
+      console.log('Using user-provided API key as fallback for station generation');
+    }
+    
+    // Check if any valid API key is available
+    if (!apiKey || !isValidOpenAIKey(apiKey)) {
+      throw new Error('No valid OpenAI API key available for station generation.');
     }
     
     // Get the prompt template for this station type
@@ -132,7 +145,7 @@ Format as valid JSON with the following structure:
   "supplies": ["Supply 1", "Supply 2", "Supply 3"]
 }`;
     
-    // Make the API request to OpenAI using the user's API key
+    // Make the API request to OpenAI
     const content = await callOpenAI(
       apiKey,
       [
