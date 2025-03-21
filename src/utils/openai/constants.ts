@@ -8,7 +8,7 @@ export const API_CONFIG = {
   defaultTemperature: 0.7,
 };
 
-// IMPORTANT: Replace this empty string with your actual OpenAI API key
-// This key should be kept secure and not committed to public repositories
-export const PROJECT_API_KEY = '';
+// Replace with your actual OpenAI API key
+// This key is for project-wide use and will be used by default for all API calls
+export const PROJECT_API_KEY = 'sk-projkey12345';
 

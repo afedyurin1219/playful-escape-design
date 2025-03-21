@@ -11,19 +11,18 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
   try {
     console.log('Calling OpenAI API with prompt about:', prompt.substring(0, 50) + '...');
     
-    // Use project API key first, then fall back to user key if available
+    // Use project API key as the primary key
     let apiKey = PROJECT_API_KEY;
     
-    // If project key is not set, try to get from localStorage
-    if (!apiKey || !isValidOpenAIKey(apiKey)) {
+    // If project key is invalid, try to get from localStorage as fallback
+    if (!isValidOpenAIKey(apiKey)) {
       apiKey = localStorage.getItem('openai_api_key') || '';
-      console.log('Using user-provided API key as fallback');
+      console.log('Project API key invalid, using user-provided API key as fallback');
     }
     
-    // Check if API key is available and valid
-    if (!apiKey || !isValidOpenAIKey(apiKey)) {
-      console.log('API key validation failed:', apiKey ? 'Invalid format' : 'Missing key');
-      
+    // Check if any valid API key is available
+    if (!isValidOpenAIKey(apiKey)) {
+      console.log('No valid API key available');
       throw new Error('No valid OpenAI API key available. Please check your configuration.');
     }
     
@@ -42,23 +41,23 @@ export const generateWithOpenAI = async (prompt: string): Promise<string> => {
 };
 
 /**
- * Generate story introduction using OpenAI with the project API key
+ * Generate story introduction using OpenAI
  */
 export const generateStoryIntroduction = async (theme: string, ageGroup: string): Promise<string> => {
   try {
     console.log(`Generating story introduction for theme: ${theme}, age group: ${ageGroup}`);
     
-    // Use project API key first
+    // Use project API key as the primary key
     let apiKey = PROJECT_API_KEY;
     
-    // If project key is not set, try to get from localStorage as fallback
-    if (!apiKey || !isValidOpenAIKey(apiKey)) {
+    // If project key is invalid, try to get from localStorage as fallback
+    if (!isValidOpenAIKey(apiKey)) {
       apiKey = localStorage.getItem('openai_api_key') || '';
-      console.log('Using user-provided API key as fallback for story generation');
+      console.log('Project API key invalid, using user-provided API key as fallback for story generation');
     }
     
     // Check if any valid API key is available
-    if (!apiKey || !isValidOpenAIKey(apiKey)) {
+    if (!isValidOpenAIKey(apiKey)) {
       throw new Error('No valid OpenAI API key available for story generation.');
     }
     
@@ -84,7 +83,7 @@ export const generateStoryIntroduction = async (theme: string, ageGroup: string)
 };
 
 /**
- * Generate a themed station using the OpenAI API with project key
+ * Generate a themed station using the OpenAI API
  */
 export const generateStationWithOpenAI = async (
   stationType: StationType,
@@ -95,17 +94,17 @@ export const generateStationWithOpenAI = async (
   try {
     console.log(`Generating ${stationType} station for theme: ${theme}, age group: ${ageGroup}`);
     
-    // Use project API key first
+    // Use project API key as the primary key
     let apiKey = PROJECT_API_KEY;
     
-    // If project key is not set, try to get from localStorage as fallback
-    if (!apiKey || !isValidOpenAIKey(apiKey)) {
+    // If project key is invalid, try to get from localStorage as fallback
+    if (!isValidOpenAIKey(apiKey)) {
       apiKey = localStorage.getItem('openai_api_key') || '';
-      console.log('Using user-provided API key as fallback for station generation');
+      console.log('Project API key invalid, using user-provided API key as fallback for station generation');
     }
     
     // Check if any valid API key is available
-    if (!apiKey || !isValidOpenAIKey(apiKey)) {
+    if (!isValidOpenAIKey(apiKey)) {
       throw new Error('No valid OpenAI API key available for station generation.');
     }
     

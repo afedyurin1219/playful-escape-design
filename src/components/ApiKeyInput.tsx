@@ -60,7 +60,7 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
     
     toast({
       title: "API Key Saved",
-      description: "Your OpenAI API key has been saved in your browser.",
+      description: "Your OpenAI API key has been saved as a backup.",
     });
     
     onClose();
@@ -70,12 +70,12 @@ const ApiKeyInput = ({ isOpen, onClose, onSave }: ApiKeyInputProps) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>OpenAI API Key {isProjectKeyValid ? '(Optional)' : '(Required)'}</DialogTitle>
+          <DialogTitle>OpenAI API Key</DialogTitle>
           <DialogDescription>
             {isProjectKeyValid ? (
-              <>A project API key is configured for basic functionality. You can optionally provide your own API key for additional features.</>
+              <>The project has a valid API key configured. You can optionally provide your own API key as a backup.</>
             ) : (
-              <><span className="text-red-500 font-semibold">IMPORTANT:</span> No valid project API key is configured. You must provide your own API key to use this application.</>
+              <><span className="text-red-500 font-semibold">IMPORTANT:</span> Project API key is invalid. You must provide your own API key to use this application.</>
             )}
             <p className="mt-2">Your key will be stored locally in your browser and is never sent to our servers.</p>
           </DialogDescription>
