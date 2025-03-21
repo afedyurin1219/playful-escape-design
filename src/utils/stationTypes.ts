@@ -1,7 +1,9 @@
+
 // Station types for the escape room generator
 
 export enum StationType {
   DECIPHER = 'decipher',
+  BINARY_CODE = 'binary_code',
   // ... more station types will be added here
 }
 
@@ -16,6 +18,11 @@ export const stationTypeInfoMap: Record<StationType, StationTypeInfo> = {
     name: 'Decipher',
     description: 'A challenge where participants must decode a hidden message',
     promptTemplate: `Create a station within a bigger Escape Room. At this station, participants should decipher a message. The task and the message should be based on the {theme} storyline. An example of a task is: [To intercept it, you must decode the message before the Empire realizes you're there. The message reads: 'XLMW WLSY QI WIEH XS RIZIV'. Can you decipher it in time? Answer: SEND HELP TO HOTH]. Provide the following in JSON format: { "name": "Station Name", "task": "Full task description", "answer": "The answer", "hints": ["Hint 1", "Hint 2", "Hint 3"], "facilitatorInstructions": "Instructions for the person running the escape room" }`
+  },
+  [StationType.BINARY_CODE]: {
+    name: 'Binary Code',
+    description: 'A challenge where participants convert binary code into ASCII text',
+    promptTemplate: `Create a station within a bigger Escape Room. At this station, participants should break a code by converting binary code into ASCII text. The task and the message should be based on the {theme} storyline. An example of a task is: [R2-D2 is malfunctioning! Solve this binary code to repair him: Convert 01010111 01001000 01011001 from binary to ASCII text]. Provide the following in JSON format: { "name": "Station Name", "task": "Full task description", "answer": "The answer", "hints": ["Hint 1", "Hint 2", "Hint 3"], "facilitatorInstructions": "Instructions for the person running the escape room", "supplies": ["List of needed supplies"] }`
   }
 };
 
