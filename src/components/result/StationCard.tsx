@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Station, EscapeRoomConfig } from '../EscapeRoomGenerator';
 import { Button } from '@/components/ui/button';
-import { Loader2, MoreVertical, RefreshCw } from 'lucide-react';
+import { Loader2, MoreVertical, RefreshCw, Printer } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,12 +43,25 @@ const StationCard = ({
   
   const stationSupplies = getStationSupplies(station.name, supplies);
   
+  // Check if task mentions any printable materials that need to be created
+  const taskMentionsPrintableMaterials = () => {
+    const taskLower = station.task.toLowerCase();
+    const printableTerms = ['chart', 'cipher', 'key', 'code sheet', 'reference', 'provided', 'decoder'];
+    return printableTerms.some(term => taskLower.includes(term));
+  };
+  
+  const hasPrintableMaterials = hasPrintableContent(station.task) || taskMentionsPrintableMaterials();
+  
   return (
     <div className="bg-white p-6 rounded-xl shadow-card print:shadow-none print:border print:border-gray-200 print:mb-6 print:p-4 relative">
       <div className="flex justify-between items-start mb-3">
         <div className="flex flex-col">
           <h3 className="text-xl font-medium">{index + 1}. {station.name}</h3>
-          {/* Removed the station type badge */}
+          {hasPrintableMaterials && (
+            <Badge variant="outline" className="mt-1 bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-1 w-fit">
+              <Printer className="h-3 w-3" /> Printable Materials
+            </Badge>
+          )}
         </div>
         <div className="print:hidden">
           <DropdownMenu>
@@ -86,10 +99,15 @@ const StationCard = ({
         
         {hasPrintableContent(station.task) && 
           getPrintableContent(station.task, station.answer) && (
-            <PrintableLetters 
-              contentType={getPrintableContent(station.task, station.answer)!.type} 
-              content={getPrintableContent(station.task, station.answer)!.content} 
-            />
+            <div className="mt-3 border border-blue-200 bg-blue-50 p-3 rounded-md">
+              <h5 className="text-sm font-semibold mb-2 text-blue-700 flex items-center gap-1">
+                <Printer className="h-3 w-3" /> Printable Content
+              </h5>
+              <PrintableLetters 
+                contentType={getPrintableContent(station.task, station.answer)!.type} 
+                content={getPrintableContent(station.task, station.answer)!.content} 
+              />
+            </div>
           )
         }
       </div>
@@ -108,6 +126,15 @@ const StationCard = ({
       <div className="mb-4">
         <h4 className="font-semibold text-charcoal-light mb-1">Facilitator Instructions:</h4>
         <p className="italic">{station.facilitatorInstructions}</p>
+        
+        {taskMentionsPrintableMaterials() && !hasPrintableContent(station.task) && (
+          <div className="mt-3 border border-amber-200 bg-amber-50 p-3 rounded-md">
+            <p className="text-sm text-amber-700">
+              <strong>Note:</strong> This task mentions materials that need to be created (charts, ciphers, etc.). 
+              See the facilitator instructions above for details on how to prepare these materials.
+            </p>
+          </div>
+        )}
       </div>
       <div>
         <h4 className="font-semibold text-charcoal-light mb-1">Supplies Needed:</h4>

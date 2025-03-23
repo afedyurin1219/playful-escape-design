@@ -137,6 +137,9 @@ IMPORTANT REQUIREMENTS:
   you MUST use the EXACT SAME letters in both the task description and in any puzzle content.
   For example, if your task says "rearrange EOBNIGH", the printable content must also use "EOBNIGH".
 - For word puzzles, ensure the letters EXACTLY match between the task description and the puzzle components
+- CRITICAL: If your task mentions any "provided chart", "cipher key", "decoder", or similar reference material, 
+  you MUST include a detailed description of this material in your response. These materials should be included 
+  in the "facilitatorInstructions" field with clear instructions on how to create them.
 
 Format as valid JSON with the following structure:
 {
@@ -144,7 +147,7 @@ Format as valid JSON with the following structure:
   "task": "Detailed task description explaining what participants need to do",
   "answer": "The solution or expected outcome (must be specific and clear)",
   "hints": ["Hint 1 (subtle)", "Hint 2 (more direct)", "Hint 3 (very direct)"],
-  "facilitatorInstructions": "Detailed instructions for the person running the escape room",
+  "facilitatorInstructions": "Detailed instructions for the person running the escape room, including how to create any charts, ciphers, or printed materials referenced in the task",
   "supplies": ["Supply 1", "Supply 2", "Supply 3"]
 }`;
     
@@ -152,7 +155,7 @@ Format as valid JSON with the following structure:
     const content = await callOpenAI(
       apiKey,
       [
-        {"role": "system", "content": "You are an Escape Room designer specialized in creating unique, creative, and original themed stations. Respond with valid JSON only. Never use templates or generic puzzles. Do not add markdown code blocks. CRITICAL: If your puzzle involves letters, words, or codes that participants need to rearrange or decode, ensure that the EXACT SAME letters appear in both the task description and any printable/puzzle components."},
+        {"role": "system", "content": "You are an Escape Room designer specialized in creating unique, creative, and original themed stations. Respond with valid JSON only. Never use templates or generic puzzles. Do not add markdown code blocks. CRITICAL: If your puzzle involves letters, words, or codes that participants need to rearrange or decode, ensure that the EXACT SAME letters appear in both the task description and any printable/puzzle components. If your task mentions any 'provided chart', 'cipher key', 'decoder', or similar reference material, you MUST include a detailed description of this material in your response."},
         {"role": "user", "content": prompt}
       ],
       { max_tokens: 1000 }  // Increased token limit for more detailed responses
