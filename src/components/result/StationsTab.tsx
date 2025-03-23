@@ -2,9 +2,7 @@
 import { Station, EscapeRoomConfig, EscapeRoomPlan } from '../EscapeRoomGenerator';
 import StationCard from './StationCard';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Loader2, RefreshCw } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { StationType, stationTypeInfoMap } from '@/utils/stationTypes';
+import { PlusCircle, Loader2 } from 'lucide-react';
 
 interface StationsTabProps {
   stations: Station[];

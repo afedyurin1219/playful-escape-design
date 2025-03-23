@@ -48,11 +48,7 @@ const StationCard = ({
       <div className="flex justify-between items-start mb-3">
         <div className="flex flex-col">
           <h3 className="text-xl font-medium">{index + 1}. {station.name}</h3>
-          {station.type && (
-            <Badge variant="outline" className="mt-1 w-fit">
-              {station.type}
-            </Badge>
-          )}
+          {/* Removed the station type badge */}
         </div>
         <div className="print:hidden">
           <DropdownMenu>
