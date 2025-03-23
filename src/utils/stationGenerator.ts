@@ -1,7 +1,7 @@
 
 import { Station, EscapeRoomConfig } from '../components/EscapeRoomGenerator';
 import { generateStationWithOpenAI } from './openai/contentGenerator';
-import { StationType, stationTypeInfoMap, getRandomStationTypes } from './stationTypes';
+import { StationType, getRandomStationTypesForAgeGroup } from './stationTypes';
 
 /**
  * Generate the appropriate number of stations based on the escape room configuration
@@ -17,10 +17,10 @@ export const generateStations = async (config: EscapeRoomConfig): Promise<Statio
       stationCount = 7;
     }
     
-    // Get random station types to use
-    const stationTypes = getRandomStationTypes(stationCount);
+    // Get random station types appropriate for the selected age group
+    const stationTypes = getRandomStationTypesForAgeGroup(stationCount, config.ageGroup);
     
-    console.log(`Generating ${stationCount} stations with types:`, stationTypes);
+    console.log(`Generating ${stationCount} stations with types appropriate for age group ${config.ageGroup}:`, stationTypes);
     
     // Generate stations in parallel
     const stationPromises = stationTypes.map((type, index) => 
@@ -56,8 +56,8 @@ export const generateSingleStation = async (
   stationType?: StationType
 ): Promise<Station> => {
   try {
-    // If no specific station type is provided, pick a random one
-    const type = stationType || getRandomStationTypes(1)[0];
+    // If no specific station type is provided, pick a random one appropriate for the age group
+    const type = stationType || getRandomStationTypesForAgeGroup(1, config.ageGroup)[0];
     
     // Get the theme (either selected theme or custom theme)
     const theme = config.customTheme || config.theme;
@@ -65,7 +65,7 @@ export const generateSingleStation = async (
     // Generate a unique timestamp to ensure we get different results each time
     const timestamp = new Date().getTime();
     
-    console.log(`Generating station of type ${type} for theme: ${theme} at ${timestamp}`);
+    console.log(`Generating station of type ${type} for theme: ${theme} and age group: ${config.ageGroup} at ${timestamp}`);
     
     // Generate a fresh station using OpenAI with the API key from constants or user
     const station = await generateStationWithOpenAI(

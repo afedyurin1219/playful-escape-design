@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Station, EscapeRoomConfig } from '../EscapeRoomGenerator';
 import { Button } from '@/components/ui/button';
-import { Loader2, MoreVertical, RefreshCw, Printer } from 'lucide-react';
+import { Loader2, MoreVertical, RefreshCw, Printer, AlertTriangle } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +12,7 @@ import {
 import PrintableLetters from '../PrintableLetters';
 import { hasPrintableContent, getPrintableContent } from '../../utils/printUtils';
 import { Badge } from '@/components/ui/badge';
+import { stationTypeInfoMap } from '../../utils/stationTypes';
 
 interface StationCardProps {
   station: Station;
@@ -51,17 +52,40 @@ const StationCard = ({
   };
   
   const hasPrintableMaterials = hasPrintableContent(station.task) || taskMentionsPrintableMaterials();
+
+  // Get the station difficulty from stationTypeInfoMap
+  const getStationDifficulty = () => {
+    if (station.type && stationTypeInfoMap[station.type]) {
+      return stationTypeInfoMap[station.type].difficulty;
+    }
+    return null;
+  };
+
+  const difficulty = getStationDifficulty();
   
   return (
     <div className="bg-white p-6 rounded-xl shadow-card print:shadow-none print:border print:border-gray-200 print:mb-6 print:p-4 relative">
       <div className="flex justify-between items-start mb-3">
         <div className="flex flex-col">
           <h3 className="text-xl font-medium">{index + 1}. {station.name}</h3>
-          {hasPrintableMaterials && (
-            <Badge variant="outline" className="mt-1 bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-1 w-fit">
-              <Printer className="h-3 w-3" /> Printable Materials
-            </Badge>
-          )}
+          <div className="flex flex-wrap gap-2 mt-1">
+            {hasPrintableMaterials && (
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-1 w-fit">
+                <Printer className="h-3 w-3" /> Printable Materials
+              </Badge>
+            )}
+            {difficulty && (
+              <Badge variant="outline" className={`
+                flex items-center gap-1 w-fit
+                ${difficulty === 'easy' ? 'bg-green-50 text-green-700 border-green-200' : 
+                  difficulty === 'medium' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : 
+                  'bg-red-50 text-red-700 border-red-200'}
+              `}>
+                {difficulty === 'easy' ? 'Easy' : 
+                 difficulty === 'medium' ? 'Medium' : 'Hard'}
+              </Badge>
+            )}
+          </div>
         </div>
         <div className="print:hidden">
           <DropdownMenu>
@@ -129,7 +153,8 @@ const StationCard = ({
         
         {taskMentionsPrintableMaterials() && !hasPrintableContent(station.task) && (
           <div className="mt-3 border border-amber-200 bg-amber-50 p-3 rounded-md">
-            <p className="text-sm text-amber-700">
+            <p className="text-sm text-amber-700 flex items-center gap-1">
+              <AlertTriangle className="h-4 w-4" />
               <strong>Note:</strong> This task mentions materials that need to be created (charts, ciphers, etc.). 
               See the facilitator instructions above for details on how to prepare these materials.
             </p>

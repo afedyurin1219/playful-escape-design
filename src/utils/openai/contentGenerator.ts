@@ -2,7 +2,7 @@
 import { isValidOpenAIKey } from './validation';
 import { callOpenAI } from './apiClient';
 import { PROJECT_API_KEY, getProjectApiKey } from './constants';
-import { StationType, stationTypeInfoMap } from '../stationTypes';
+import { StationType, stationTypeInfoMap, AGE_RANGES } from '../stationTypes';
 
 /**
  * Call OpenAI API to generate content based on a prompt
@@ -61,14 +61,22 @@ export const generateStoryIntroduction = async (theme: string, ageGroup: string)
       throw new Error('No valid OpenAI API key available for story generation.');
     }
     
+    // Determine appropriate complexity based on age group
+    let complexity = 'simple';
+    if (ageGroup === AGE_RANGES.PRETEEN) {
+      complexity = 'moderate';
+    } else if ([AGE_RANGES.TEEN, AGE_RANGES.ADULT].includes(ageGroup)) {
+      complexity = 'complex';
+    }
+    
     // Create the prompt based on the theme and age group
-    const prompt = `Write a story introduction for an escape room. The room theme is ${theme}. The audience is ${ageGroup} years old. Do not design challenges, only the story introduction. Limit - 5 sentences max.`;
+    const prompt = `Write a ${complexity} story introduction for an escape room. The room theme is ${theme}. The audience is ${ageGroup} years old. Ensure the language and concepts are appropriate for ${ageGroup} year olds. Do not design challenges, only the story introduction. Limit - 5 sentences max.`;
     
     // Make the API request to OpenAI
     const content = await callOpenAI(
       apiKey,
       [
-        {"role": "system", "content": "You are an Escape Room designer."},
+        {"role": "system", "content": "You are an Escape Room designer specializing in age-appropriate content."},
         {"role": "user", "content": prompt}
       ]
     );
@@ -130,6 +138,8 @@ Additional details:
 
 IMPORTANT REQUIREMENTS:
 - Create a COMPLETELY ORIGINAL and UNIQUE station for the theme "${theme}"
+- Make this station AGE-APPROPRIATE for ${ageGroup} year olds
+- Ensure the complexity matches this age group (${ageGroup})
 - Do NOT use templates or generic puzzles
 - Make this station CREATIVE and SPECIFICALLY TIED to the ${theme} theme
 - Avoid copying common escape room puzzles
@@ -155,7 +165,7 @@ Format as valid JSON with the following structure:
     const content = await callOpenAI(
       apiKey,
       [
-        {"role": "system", "content": "You are an Escape Room designer specialized in creating unique, creative, and original themed stations. Respond with valid JSON only. Never use templates or generic puzzles. Do not add markdown code blocks. CRITICAL: If your puzzle involves letters, words, or codes that participants need to rearrange or decode, ensure that the EXACT SAME letters appear in both the task description and any printable/puzzle components. If your task mentions any 'provided chart', 'cipher key', 'decoder', or similar reference material, you MUST include a detailed description of this material in your response."},
+        {"role": "system", "content": `You are an Escape Room designer specialized in creating unique, creative, and original themed stations for ${ageGroup} year olds. Respond with valid JSON only. Never use templates or generic puzzles. Do not add markdown code blocks. CRITICAL: If your puzzle involves letters, words, or codes that participants need to rearrange or decode, ensure that the EXACT SAME letters appear in both the task description and any printable/puzzle components. If your task mentions any 'provided chart', 'cipher key', 'decoder', or similar reference material, you MUST include a detailed description of this material in your response.`},
         {"role": "user", "content": prompt}
       ],
       { max_tokens: 1000 }  // Increased token limit for more detailed responses
