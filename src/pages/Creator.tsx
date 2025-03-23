@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,6 +8,14 @@ import DifficultySelector from '../components/DifficultySelector';
 import DurationSelector from '../components/DurationSelector';
 import ProgressBar from '../components/ProgressBar';
 import { EscapeRoomConfig, generateEscapeRoom, EscapeRoomPlan } from '../components/EscapeRoomGenerator';
+
+const capitalizeString = (str: string): string => {
+  if (!str) return '';
+  return str
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
 
 const Creator = () => {
   const navigate = useNavigate();
@@ -66,8 +73,6 @@ const Creator = () => {
   const handleCreate = () => {
     setLoading(true);
     
-    // In a real app, we might call an AI service here
-    // For now, we'll use a timeout to simulate processing
     setTimeout(() => {
       const escapeRoom = generateEscapeRoom(config);
       navigate('/result', { state: { escapeRoom, config } });
@@ -86,19 +91,23 @@ const Creator = () => {
     }
   };
 
+  const getDisplayTheme = () => {
+    if (config.customTheme) {
+      return capitalizeString(config.customTheme);
+    }
+    return capitalizeString(config.theme);
+  };
+
   return (
     <div className="min-h-screen bg-ivory text-charcoal pb-16">
-      {/* Header */}
       <header className="py-6 px-6 border-b border-gray-200 mb-8">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <a href="/" className="text-2xl font-display text-teal">Escape Room Designer</a>
         </div>
       </header>
       
-      {/* Progress Bar */}
       <ProgressBar currentStep={currentStep} totalSteps={stepTitles.length} stepTitles={stepTitles} />
       
-      {/* Step Content */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentStep}
@@ -157,7 +166,7 @@ const Creator = () => {
                     </li>
                     <li className="flex justify-between pb-2 border-b border-gray-100">
                       <span className="text-charcoal-light">Theme:</span>
-                      <span className="font-medium">{config.customTheme || config.theme}</span>
+                      <span className="font-medium">{getDisplayTheme()}</span>
                     </li>
                     <li className="flex justify-between pb-2 border-b border-gray-100">
                       <span className="text-charcoal-light">Group Size:</span>
@@ -207,7 +216,6 @@ const Creator = () => {
         </motion.div>
       </AnimatePresence>
       
-      {/* Navigation Buttons */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
         <div className="max-w-6xl mx-auto flex justify-between">
           <button 

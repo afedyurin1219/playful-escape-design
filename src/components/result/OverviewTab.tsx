@@ -6,7 +6,24 @@ interface OverviewTabProps {
   config: EscapeRoomConfig;
 }
 
+// Helper function to capitalize first letter of each word
+const capitalizeString = (str: string): string => {
+  if (!str) return '';
+  return str
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 const OverviewTab = ({ escapeRoom, config }: OverviewTabProps) => {
+  // Get properly formatted theme for display
+  const getDisplayTheme = () => {
+    if (config.customTheme) {
+      return capitalizeString(config.customTheme);
+    }
+    return capitalizeString(config.theme);
+  };
+
   return (
     <div className="overview">
       <h2 className="text-2xl font-display mb-6 print:block hidden">Overview</h2>
@@ -20,7 +37,7 @@ const OverviewTab = ({ escapeRoom, config }: OverviewTabProps) => {
             </li>
             <li className="flex justify-between pb-2 border-b border-gray-100">
               <span className="text-charcoal-light">Theme:</span>
-              <span className="font-medium">{config.customTheme || config.theme}</span>
+              <span className="font-medium">{getDisplayTheme()}</span>
             </li>
             <li className="flex justify-between pb-2 border-b border-gray-100">
               <span className="text-charcoal-light">Group Size:</span>
