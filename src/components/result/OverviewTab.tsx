@@ -6,10 +6,13 @@ interface OverviewTabProps {
   config: EscapeRoomConfig;
 }
 
-// Helper function to capitalize first letter of each word
-const capitalizeString = (str: string): string => {
+// Helper function to capitalize first letter of each word and format hyphenated strings
+const formatThemeName = (str: string): string => {
   if (!str) return '';
+  // Replace hyphens with spaces and then capitalize each word
   return str
+    .split('-')
+    .join(' ')
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
@@ -19,9 +22,9 @@ const OverviewTab = ({ escapeRoom, config }: OverviewTabProps) => {
   // Get properly formatted theme for display
   const getDisplayTheme = () => {
     if (config.customTheme) {
-      return capitalizeString(config.customTheme);
+      return formatThemeName(config.customTheme);
     }
-    return capitalizeString(config.theme);
+    return formatThemeName(config.theme);
   };
 
   return (

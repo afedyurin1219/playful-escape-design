@@ -7,11 +7,15 @@ import GroupSizeSelector from '../components/GroupSizeSelector';
 import DifficultySelector from '../components/DifficultySelector';
 import DurationSelector from '../components/DurationSelector';
 import ProgressBar from '../components/ProgressBar';
-import { EscapeRoomConfig, generateEscapeRoom, EscapeRoomPlan } from '../components/EscapeRoomGenerator';
+import { EscapeRoomConfig, generateEscapeRoom } from '../components/EscapeRoomGenerator';
 
-const capitalizeString = (str: string): string => {
+// Helper function to format theme name (replacing hyphens and capitalizing)
+const formatThemeName = (str: string): string => {
   if (!str) return '';
+  // Replace hyphens with spaces and then capitalize each word
   return str
+    .split('-')
+    .join(' ')
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
@@ -93,9 +97,9 @@ const Creator = () => {
 
   const getDisplayTheme = () => {
     if (config.customTheme) {
-      return capitalizeString(config.customTheme);
+      return formatThemeName(config.customTheme);
     }
-    return capitalizeString(config.theme);
+    return formatThemeName(config.theme);
   };
 
   return (
