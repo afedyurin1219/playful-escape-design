@@ -148,12 +148,23 @@ export const hasPrintableContent = (task: string): boolean => {
 };
 
 /**
- * Gets printable content from a task description
- * @param task The task description
- * @param answer The expected answer (for validation)
+ * Gets printable content from a task description or dedicated fields
+ * @param station The station object containing task, cipherText, and scrambledWord
  * @returns The printable content or null if none is found
  */
-export const getPrintableContent = (task: string, answer?: string): { type: 'scramble' | 'cipher', content: string } | null => {
+export const getPrintableContent = (station: any): { type: 'scramble' | 'cipher', content: string } | null => {
+  const { task, cipherText, scrambledWord, answer } = station;
+  
+  // First check if we have dedicated fields for cipher or scrambled word
+  if (cipherText && isCipherTask(task)) {
+    return { type: 'cipher', content: cipherText };
+  }
+  
+  if (scrambledWord && isWordScrambleTask(task)) {
+    return { type: 'scramble', content: scrambledWord };
+  }
+  
+  // Fall back to extracting from the task as before
   if (isWordScrambleTask(task)) {
     const word = extractScrambledWord(task, answer);
     if (word) {

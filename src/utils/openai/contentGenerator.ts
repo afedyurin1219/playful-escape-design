@@ -154,11 +154,10 @@ CRITICAL TASK DESCRIPTION RULES:
 - Keep the answer SEPARATE in the "answer" field only
 
 CIPHER AND PRINTABLE CONTENT RULES:
-- For any cipher, code, or encrypted message tasks, provide the COMPLETE cipher text that needs to be decoded
-- If your task mentions "decrypt this message" or similar, include the FULL encrypted message in the task
-- When creating ciphers, ensure the entire message is included and makes sense when decoded
-- For word scrambles, the letters in the task MUST be the exact same letters needed to form the answer
-- Any printable content referenced in the task must be COMPLETELY described in the task and facilitator instructions
+- If your task involves a cipher, code, or encrypted message, include it in BOTH the task and in a separate "cipherText" field
+- If your task involves a word scramble, include it in BOTH the task and in a separate "scrambledWord" field
+- Ensure that any cipher or scrambled word is clearly labeled and exactly matches what's in the task
+- The cipherText or scrambledWord should be EXACTLY what players need to decode or unscramble
 
 SUPPLY LIST REQUIREMENTS:
 - You MUST include a detailed list of all physical supplies needed for this station in the "supplies" array
@@ -178,7 +177,9 @@ Format as valid JSON with the following structure:
   "answer": "The solution or expected outcome (must be specific and clear)",
   "hints": ["Hint 1 (subtle)", "Hint 2 (more direct)", "Hint 3 (very direct)"],
   "facilitatorInstructions": "Detailed instructions for the person running the escape room, including how to create any charts, ciphers, or printed materials referenced in the task",
-  "supplies": ["Complete supply 1", "Complete supply 2", "Complete supply 3", "etc."]
+  "supplies": ["Complete supply 1", "Complete supply 2", "Complete supply 3", "etc."],
+  "cipherText": "If the task involves a cipher, include the EXACT cipher text here",
+  "scrambledWord": "If the task involves a word scramble, include the EXACT scrambled word here"
 }`;
     
     // Make the API request to OpenAI
@@ -194,8 +195,8 @@ Reply with valid JSON only. Never use markdown code blocks.
 IMPORTANT GUIDELINES:
 1. NEVER include the answer in the task description. The answer should be stored separately in the "answer" field.
 2. For counting tasks, NEVER mention the exact quantity in the task description (e.g., use "count the blocks" not "count the 10 blocks").
-3. For cipher tasks, include the COMPLETE encrypted message in your response, not just the beginning or a partial message.
-4. For word scrambles or codes, the EXACT SAME scrambled letters or code must appear in both the task description and in the printable materials.
+3. For cipher tasks, include the COMPLETE encrypted message in both the task description and in the cipherText field.
+4. For word scrambles or codes, include the EXACT SAME scrambled letters in both the task description and in the scrambledWord field.
 5. All supplies must be listed as complete, standalone phrases that clearly describe exactly what is needed.
 6. NEVER return incomplete supply descriptions like "of blocks", "with markers", or "for decoration".
 7. Each supply must be a complete noun phrase that could appear in a shopping list.
