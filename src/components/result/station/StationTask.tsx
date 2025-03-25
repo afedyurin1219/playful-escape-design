@@ -24,6 +24,18 @@ const StationTask = ({ station }: StationTaskProps) => {
   const answerLower = String(station.answer).toLowerCase();
   const taskLower = taskDisplay.toLowerCase();
   
+  // For counting tasks, typically we don't want to show the exact count in the task
+  // this is a common issue with AI-generated tasks
+  const isCountingTask = taskLower.includes('count') || 
+                         (taskLower.includes('how many') && !isNaN(Number(station.answer)));
+  
+  if (isCountingTask) {
+    // Replace phrases that reveal the answer count with more ambiguous wording
+    taskDisplay = taskDisplay.replace(/there are \d+ /gi, 'there are some ');
+    taskDisplay = taskDisplay.replace(/count( the)? \d+ /gi, 'count the ');
+    taskDisplay = taskDisplay.replace(/find( the)? \d+ /gi, 'find the ');
+  }
+  
   return (
     <div className="mb-4">
       <h4 className="font-semibold text-charcoal-light mb-1">Task:</h4>

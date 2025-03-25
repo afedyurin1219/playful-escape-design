@@ -34,7 +34,7 @@ const PrintableLetters: React.FC<PrintableLettersProps> = ({
     const printTitle = title || (contentType === 'scramble' 
       ? `Printable Letters for "${content}"`
       : contentType === 'cipher'
-      ? `Printable Cipher: "${content}"`
+      ? `Printable Cipher`
       : "Printable Materials");
 
     // Create print-friendly content
@@ -219,8 +219,8 @@ const PrintableLetters: React.FC<PrintableLettersProps> = ({
             </div>
           ))
         ) : contentType === 'cipher' ? (
-          // Cipher text display
-          <div className="w-full font-mono text-lg p-2 bg-white border border-gray-300 rounded-md">
+          // Cipher text display - ensure the complete message is shown
+          <div className="w-full font-mono text-lg p-2 bg-white border border-gray-300 rounded-md break-words">
             {content}
           </div>
         ) : (

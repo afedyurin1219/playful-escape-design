@@ -92,7 +92,7 @@ export const isCipherTask = (task: string): boolean => {
  * @returns The encrypted text or null if not found
  */
 export const extractCipherText = (task: string): string | null => {
-  // Match patterns like text in quotes or after a colon
+  // First try to match text inside quotes (single or double)
   const quotesMatch = task.match(/'([^']+)'/);
   if (quotesMatch && quotesMatch[1]) {
     return quotesMatch[1];
@@ -103,10 +103,17 @@ export const extractCipherText = (task: string): string | null => {
     return doubleQuotesMatch[1];
   }
   
-  // For patterns like "The message is: ABCDE"
-  const colonMatch = task.match(/:\s+([A-Z0-9\s]+)(\s|$|\.|,)/);
+  // Look for patterns like "The message is: ABCDE"
+  const colonMatch = task.match(/:\s+([A-Z0-9\s!@#$%^&*()_+\-=[\]{}|;:,.<>/?]+)(\.|$)/i);
   if (colonMatch && colonMatch[1]) {
-    return colonMatch[1];
+    return colonMatch[1].trim();
+  }
+  
+  // If all else fails, attempt to extract any sequence of uppercase or numeric characters
+  // that might represent a cipher (usually in all caps or with special formatting)
+  const uppercaseSequence = task.match(/([A-Z0-9\s!@#$%^&*()_+\-=[\]{}|;:,.<>/?]{10,})/);
+  if (uppercaseSequence && uppercaseSequence[1]) {
+    return uppercaseSequence[1].trim();
   }
   
   return null;

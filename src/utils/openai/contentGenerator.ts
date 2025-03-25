@@ -146,19 +146,19 @@ IMPORTANT REQUIREMENTS:
 
 CRITICAL TASK DESCRIPTION RULES:
 - NEVER INCLUDE THE ANSWER in the task description
-- NEVER provide specific quantities that are part of the solution (e.g., "find 10 blocks" when 10 is the answer)
-- For counting tasks, NEVER mention the final count in the task (e.g., say "count the blocks" not "there are 10 blocks")
+- For counting tasks, NEVER mention the exact number in the task (e.g., say "count the blocks" not "count the 10 blocks")
+- NEVER use phrases like "there are 10 blocks" when 10 is the answer
+- For quantity-based tasks, use vague terms like "several", "some", or "many" instead of exact numbers
 - For physical tasks, don't reveal what players should find - make them discover it
 - If the task involves finding a number, don't reveal that number in the task
 - Keep the answer SEPARATE in the "answer" field only
-- IMPORTANT: If your task involves scrambled letters, letter rearrangement, or word puzzles, 
-  you MUST use the EXACT SAME letters in both the task description and in any puzzle content.
-  For example, if your task says "rearrange EOBNIGH", the printable content must also use "EOBNIGH".
-- For word puzzles, the letters in the task description MUST EXACTLY MATCH the letters in the puzzle components
-- Any scrambled words or codes mentioned in the task description MUST be identical to those in printable materials
-- CRITICAL: If your task mentions any "provided chart", "cipher key", "decoder", or similar reference material, 
-  you MUST include a detailed description of this material in your response. These materials should be included 
-  in the "facilitatorInstructions" field with clear instructions on how to create them.
+
+CIPHER AND PRINTABLE CONTENT RULES:
+- For any cipher, code, or encrypted message tasks, provide the COMPLETE cipher text that needs to be decoded
+- If your task mentions "decrypt this message" or similar, include the FULL encrypted message in the task
+- When creating ciphers, ensure the entire message is included and makes sense when decoded
+- For word scrambles, the letters in the task MUST be the exact same letters needed to form the answer
+- Any printable content referenced in the task must be COMPLETELY described in the task and facilitator instructions
 
 SUPPLY LIST REQUIREMENTS:
 - You MUST include a detailed list of all physical supplies needed for this station in the "supplies" array
@@ -192,15 +192,14 @@ Format as valid JSON with the following structure:
 Reply with valid JSON only. Never use markdown code blocks.
 
 IMPORTANT GUIDELINES:
-1. If your puzzle involves letters, words, or codes that participants need to rearrange or decode, ensure the EXACT SAME letters appear in both the task description and any printable/puzzle components.
-2. NEVER include the answer in the task description. The answer should be stored separately in the "answer" field.
-3. For counting or quantity tasks, NEVER mention the final count or number in the task description.
-4. If your task mentions any 'provided chart', 'cipher key', 'decoder', or similar reference material, you MUST include detailed instructions on how to create these materials.
+1. NEVER include the answer in the task description. The answer should be stored separately in the "answer" field.
+2. For counting tasks, NEVER mention the exact quantity in the task description (e.g., use "count the blocks" not "count the 10 blocks").
+3. For cipher tasks, include the COMPLETE encrypted message in your response, not just the beginning or a partial message.
+4. For word scrambles or codes, the EXACT SAME scrambled letters or code must appear in both the task description and in the printable materials.
 5. All supplies must be listed as complete, standalone phrases that clearly describe exactly what is needed.
 6. NEVER return incomplete supply descriptions like "of blocks", "with markers", or "for decoration".
 7. Each supply must be a complete noun phrase that could appear in a shopping list.
-8. For word scrambles or codes, the EXACT SAME scrambled letters or code must appear in both the task description and in the printable materials.
-9. DO NOT REVEAL THE ANSWER in the task description in any way - make participants truly discover it.`
+8. DO NOT REVEAL THE ANSWER in the task description in any way - make participants truly discover it.`
         },
         {"role": "user", "content": prompt}
       ],
@@ -243,11 +242,19 @@ IMPORTANT GUIDELINES:
       const answerLower = String(stationData.answer).toLowerCase();
       const taskLower = stationData.task.toLowerCase();
       
-      // If the answer appears directly in the task, remove it from the task or adjust the task
+      // If the answer appears directly in the task, try to sanitize the task
       if (answerLower !== '' && taskLower.includes(answerLower)) {
         console.warn('Answer found in task description, attempting to sanitize...');
         // Remove "Answer: X" pattern if present
         stationData.task = stationData.task.replace(/\s*Answer:\s*.*$/i, '');
+        
+        // For counting tasks, replace exact numbers with vague quantities
+        if (!isNaN(Number(stationData.answer))) {
+          const numAnswer = Number(stationData.answer);
+          const numRegex = new RegExp(`\\b${numAnswer}\\b`, 'g');
+          stationData.task = stationData.task.replace(numRegex, 'some');
+          stationData.task = stationData.task.replace(/there are \d+ /gi, 'there are some ');
+        }
       }
       
       return stationData;
