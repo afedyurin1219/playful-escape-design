@@ -1,7 +1,8 @@
+
 import { useState } from 'react';
 import { Station, EscapeRoomConfig } from '../EscapeRoomGenerator';
 import { Button } from '@/components/ui/button';
-import { Loader2, MoreVertical, RefreshCw, Printer, AlertTriangle } from 'lucide-react';
+import { Loader2, MoreVertical, RefreshCw, Printer, AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +13,11 @@ import PrintableLetters from '../PrintableLetters';
 import { hasPrintableContent, getPrintableContent } from '../../utils/printUtils';
 import { Badge } from '@/components/ui/badge';
 import { stationTypeInfoMap } from '../../utils/stationTypes';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger
+} from "@/components/ui/collapsible";
 
 interface StationCardProps {
   station: Station;
@@ -67,6 +73,9 @@ const StationCard = ({
   };
 
   const difficulty = getStationDifficulty();
+  
+  // State for supplies collapsible
+  const [isSuppliesOpen, setIsSuppliesOpen] = useState(false);
   
   return (
     <div className="bg-white p-6 rounded-xl shadow-card print:shadow-none print:border print:border-gray-200 print:mb-6 print:p-4 relative">
@@ -167,20 +176,32 @@ const StationCard = ({
         )}
       </div>
       <div>
-        <h4 className="font-semibold text-charcoal-light mb-1">Supplies Needed:</h4>
-        <ul className="list-disc pl-5 space-y-1">
-          {stationSupplies && stationSupplies.length > 0 ? (
-            stationSupplies.map((supply, supplyIndex) => (
-              <li key={supplyIndex}>
-                {typeof supply === 'string' ? supply : supply.name}
-              </li>
-            ))
-          ) : (
-            <li className="text-amber-700 font-medium">
-              No specific supplies listed. Review the task and facilitator instructions for needed materials.
-            </li>
-          )}
-        </ul>
+        <Collapsible open={isSuppliesOpen} onOpenChange={setIsSuppliesOpen} className="w-full">
+          <div className="flex items-center justify-between">
+            <h4 className="font-semibold text-charcoal-light">Supplies Needed:</h4>
+            <CollapsibleTrigger className="rounded-md hover:bg-gray-100 p-1">
+              {isSuppliesOpen ? 
+                <ChevronDown className="h-4 w-4" /> : 
+                <ChevronRight className="h-4 w-4" />
+              }
+            </CollapsibleTrigger>
+          </div>
+          <CollapsibleContent className="mt-2">
+            <ul className="list-disc pl-5 space-y-1">
+              {stationSupplies && stationSupplies.length > 0 ? (
+                stationSupplies.map((supply, supplyIndex) => (
+                  <li key={supplyIndex}>
+                    {typeof supply === 'string' ? supply : supply.name}
+                  </li>
+                ))
+              ) : (
+                <li className="text-amber-700 font-medium">
+                  No specific supplies listed. Review the task and facilitator instructions for needed materials.
+                </li>
+              )}
+            </ul>
+          </CollapsibleContent>
+        </Collapsible>
       </div>
     </div>
   );
