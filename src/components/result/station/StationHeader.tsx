@@ -4,7 +4,7 @@ import { Station } from '../../EscapeRoomGenerator';
 import StationBadges from './StationBadges';
 import StationActions from './StationActions';
 import { stationTypeInfoMap } from '../../../utils/stationTypes';
-import { hasPrintableContent, extractPrintableMaterial } from '../../../utils/printUtils';
+import { hasPrintableContent, extractPrintableMaterial, isCipherTask } from '../../../utils/printUtils';
 import { taskMentionsPrintableMaterials } from './StationUtils';
 
 interface StationHeaderProps {
@@ -34,9 +34,9 @@ const StationHeader = ({
   
   const difficulty = getStationDifficulty();
   
-  // Check if task or facilitator instructions mention printable materials
+  // Improved detection for printable materials
   const hasPrintableMaterials = Boolean(
-    hasPrintableContent(station.task) || 
+    (hasPrintableContent(station.task) && isCipherTask(station.task)) || 
     extractPrintableMaterial(station.facilitatorInstructions) ||
     taskMentionsPrintableMaterials(station.task)
   );

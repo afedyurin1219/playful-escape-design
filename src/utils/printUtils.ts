@@ -77,13 +77,25 @@ export const extractScrambledWord = (task: string, answer?: string): string | nu
  * @returns Boolean indicating if this is a cipher/code task
  */
 export const isCipherTask = (task: string): boolean => {
-  return task.toLowerCase().includes('cipher') || 
-         task.toLowerCase().includes('code') ||
-         task.toLowerCase().includes('decoded') ||
-         task.toLowerCase().includes('transmission') ||
-         task.toLowerCase().includes('decrypt') ||
-         task.toLowerCase().includes('secret message') ||
-         task.toLowerCase().includes('password');
+  const taskLower = task.toLowerCase();
+  
+  // Check for explicit mentions of ciphers or codes
+  const hasCipherTerms = 
+    taskLower.includes('cipher') || 
+    taskLower.includes('decode') ||
+    taskLower.includes('encrypted') ||
+    taskLower.includes('decrypt') ||
+    taskLower.includes('secret message') ||
+    (taskLower.includes('code') && !taskLower.includes('unlock the code')) ||  // Avoid matching generic "code" references
+    taskLower.includes('password that needs to be decoded');
+  
+  // Check for specific cipher formats (like sequences of symbols, etc.)
+  const hasCipherPatterns = Boolean(
+    task.match(/[#$%&*+]+/) || // Symbol sequences 
+    task.match(/[A-Z]{10,}/)   // Long uppercase sequences
+  );
+  
+  return hasCipherTerms || hasCipherPatterns;
 };
 
 /**

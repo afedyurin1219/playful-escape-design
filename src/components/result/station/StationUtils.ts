@@ -6,7 +6,18 @@
 // Check if task mentions any printable materials that need to be created
 export const taskMentionsPrintableMaterials = (task: string): boolean => {
   const taskLower = task.toLowerCase();
-  const printableTerms = ['chart', 'cipher', 'key', 'code sheet', 'reference', 'provided', 'decoder', 'printed'];
+  // More specific checks for printable materials
+  const printableTerms = [
+    'cipher key', 
+    'decode using the provided', 
+    'code sheet', 
+    'reference chart',
+    'need to print', 
+    'printed decoder', 
+    'print out'
+  ];
+  
+  // Check if any of these specific terms are present
   return printableTerms.some(term => taskLower.includes(term));
 };
 
