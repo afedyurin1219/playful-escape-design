@@ -143,10 +143,12 @@ IMPORTANT REQUIREMENTS:
 - Do NOT use templates or generic puzzles
 - Make this station CREATIVE and SPECIFICALLY TIED to the ${theme} theme
 - Avoid copying common escape room puzzles
+- DO NOT include the answer in the task description. The answer should be stored separately in the "answer" field
 - IMPORTANT: If your task involves scrambled letters, letter rearrangement, or word puzzles, 
   you MUST use the EXACT SAME letters in both the task description and in any puzzle content.
   For example, if your task says "rearrange EOBNIGH", the printable content must also use "EOBNIGH".
-- For word puzzles, ensure the letters EXACTLY match between the task description and the puzzle components
+- For word puzzles, the letters in the task description MUST EXACTLY MATCH the letters in the puzzle components
+- Any scrambled words or codes mentioned in the task description MUST be identical to those in printable materials
 - CRITICAL: If your task mentions any "provided chart", "cipher key", "decoder", or similar reference material, 
   you MUST include a detailed description of this material in your response. These materials should be included 
   in the "facilitatorInstructions" field with clear instructions on how to create them.
@@ -165,7 +167,7 @@ SUPPLY LIST REQUIREMENTS:
 Format as valid JSON with the following structure:
 {
   "name": "Station Name - should be unique and creative",
-  "task": "Detailed task description explaining what participants need to do",
+  "task": "Detailed task description explaining what participants need to do (DO NOT include the answer in the task)",
   "answer": "The solution or expected outcome (must be specific and clear)",
   "hints": ["Hint 1 (subtle)", "Hint 2 (more direct)", "Hint 3 (very direct)"],
   "facilitatorInstructions": "Detailed instructions for the person running the escape room, including how to create any charts, ciphers, or printed materials referenced in the task",
@@ -184,10 +186,12 @@ Reply with valid JSON only. Never use markdown code blocks.
 
 IMPORTANT GUIDELINES:
 1. If your puzzle involves letters, words, or codes that participants need to rearrange or decode, ensure the EXACT SAME letters appear in both the task description and any printable/puzzle components.
-2. If your task mentions any 'provided chart', 'cipher key', 'decoder', or similar reference material, you MUST include detailed instructions on how to create these materials.
-3. All supplies must be listed as complete, standalone phrases that clearly describe exactly what is needed.
-4. NEVER return incomplete supply descriptions like "of blocks", "with markers", or "for decoration".
-5. Each supply must be a complete noun phrase that could appear in a shopping list.`
+2. NEVER include the answer in the task description. The answer should be stored separately in the "answer" field.
+3. If your task mentions any 'provided chart', 'cipher key', 'decoder', or similar reference material, you MUST include detailed instructions on how to create these materials.
+4. All supplies must be listed as complete, standalone phrases that clearly describe exactly what is needed.
+5. NEVER return incomplete supply descriptions like "of blocks", "with markers", or "for decoration".
+6. Each supply must be a complete noun phrase that could appear in a shopping list.
+7. For word scrambles or codes, the EXACT SAME scrambled letters or code must appear in both the task description and in the printable materials.`
         },
         {"role": "user", "content": prompt}
       ],
@@ -225,6 +229,9 @@ IMPORTANT GUIDELINES:
           .map((supply: string) => supply.trim())
           .filter((supply: string) => supply.length > 0);
       }
+      
+      // Ensure answer is not included in the task description
+      stationData.task = stationData.task.replace(/\s*Answer:\s*.*$/i, '');
       
       return stationData;
     } catch (parseError) {

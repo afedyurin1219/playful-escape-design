@@ -17,7 +17,8 @@ const StationAnswer = ({ station }: StationAnswerProps) => {
       taskLower.includes('collect') ||
       taskLower.includes('gather') ||
       taskLower.includes('assemble') ||
-      taskLower.includes('physical')
+      taskLower.includes('physical') ||
+      taskLower.includes('hidden')
     );
   };
 
