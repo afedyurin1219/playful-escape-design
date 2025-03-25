@@ -218,8 +218,14 @@ Format as valid JSON with the following structure:
  * Extract supplies mentioned in the task or facilitator instructions but not listed in the supplies array
  */
 const extractMissingSupplies = (stationData: any): string[] => {
-  if (!stationData.supplies) {
-    stationData.supplies = [];
+  // Initialize supplies array if it doesn't exist or ensure it's a string array
+  let currentSupplies: string[] = [];
+  
+  if (stationData.supplies) {
+    // Make sure each supply is a string
+    currentSupplies = Array.isArray(stationData.supplies) 
+      ? stationData.supplies.filter((supply: any) => typeof supply === 'string')
+      : [];
   }
   
   // Common words that might indicate supplies
@@ -233,10 +239,16 @@ const extractMissingSupplies = (stationData: any): string[] => {
   ];
   
   // Combined text to search for supplies
-  const combinedText = `${stationData.task} ${stationData.facilitatorInstructions}`.toLowerCase();
+  const taskText = typeof stationData.task === 'string' ? stationData.task.toLowerCase() : '';
+  const instructionsText = typeof stationData.facilitatorInstructions === 'string' 
+    ? stationData.facilitatorInstructions.toLowerCase() 
+    : '';
+  const combinedText = `${taskText} ${instructionsText}`;
   
   // Find potential supplies in the text
-  const supplies = new Set(stationData.supplies.map((s: string) => s.toLowerCase()));
+  const supplies = new Set<string>(
+    currentSupplies.map((s: string) => typeof s === 'string' ? s.toLowerCase() : '')
+  );
   
   supplyIndicators.forEach(indicator => {
     if (combinedText.includes(indicator)) {
@@ -277,5 +289,7 @@ const extractMissingSupplies = (stationData: any): string[] => {
     supplies.add('Materials for station setup (as described in facilitator instructions)');
   }
   
-  return Array.from(supplies);
+  // Convert Set back to Array and ensure all elements are strings
+  return Array.from(supplies).filter(supply => typeof supply === 'string');
 };
+
