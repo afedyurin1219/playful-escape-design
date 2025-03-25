@@ -9,21 +9,22 @@ interface StationAnswerProps {
 const StationAnswer = ({ station }: StationAnswerProps) => {
   const isPhysicalTask = () => {
     const taskLower = station.task.toLowerCase();
-    // Check if this is a physical task or search task that shouldn't show an answer
+    // Only hide answers for truly physical tasks that require physical actions
     return (
-      taskLower.includes('find') || 
-      taskLower.includes('search') || 
-      taskLower.includes('locate') || 
-      taskLower.includes('collect') ||
-      taskLower.includes('gather') ||
-      taskLower.includes('assemble') ||
-      taskLower.includes('physical') ||
-      taskLower.includes('hidden') ||
-      taskLower.includes('count')  // Added "count" as these are often physical tasks too
+      (taskLower.includes('find') && taskLower.includes('hidden')) || 
+      (taskLower.includes('search') && taskLower.includes('room')) || 
+      taskLower.includes('physical challenge') ||
+      taskLower.includes('relay race') ||
+      taskLower.includes('obstacle course') ||
+      (taskLower.includes('shoot') && taskLower.includes('target')) ||
+      (taskLower.includes('throw') && taskLower.includes('ball')) ||
+      taskLower.includes('balance') ||
+      taskLower.includes('jump') ||
+      (taskLower.includes('collect') && taskLower.includes('item'))
     );
   };
 
-  // Skip rendering the answer section completely for physical tasks
+  // Show the answer section for all stations except purely physical tasks
   if (isPhysicalTask()) {
     return null;
   }
