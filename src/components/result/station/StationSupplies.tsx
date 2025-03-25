@@ -5,7 +5,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger
 } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, ExternalLink } from 'lucide-react';
 
 interface StationSuppliesProps {
   supplies: Array<any>;
@@ -13,6 +13,12 @@ interface StationSuppliesProps {
 
 const StationSupplies = ({ supplies }: StationSuppliesProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Function to generate Amazon search link for a supply
+  const getAmazonLink = (supplyName: string) => {
+    const searchQuery = encodeURIComponent(supplyName);
+    return `https://www.amazon.com/s?k=${searchQuery}`;
+  };
   
   return (
     <div>
@@ -30,8 +36,18 @@ const StationSupplies = ({ supplies }: StationSuppliesProps) => {
           <ul className="list-disc pl-5 space-y-1">
             {supplies && supplies.length > 0 ? (
               supplies.map((supply, supplyIndex) => (
-                <li key={supplyIndex}>
-                  {typeof supply === 'string' ? supply : supply.name}
+                <li key={supplyIndex} className="flex justify-between items-start">
+                  <span>
+                    {typeof supply === 'string' ? supply : supply.name}
+                  </span>
+                  <a 
+                    href={getAmazonLink(typeof supply === 'string' ? supply : supply.name)} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-teal hover:text-teal-600 flex items-center gap-1 text-xs print:hidden ml-2"
+                  >
+                    <ExternalLink className="h-3 w-3" /> Amazon
+                  </a>
                 </li>
               ))
             ) : (

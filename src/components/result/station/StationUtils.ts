@@ -17,11 +17,22 @@ export const getStationSupplies = (stationName: string, stationSupplies: any[] |
     return stationSupplies;
   }
   
+  // If no station-specific supplies and no global supplies, return empty array
+  if (!globalSupplies || !Array.isArray(globalSupplies) || globalSupplies.length === 0) {
+    return [];
+  }
+  
   // Otherwise, look for station-specific supplies in the global supplies list
   const stationNameLower = stationName.toLowerCase();
   
   return globalSupplies.filter(supply => {
-    return supply.purpose && supply.purpose.toLowerCase().includes(stationNameLower);
+    if (!supply || typeof supply !== 'object') {
+      return false;
+    }
+    
+    return supply.purpose && 
+           typeof supply.purpose === 'string' && 
+           supply.purpose.toLowerCase().includes(stationNameLower);
   });
 };
 

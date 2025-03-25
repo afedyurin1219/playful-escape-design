@@ -29,7 +29,7 @@ const StationCard = ({
   onChangeStation,
   onDeleteStation
 }: StationCardProps) => {
-  // Get supplies for this station
+  // Get supplies for this specific station (first from station.supplies, or fallback to global)
   const stationSupplies = getStationSupplies(station.name, station.supplies, supplies);
   
   return (

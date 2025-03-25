@@ -31,16 +31,22 @@ const ResultContent: React.FC<ResultContentProps> = ({
   onDeleteStation,
   onAddStation
 }) => {
+  // Make sure escapeRoom.stations is properly set with the current stations
+  const escapeRoomWithStations = {
+    ...escapeRoom,
+    stations: stations
+  };
+  
   return (
     <div className="tab-content mb-16">
       <div className={`${activeTab === 'overview' ? '' : 'print:block hidden'}`}>
-        <OverviewTab escapeRoom={escapeRoom} config={config} />
+        <OverviewTab escapeRoom={escapeRoomWithStations} config={config} />
       </div>
       
       <div className={`${activeTab === 'stations' ? '' : 'print:block hidden'}`}>
         <StationsTab 
           stations={stations} 
-          escapeRoom={escapeRoom}
+          escapeRoom={escapeRoomWithStations}
           config={config}
           isGeneratingStation={isGeneratingStation || isGeneratingInitialStations}
           currentStationIndex={currentStationIndex}
@@ -51,7 +57,7 @@ const ResultContent: React.FC<ResultContentProps> = ({
       </div>
       
       <div className={`${activeTab === 'supplies' ? '' : 'print:block hidden'}`}>
-        <SuppliesTab escapeRoom={escapeRoom} />
+        <SuppliesTab escapeRoom={escapeRoomWithStations} />
       </div>
       
       <div className={`${activeTab === 'facilitation' ? '' : 'print:block hidden'}`}>
