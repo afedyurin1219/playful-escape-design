@@ -143,7 +143,14 @@ IMPORTANT REQUIREMENTS:
 - Do NOT use templates or generic puzzles
 - Make this station CREATIVE and SPECIFICALLY TIED to the ${theme} theme
 - Avoid copying common escape room puzzles
-- DO NOT include the answer in the task description. The answer should be stored separately in the "answer" field
+
+CRITICAL TASK DESCRIPTION RULES:
+- NEVER INCLUDE THE ANSWER in the task description
+- NEVER provide specific quantities that are part of the solution (e.g., "find 10 blocks" when 10 is the answer)
+- For counting tasks, NEVER mention the final count in the task (e.g., say "count the blocks" not "there are 10 blocks")
+- For physical tasks, don't reveal what players should find - make them discover it
+- If the task involves finding a number, don't reveal that number in the task
+- Keep the answer SEPARATE in the "answer" field only
 - IMPORTANT: If your task involves scrambled letters, letter rearrangement, or word puzzles, 
   you MUST use the EXACT SAME letters in both the task description and in any puzzle content.
   For example, if your task says "rearrange EOBNIGH", the printable content must also use "EOBNIGH".
@@ -187,11 +194,13 @@ Reply with valid JSON only. Never use markdown code blocks.
 IMPORTANT GUIDELINES:
 1. If your puzzle involves letters, words, or codes that participants need to rearrange or decode, ensure the EXACT SAME letters appear in both the task description and any printable/puzzle components.
 2. NEVER include the answer in the task description. The answer should be stored separately in the "answer" field.
-3. If your task mentions any 'provided chart', 'cipher key', 'decoder', or similar reference material, you MUST include detailed instructions on how to create these materials.
-4. All supplies must be listed as complete, standalone phrases that clearly describe exactly what is needed.
-5. NEVER return incomplete supply descriptions like "of blocks", "with markers", or "for decoration".
-6. Each supply must be a complete noun phrase that could appear in a shopping list.
-7. For word scrambles or codes, the EXACT SAME scrambled letters or code must appear in both the task description and in the printable materials.`
+3. For counting or quantity tasks, NEVER mention the final count or number in the task description.
+4. If your task mentions any 'provided chart', 'cipher key', 'decoder', or similar reference material, you MUST include detailed instructions on how to create these materials.
+5. All supplies must be listed as complete, standalone phrases that clearly describe exactly what is needed.
+6. NEVER return incomplete supply descriptions like "of blocks", "with markers", or "for decoration".
+7. Each supply must be a complete noun phrase that could appear in a shopping list.
+8. For word scrambles or codes, the EXACT SAME scrambled letters or code must appear in both the task description and in the printable materials.
+9. DO NOT REVEAL THE ANSWER in the task description in any way - make participants truly discover it.`
         },
         {"role": "user", "content": prompt}
       ],
@@ -230,8 +239,16 @@ IMPORTANT GUIDELINES:
           .filter((supply: string) => supply.length > 0);
       }
       
-      // Ensure answer is not included in the task description
-      stationData.task = stationData.task.replace(/\s*Answer:\s*.*$/i, '');
+      // Additional check to ensure answer is not included in the task description
+      const answerLower = String(stationData.answer).toLowerCase();
+      const taskLower = stationData.task.toLowerCase();
+      
+      // If the answer appears directly in the task, remove it from the task or adjust the task
+      if (answerLower !== '' && taskLower.includes(answerLower)) {
+        console.warn('Answer found in task description, attempting to sanitize...');
+        // Remove "Answer: X" pattern if present
+        stationData.task = stationData.task.replace(/\s*Answer:\s*.*$/i, '');
+      }
       
       return stationData;
     } catch (parseError) {

@@ -18,7 +18,8 @@ const StationAnswer = ({ station }: StationAnswerProps) => {
       taskLower.includes('gather') ||
       taskLower.includes('assemble') ||
       taskLower.includes('physical') ||
-      taskLower.includes('hidden')
+      taskLower.includes('hidden') ||
+      taskLower.includes('count')  // Added "count" as these are often physical tasks too
     );
   };
 

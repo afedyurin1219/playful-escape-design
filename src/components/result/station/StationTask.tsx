@@ -14,8 +14,15 @@ const StationTask = ({ station }: StationTaskProps) => {
   const printableContent = hasPrintableContent(station.task) ? 
     getPrintableContent(station.task, station.answer) : null;
     
-  // Remove any "Answer: X" part from the task description
-  const taskDisplay = station.task.replace(/\s*Answer:\s*.*$/i, '');
+  // Clean up the task description:
+  // 1. Remove any "Answer: X" part from the task description
+  // 2. Remove any direct mention of the answer if it appears in the task
+  let taskDisplay = station.task.replace(/\s*Answer:\s*.*$/i, '');
+  
+  // Additional cleaning: If the answer is a number or word that's directly in the task,
+  // consider sanitizing it further or warning the facilitator
+  const answerLower = String(station.answer).toLowerCase();
+  const taskLower = taskDisplay.toLowerCase();
   
   return (
     <div className="mb-4">
