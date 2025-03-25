@@ -1,4 +1,3 @@
-
 export interface EscapeRoomConfig {
   ageGroup: string;
   theme: string;
@@ -24,6 +23,7 @@ export interface Station {
   hints: string[];
   facilitatorInstructions: string;
   type?: string; // Add type to track what kind of station this is
+  supplies?: string[]; // Add supplies specifically for this station
 }
 
 export interface Supply {

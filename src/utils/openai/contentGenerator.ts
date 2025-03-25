@@ -150,6 +150,12 @@ IMPORTANT REQUIREMENTS:
 - CRITICAL: If your task mentions any "provided chart", "cipher key", "decoder", or similar reference material, 
   you MUST include a detailed description of this material in your response. These materials should be included 
   in the "facilitatorInstructions" field with clear instructions on how to create them.
+- SUPPLIES LIST REQUIREMENT: If your task mentions ANY physical objects (like vials, blocks, markers, paper, etc.), 
+  you MUST include these items in the "supplies" array. Never return an empty supplies list if the task or 
+  facilitator instructions mention physical items needed.
+- VERY IMPORTANT: Always check your task and facilitatorInstructions for mentioned supplies and ensure they ALL 
+  appear in the "supplies" array. For example, if the task mentions "antidote vials" and "foam blocks", these 
+  MUST be listed in the supplies array.
 
 Format as valid JSON with the following structure:
 {
@@ -165,7 +171,7 @@ Format as valid JSON with the following structure:
     const content = await callOpenAI(
       apiKey,
       [
-        {"role": "system", "content": `You are an Escape Room designer specialized in creating unique, creative, and original themed stations for ${ageGroup} year olds. Respond with valid JSON only. Never use templates or generic puzzles. Do not add markdown code blocks. CRITICAL: If your puzzle involves letters, words, or codes that participants need to rearrange or decode, ensure that the EXACT SAME letters appear in both the task description and any printable/puzzle components. If your task mentions any 'provided chart', 'cipher key', 'decoder', or similar reference material, you MUST include a detailed description of this material in your response.`},
+        {"role": "system", "content": `You are an Escape Room designer specialized in creating unique, creative, and original themed stations for ${ageGroup} year olds. Respond with valid JSON only. Never use templates or generic puzzles. Do not add markdown code blocks. CRITICAL: If your puzzle involves letters, words, or codes that participants need to rearrange or decode, ensure that the EXACT SAME letters appear in both the task description and any printable/puzzle components. If your task mentions any 'provided chart', 'cipher key', 'decoder', or similar reference material, you MUST include a detailed description of this material in your response. NEVER leave the supplies array empty if the task or facilitator instructions mention physical items. Always include ALL physical objects mentioned in the task or facilitator instructions in the supplies array.`},
         {"role": "user", "content": prompt}
       ],
       { max_tokens: 1000 }  // Increased token limit for more detailed responses
@@ -193,6 +199,9 @@ Format as valid JSON with the following structure:
         throw new Error('Station data is missing required fields');
       }
       
+      // Extract supplies from task and facilitator instructions if not already in supplies
+      stationData.supplies = extractMissingSupplies(stationData);
+      
       return stationData;
     } catch (parseError) {
       console.error('Failed to parse OpenAI response as JSON:', parseError);
@@ -203,4 +212,70 @@ Format as valid JSON with the following structure:
     console.error('Station generation error:', error);
     throw error;  // Re-throw the error instead of returning a fallback
   }
+};
+
+/**
+ * Extract supplies mentioned in the task or facilitator instructions but not listed in the supplies array
+ */
+const extractMissingSupplies = (stationData: any): string[] => {
+  if (!stationData.supplies) {
+    stationData.supplies = [];
+  }
+  
+  // Common words that might indicate supplies
+  const supplyIndicators = [
+    'vial', 'tube', 'container', 'box', 'card', 'paper', 'pen', 'marker', 'block', 
+    'ball', 'puzzle', 'key', 'lock', 'timer', 'chart', 'map', 'rope', 'tape',
+    'prop', 'costume', 'mask', 'glove', 'flashlight', 'light', 'candle', 'obstacle',
+    'foam', 'inflatable', 'balloon', 'bottle', 'cup', 'board', 'game', 'dice',
+    'token', 'figure', 'toy', 'model', 'equipment', 'tool', 'device', 'cloth',
+    'fabric', 'string', 'cord', 'wire', 'badge', 'sticker', 'print', 'item'
+  ];
+  
+  // Combined text to search for supplies
+  const combinedText = `${stationData.task} ${stationData.facilitatorInstructions}`.toLowerCase();
+  
+  // Find potential supplies in the text
+  const supplies = new Set(stationData.supplies.map((s: string) => s.toLowerCase()));
+  
+  supplyIndicators.forEach(indicator => {
+    if (combinedText.includes(indicator)) {
+      // Find the context around the indicator word
+      const regex = new RegExp(`\\w*\\s*${indicator}\\w*(?:\\s+\\w+){0,3}`, 'gi');
+      const matches = combinedText.match(regex);
+      
+      if (matches) {
+        matches.forEach(match => {
+          // Check if this supply or a similar one is already in the list
+          const isAlreadyIncluded = Array.from(supplies).some(
+            supply => supply.includes(indicator) || match.includes(supply)
+          );
+          
+          if (!isAlreadyIncluded) {
+            // Clean up the match and add it to supplies
+            let supplyName = match.trim()
+              .replace(/^(the|a|an)\s+/i, '')  // Remove leading articles
+              .replace(/\s+/g, ' ');  // Remove extra spaces
+            
+            // Capitalize first letter
+            supplyName = supplyName.charAt(0).toUpperCase() + supplyName.slice(1);
+            
+            supplies.add(supplyName);
+          }
+        });
+      }
+    }
+  });
+  
+  // If we still have no supplies but text mentions items, add a generic supply
+  if (supplies.size === 0 && (
+    combinedText.includes('obstacle') || 
+    combinedText.includes('item') || 
+    combinedText.includes('prop') ||
+    combinedText.includes('setup')
+  )) {
+    supplies.add('Materials for station setup (as described in facilitator instructions)');
+  }
+  
+  return Array.from(supplies);
 };

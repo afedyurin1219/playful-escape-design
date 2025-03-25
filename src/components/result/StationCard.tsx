@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Station, EscapeRoomConfig } from '../EscapeRoomGenerator';
 import { Button } from '@/components/ui/button';
@@ -34,15 +33,21 @@ const StationCard = ({
   onDeleteStation
 }: StationCardProps) => {
   // Helper function to get supplies for this station
-  const getStationSupplies = (stationName: string, supplies: Array<any>) => {
-    const stationNameLower = stationName.toLowerCase();
+  const getStationSupplies = (station: Station, globalSupplies: Array<any>) => {
+    // First, check if the station has its own supplies array
+    if (station.supplies && Array.isArray(station.supplies) && station.supplies.length > 0) {
+      return station.supplies;
+    }
     
-    return supplies.filter(supply => {
+    // Otherwise, look for station-specific supplies in the global supplies list
+    const stationNameLower = station.name.toLowerCase();
+    
+    return globalSupplies.filter(supply => {
       return supply.purpose.toLowerCase().includes(stationNameLower);
     });
   };
   
-  const stationSupplies = getStationSupplies(station.name, supplies);
+  const stationSupplies = getStationSupplies(station, supplies);
   
   // Check if task mentions any printable materials that need to be created
   const taskMentionsPrintableMaterials = () => {
@@ -164,12 +169,16 @@ const StationCard = ({
       <div>
         <h4 className="font-semibold text-charcoal-light mb-1">Supplies Needed:</h4>
         <ul className="list-disc pl-5 space-y-1">
-          {stationSupplies.length > 0 ? (
+          {stationSupplies && stationSupplies.length > 0 ? (
             stationSupplies.map((supply, supplyIndex) => (
-              <li key={supplyIndex}>{supply.name}</li>
+              <li key={supplyIndex}>
+                {typeof supply === 'string' ? supply : supply.name}
+              </li>
             ))
           ) : (
-            <li>No specific supplies required for this station</li>
+            <li className="text-amber-700 font-medium">
+              No specific supplies listed. Review the task and facilitator instructions for needed materials.
+            </li>
           )}
         </ul>
       </div>
