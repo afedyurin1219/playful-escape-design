@@ -74,8 +74,9 @@ const StationCard = ({
 
   const difficulty = getStationDifficulty();
   
-  // State for supplies collapsible
+  // State for collapsibles
   const [isSuppliesOpen, setIsSuppliesOpen] = useState(false);
+  const [isFacilitatorOpen, setIsFacilitatorOpen] = useState(false);
   
   return (
     <div className="bg-white p-6 rounded-xl shadow-card print:shadow-none print:border print:border-gray-200 print:mb-6 print:p-4 relative">
@@ -162,18 +163,30 @@ const StationCard = ({
         </ul>
       </div>
       <div className="mb-4">
-        <h4 className="font-semibold text-charcoal-light mb-1">Facilitator Instructions:</h4>
-        <p className="italic">{station.facilitatorInstructions}</p>
-        
-        {taskMentionsPrintableMaterials() && !hasPrintableContent(station.task) && (
-          <div className="mt-3 border border-amber-200 bg-amber-50 p-3 rounded-md">
-            <p className="text-sm text-amber-700 flex items-center gap-1">
-              <AlertTriangle className="h-4 w-4" />
-              <strong>Note:</strong> This task mentions materials that need to be created (charts, ciphers, etc.). 
-              See the facilitator instructions above for details on how to prepare these materials.
-            </p>
+        <Collapsible open={isFacilitatorOpen} onOpenChange={setIsFacilitatorOpen} className="w-full">
+          <div className="flex items-center justify-between">
+            <h4 className="font-semibold text-charcoal-light">Facilitator Instructions:</h4>
+            <CollapsibleTrigger className="rounded-md hover:bg-gray-100 p-1">
+              {isFacilitatorOpen ? 
+                <ChevronDown className="h-4 w-4" /> : 
+                <ChevronRight className="h-4 w-4" />
+              }
+            </CollapsibleTrigger>
           </div>
-        )}
+          <CollapsibleContent className="mt-2">
+            <p className="italic">{station.facilitatorInstructions}</p>
+            
+            {taskMentionsPrintableMaterials() && !hasPrintableContent(station.task) && (
+              <div className="mt-3 border border-amber-200 bg-amber-50 p-3 rounded-md">
+                <p className="text-sm text-amber-700 flex items-center gap-1">
+                  <AlertTriangle className="h-4 w-4" />
+                  <strong>Note:</strong> This task mentions materials that need to be created (charts, ciphers, etc.). 
+                  See the facilitator instructions above for details on how to prepare these materials.
+                </p>
+              </div>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
       </div>
       <div>
         <Collapsible open={isSuppliesOpen} onOpenChange={setIsSuppliesOpen} className="w-full">
