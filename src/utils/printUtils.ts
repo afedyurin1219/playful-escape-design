@@ -104,26 +104,33 @@ export const isCipherTask = (task: string): boolean => {
  * @returns The encrypted text or null if not found
  */
 export const extractCipherText = (task: string): string | null => {
-  // First try to match text inside quotes (single or double)
-  const quotesMatch = task.match(/'([^']+)'/);
-  if (quotesMatch && quotesMatch[1]) {
-    return quotesMatch[1];
+  // First look for text inside single quotes that looks like a cipher (uppercase letters, possibly with spaces)
+  const singleQuotesMatch = task.match(/'([A-Z0-9\s!@#$%^&*()_+\-=[\]{}|;:,.<>/?]+)'/);
+  if (singleQuotesMatch && singleQuotesMatch[1]) {
+    return singleQuotesMatch[1];
   }
   
-  const doubleQuotesMatch = task.match(/"([^"]+)"/);
+  // Then look for text inside double quotes that looks like a cipher
+  const doubleQuotesMatch = task.match(/"([A-Z0-9\s!@#$%^&*()_+\-=[\]{}|;:,.<>/?]+)"/);
   if (doubleQuotesMatch && doubleQuotesMatch[1]) {
     return doubleQuotesMatch[1];
   }
   
+  // Look for text following "reads:" or "message:"
+  const readsMatch = task.match(/reads:[\s]*['"]?([A-Z0-9\s!@#$%^&*()_+\-=[\]{}|;:,.<>/?]+)['"]?[\.!\?]/i);
+  if (readsMatch && readsMatch[1]) {
+    return readsMatch[1].trim();
+  }
+  
   // Look for patterns like "The message is: ABCDE"
-  const colonMatch = task.match(/:\s+([A-Z0-9\s!@#$%^&*()_+\-=[\]{}|;:,.<>/?]+)(\.|$)/i);
+  const colonMatch = task.match(/:\s+['"]?([A-Z0-9\s!@#$%^&*()_+\-=[\]{}|;:,.<>/?]+)['"]?(\.|$)/i);
   if (colonMatch && colonMatch[1]) {
     return colonMatch[1].trim();
   }
   
-  // If all else fails, attempt to extract any sequence of uppercase or numeric characters
-  // that might represent a cipher (usually in all caps or with special formatting)
-  const uppercaseSequence = task.match(/([A-Z0-9\s!@#$%^&*()_+\-=[\]{}|;:,.<>/?]{10,})/);
+  // If all else fails, attempt to extract any sequence of uppercase characters
+  // that might represent a cipher (at least 5 characters long)
+  const uppercaseSequence = task.match(/([A-Z]{5,}(\s+[A-Z]{1,})*)/);
   if (uppercaseSequence && uppercaseSequence[1]) {
     return uppercaseSequence[1].trim();
   }
