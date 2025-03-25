@@ -13,26 +13,7 @@ const SuppliesTab = ({ escapeRoom }: SuppliesTabProps) => {
     return `https://www.amazon.com/s?k=${searchQuery}`;
   };
   
-  // Function to clean up supply text if needed
-  const cleanSupplyText = (supply: string): string => {
-    // List of words that indicate an incomplete supply description
-    const incompleteIndicators = [' of', ' for', ' to', ' with', ' in', ' on', ' by', ' or', ' and', ' the'];
-    
-    // Check if supply ends with an incomplete indicator
-    const isIncomplete = incompleteIndicators.some(indicator => supply.endsWith(indicator));
-    
-    if (isIncomplete || supply.length < 8 || !supply.includes(' ')) {
-      // For incomplete supplies, make a more generic description
-      if (supply.includes('container')) return 'Containers for station setup';
-      if (supply.includes('paper')) return 'Paper materials for activities';
-      if (supply.includes('block')) return 'Building blocks for puzzles';
-      return 'Materials for station setup';
-    }
-    
-    return supply;
-  };
-  
-  // Filter out invalid or incomplete supplies
+  // Filter out invalid supplies
   const validSupplies = (escapeRoom.supplies || []).filter(supply => 
     typeof supply === 'object' && supply !== null && 
     typeof supply.name === 'string' && 
@@ -52,7 +33,7 @@ const SuppliesTab = ({ escapeRoom }: SuppliesTabProps) => {
                 .filter(supply => supply.category === 'theme')
                 .map((supply, index) => (
                   <li key={index} className="pb-2 border-b border-gray-100 last:border-0">
-                    <span className="font-medium">{cleanSupplyText(supply.name)}</span>
+                    <span className="font-medium">{supply.name}</span>
                     <p className="text-sm text-gray-600">{supply.purpose}</p>
                   </li>
                 ))}
@@ -70,7 +51,7 @@ const SuppliesTab = ({ escapeRoom }: SuppliesTabProps) => {
                   <li key={index} className="pb-2 border-b border-gray-100 last:border-0">
                     <div className="flex justify-between items-start">
                       <div>
-                        <span className="font-medium">{cleanSupplyText(supply.name)}</span>
+                        <span className="font-medium">{supply.name}</span>
                         <p className="text-sm text-gray-600">{supply.purpose}</p>
                       </div>
                       <a 
@@ -96,7 +77,7 @@ const SuppliesTab = ({ escapeRoom }: SuppliesTabProps) => {
                 .filter(supply => supply.category === 'general')
                 .map((supply, index) => (
                   <li key={index} className="pb-2 border-b border-gray-100 last:border-0">
-                    <span className="font-medium">{cleanSupplyText(supply.name)}</span>
+                    <span className="font-medium">{supply.name}</span>
                     <p className="text-sm text-gray-600">{supply.purpose}</p>
                   </li>
                 ))}
