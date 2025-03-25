@@ -58,7 +58,7 @@ export const generateStations = async (config: EscapeRoomConfig): Promise<Statio
 const ensureStationHasSupplies = (station: Station): void => {
   if (!station.supplies || !Array.isArray(station.supplies) || station.supplies.length === 0) {
     // Look for supply indicators in task and facilitator instructions
-    const combinedText = `${station.task} ${station.facilitatorInstructions}`.toLowerCase();
+    const combinedText = `${station.task || ''} ${station.facilitatorInstructions || ''}`.toLowerCase();
     const supplyIndicators = [
       'vial', 'tube', 'container', 'box', 'card', 'paper', 'pen', 'marker', 'block', 
       'ball', 'puzzle', 'key', 'lock', 'timer', 'chart', 'map', 'obstacle', 'props',
@@ -71,30 +71,75 @@ const ensureStationHasSupplies = (station: Station): void => {
     supplyIndicators.forEach(term => {
       if (combinedText.includes(term)) {
         // Find phrases with this term
-        const regex = new RegExp(`(\\w+\\s+){0,2}${term}(\\w*)(\\s+\\w+){0,2}`, 'gi');
+        const regex = new RegExp(`(\\w+\\s+){0,2}${term}(\\w*)(\\s+\\w+){0,3}`, 'gi');
         const matches = combinedText.match(regex);
         
         if (matches) {
           matches.forEach(match => {
             const supply = match.trim();
-            // Format supply name: capitalize first letter
-            const formattedSupply = supply.charAt(0).toUpperCase() + supply.slice(1);
-            if (!extractedSupplies.includes(formattedSupply)) {
-              extractedSupplies.push(formattedSupply);
+            // Ensure supply is a complete phrase
+            if (supply.length > 5 && supply.includes(' ')) {
+              // Format supply name: capitalize first letter
+              const formattedSupply = supply.charAt(0).toUpperCase() + supply.slice(1);
+              if (!extractedSupplies.includes(formattedSupply)) {
+                extractedSupplies.push(formattedSupply);
+              }
             }
           });
         }
       }
     });
     
+    // Check for incomplete supplies and fix them
+    const completeSupplies = extractedSupplies.map(supply => {
+      // Check if supply ends with a preposition or incomplete thought
+      const incompleteEndings = [' of', ' for', ' to', ' with', ' in', ' on', ' by', ' or', ' and'];
+      const isIncomplete = incompleteEndings.some(ending => supply.endsWith(ending));
+      
+      if (isIncomplete || supply.length < 10) {
+        // Make a more generic description based on the type of supply
+        if (supply.includes('container')) return 'Containers for station activities';
+        if (supply.includes('paper')) return 'Paper materials for puzzles';
+        if (supply.includes('block')) return 'Building blocks for station tasks';
+        return `${supply.split(' ')[0]} materials for activities`;
+      }
+      
+      return supply;
+    });
+    
     // If we found supplies, add them to the station
-    if (extractedSupplies.length > 0) {
-      station.supplies = extractedSupplies;
+    if (completeSupplies.length > 0) {
+      station.supplies = completeSupplies;
     } else if (combinedText.includes('setup') || combinedText.includes('obstacle') || 
                combinedText.includes('area') || combinedText.includes('prepare')) {
       // Fallback for stations that need setup but don't mention specific supplies
       station.supplies = ['Materials for station setup (see facilitator instructions)'];
     }
+  } else {
+    // Clean up existing supplies to ensure they are complete phrases
+    station.supplies = station.supplies.map((supply: string) => {
+      // If supply is a string and is incomplete, fix it
+      if (typeof supply === 'string') {
+        const incompleteEndings = [' of', ' for', ' to', ' with', ' in', ' on', ' by', ' or', ' and'];
+        const isIncomplete = incompleteEndings.some(ending => supply.endsWith(ending));
+        
+        if (isIncomplete || supply.length < 10 || !supply.includes(' ')) {
+          // For common incomplete supplies, provide better descriptions
+          if (supply.includes('container')) return 'Containers for station setup';
+          if (supply.includes('paper')) return 'Paper materials for activities';
+          if (supply.includes('block')) return 'Building blocks for puzzles';
+          if (supply === 'Of blocks') return 'Building blocks for puzzles';
+          if (supply === 'Or containers labeled') return 'Labeled containers for station activities';
+          if (supply === 'Sturdy paper to create the') return 'Sturdy paper for station materials';
+          
+          // Generic fallback
+          return 'Materials for station setup';
+        }
+        
+        return supply;
+      }
+      return 'Station materials';
+    });
   }
 };
 

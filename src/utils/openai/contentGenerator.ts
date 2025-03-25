@@ -156,6 +156,9 @@ IMPORTANT REQUIREMENTS:
 - VERY IMPORTANT: Always check your task and facilitatorInstructions for mentioned supplies and ensure they ALL 
   appear in the "supplies" array. For example, if the task mentions "antidote vials" and "foam blocks", these 
   MUST be listed in the supplies array.
+- SUPPLIES FORMAT: Each supply item MUST be a complete phrase that makes sense on its own. Do NOT list partial 
+  phrases like "of blocks" or incomplete descriptions. Supply items should be full and descriptive like 
+  "5 wooden blocks" or "Colored containers labeled with symbols".
 
 Format as valid JSON with the following structure:
 {
@@ -171,7 +174,7 @@ Format as valid JSON with the following structure:
     const content = await callOpenAI(
       apiKey,
       [
-        {"role": "system", "content": `You are an Escape Room designer specialized in creating unique, creative, and original themed stations for ${ageGroup} year olds. Respond with valid JSON only. Never use templates or generic puzzles. Do not add markdown code blocks. CRITICAL: If your puzzle involves letters, words, or codes that participants need to rearrange or decode, ensure that the EXACT SAME letters appear in both the task description and any printable/puzzle components. If your task mentions any 'provided chart', 'cipher key', 'decoder', or similar reference material, you MUST include a detailed description of this material in your response. NEVER leave the supplies array empty if the task or facilitator instructions mention physical items. Always include ALL physical objects mentioned in the task or facilitator instructions in the supplies array.`},
+        {"role": "system", "content": `You are an Escape Room designer specialized in creating unique, creative, and original themed stations for ${ageGroup} year olds. Respond with valid JSON only. Never use templates or generic puzzles. Do not add markdown code blocks. CRITICAL: If your puzzle involves letters, words, or codes that participants need to rearrange or decode, ensure that the EXACT SAME letters appear in both the task description and any printable/puzzle components. If your task mentions any 'provided chart', 'cipher key', 'decoder', or similar reference material, you MUST include a detailed description of this material in your response. NEVER leave the supplies array empty if the task or facilitator instructions mention physical items. Always include ALL physical objects mentioned in the task or facilitator instructions in the supplies array. Each supply item MUST be a complete phrase that makes sense on its own.`},
         {"role": "user", "content": prompt}
       ],
       { max_tokens: 1000 }  // Increased token limit for more detailed responses
@@ -253,7 +256,7 @@ const extractMissingSupplies = (stationData: any): string[] => {
   supplyIndicators.forEach(indicator => {
     if (combinedText.includes(indicator)) {
       // Find the context around the indicator word
-      const regex = new RegExp(`\\w*\\s*${indicator}\\w*(?:\\s+\\w+){0,3}`, 'gi');
+      const regex = new RegExp(`(\\w+\\s+){0,3}${indicator}\\w*(?:\\s+\\w+){0,5}`, 'gi');
       const matches = combinedText.match(regex);
       
       if (matches) {
@@ -269,27 +272,98 @@ const extractMissingSupplies = (stationData: any): string[] => {
               .replace(/^(the|a|an)\s+/i, '')  // Remove leading articles
               .replace(/\s+/g, ' ');  // Remove extra spaces
             
+            // Make sure the supply is a complete phrase
+            if (supplyName.length < 5 || !/\s/.test(supplyName)) {
+              // If too short or single word, try to extend context
+              const extendedRegex = new RegExp(`(\\w+\\s+){0,5}${indicator}\\w*(?:\\s+\\w+){0,7}`, 'gi');
+              const extendedMatches = combinedText.match(extendedRegex);
+              if (extendedMatches && extendedMatches.length > 0) {
+                supplyName = extendedMatches[0].trim()
+                  .replace(/^(the|a|an)\s+/i, '')
+                  .replace(/\s+/g, ' ');
+              }
+              
+              // If still too short, add generic descriptor
+              if (supplyName.length < 5) {
+                supplyName = `${indicator} for station setup`;
+              }
+            }
+            
+            // Check if supply ends with a preposition or incomplete thought
+            const incompleteEndings = [' of', ' for', ' to', ' with', ' in', ' on', ' by', ' or', ' and', ' the'];
+            let isIncomplete = incompleteEndings.some(ending => supplyName.endsWith(ending));
+            
+            // If supply starts with a preposition, it's likely incomplete
+            const incompleteStarts = ['of ', 'for ', 'to ', 'with ', 'in ', 'on ', 'by ', 'or '];
+            isIncomplete = isIncomplete || incompleteStarts.some(start => supplyName.startsWith(start));
+            
+            if (isIncomplete) {
+              // Try to complete the phrase or use a more generic description
+              supplyName = `Materials including ${indicator}s for station setup`;
+            }
+            
             // Capitalize first letter
             supplyName = supplyName.charAt(0).toUpperCase() + supplyName.slice(1);
             
-            supplies.add(supplyName);
+            // Only add if the supply name is a complete thought
+            if (supplyName.length > 8 && !isIncomplete) {
+              supplies.add(supplyName);
+            }
           }
         });
       }
     }
   });
   
+  // Clean up supply list (remove fragments and duplicates)
+  const cleanedSupplies = Array.from(supplies).filter(supply => typeof supply === 'string');
+  
+  // Post-process the supplies to remove duplicates and incomplete items
+  const finalSupplies: string[] = [];
+  const addedIndicators = new Set<string>();
+  
+  for (const supply of cleanedSupplies) {
+    // Check if this supply is a complete item (not just a fragment)
+    if (supply.length < 10 || !supply.includes(' ')) {
+      continue; // Skip very short items or single words
+    }
+    
+    // Skip if this supply has almost the same words as another already added
+    const hasCloseMatch = finalSupplies.some(existingSupply => {
+      const existingWords = new Set(existingSupply.toLowerCase().split(/\s+/));
+      const currentWords = supply.toLowerCase().split(/\s+/);
+      const commonWords = currentWords.filter(word => existingWords.has(word));
+      return commonWords.length > currentWords.length * 0.6; // 60% word overlap
+    });
+    
+    if (!hasCloseMatch) {
+      // Check which indicators this supply contains
+      const containedIndicators = supplyIndicators.filter(
+        indicator => supply.toLowerCase().includes(indicator)
+      );
+      
+      // Add if we haven't added a supply with any of these indicators yet
+      const isNewIndicator = containedIndicators.some(
+        indicator => !addedIndicators.has(indicator)
+      );
+      
+      if (isNewIndicator || containedIndicators.length === 0) {
+        finalSupplies.push(supply);
+        // Mark all indicators in this supply as added
+        containedIndicators.forEach(indicator => addedIndicators.add(indicator));
+      }
+    }
+  }
+  
   // If we still have no supplies but text mentions items, add a generic supply
-  if (supplies.size === 0 && (
+  if (finalSupplies.length === 0 && (
     combinedText.includes('obstacle') || 
     combinedText.includes('item') || 
     combinedText.includes('prop') ||
     combinedText.includes('setup')
   )) {
-    supplies.add('Materials for station setup (as described in facilitator instructions)');
+    finalSupplies.push('Materials for station setup (as described in facilitator instructions)');
   }
   
-  // Convert Set back to Array and ensure all elements are strings
-  return Array.from(supplies).filter(supply => typeof supply === 'string');
+  return finalSupplies;
 };
-
