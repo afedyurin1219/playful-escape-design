@@ -44,13 +44,12 @@ const StationCard = ({
       />
 
       <StationTask station={station} />
-      <StationAnswer answer={station.answer} />
+      <StationAnswer station={station} />
       <StationHints hints={station.hints} />
       
       <StationFacilitatorInstructions
         instructions={station.facilitatorInstructions}
-        taskMentionsPrintableMaterials={taskMentionsPrintableMaterials(station.task)}
-        hasPrintableContent={hasPrintableContent(station.task)}
+        station={station}
       />
       
       <StationSupplies supplies={stationSupplies} />

@@ -144,3 +144,46 @@ export const getPrintableContent = (task: string, answer?: string): { type: 'scr
   
   return null;
 };
+
+/**
+ * Extract printable material content from facilitator instructions
+ * @param instructions The facilitator instructions text
+ * @returns The content to be printed or null if no clear content is found
+ */
+export const extractPrintableMaterial = (instructions: string): string | null => {
+  // Check if instructions mention creating a chart or materials
+  if (!instructions) return null;
+  
+  const instructionsLower = instructions.toLowerCase();
+  
+  // Look for specific chart creation instructions
+  if (
+    instructionsLower.includes('create a chart') || 
+    instructionsLower.includes('create a printed') || 
+    instructionsLower.includes('print a chart') ||
+    instructionsLower.includes('printed reference')
+  ) {
+    // Return the full instructions as the content for the chart
+    return instructions;
+  }
+  
+  return null;
+};
+
+/**
+ * Determines if a task is a physical task that shouldn't display an answer
+ * @param task The task description text
+ * @returns Boolean indicating if this is a physical task
+ */
+export const isPhysicalTask = (task: string): boolean => {
+  const taskLower = task.toLowerCase();
+  return (
+    taskLower.includes('find') || 
+    taskLower.includes('search') || 
+    taskLower.includes('locate') || 
+    taskLower.includes('collect') ||
+    taskLower.includes('gather') ||
+    taskLower.includes('assemble') ||
+    taskLower.includes('physical')
+  );
+};

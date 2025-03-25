@@ -4,7 +4,7 @@ import { Station } from '../../EscapeRoomGenerator';
 import StationBadges from './StationBadges';
 import StationActions from './StationActions';
 import { stationTypeInfoMap } from '../../../utils/stationTypes';
-import { hasPrintableContent } from '../../../utils/printUtils';
+import { hasPrintableContent, extractPrintableMaterial } from '../../../utils/printUtils';
 
 interface StationHeaderProps {
   station: Station;
@@ -31,15 +31,21 @@ const StationHeader = ({
     return null;
   };
 
-  // Check if task mentions any printable materials that need to be created
+  // Check if task or facilitator instructions mention printable materials
   const taskMentionsPrintableMaterials = () => {
     const taskLower = station.task.toLowerCase();
-    const printableTerms = ['chart', 'cipher', 'key', 'code sheet', 'reference', 'provided', 'decoder'];
-    return printableTerms.some(term => taskLower.includes(term));
+    const instructionsLower = station.facilitatorInstructions.toLowerCase();
+    const printableTerms = ['chart', 'cipher', 'key', 'code sheet', 'reference', 'provided', 'decoder', 'print'];
+    
+    return printableTerms.some(term => 
+      taskLower.includes(term) || instructionsLower.includes(term)
+    );
   };
   
   const difficulty = getStationDifficulty();
-  const hasPrintableMaterials = hasPrintableContent(station.task) || taskMentionsPrintableMaterials();
+  const hasPrintableMaterials = hasPrintableContent(station.task) || 
+                               extractPrintableMaterial(station.facilitatorInstructions) ||
+                               taskMentionsPrintableMaterials();
 
   return (
     <div className="flex justify-between items-start mb-3">

@@ -5,11 +5,18 @@ import { Printer } from 'lucide-react';
 import { formatScrambledLetters } from '../utils/printUtils';
 
 interface PrintableLettersProps {
-  contentType: 'scramble' | 'cipher';
+  contentType: 'scramble' | 'cipher' | 'facilitator';
   content: string;
+  title?: string;
+  description?: string;
 }
 
-const PrintableLetters: React.FC<PrintableLettersProps> = ({ contentType, content }) => {
+const PrintableLetters: React.FC<PrintableLettersProps> = ({ 
+  contentType, 
+  content,
+  title = '',
+  description = ''
+}) => {
   const printRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = (e: React.MouseEvent) => {
@@ -24,15 +31,17 @@ const PrintableLetters: React.FC<PrintableLettersProps> = ({ contentType, conten
     }
 
     // Create title based on content type
-    const title = contentType === 'scramble' 
+    const printTitle = title || (contentType === 'scramble' 
       ? `Printable Letters for "${content}"`
-      : `Printable Cipher: "${content}"`;
+      : contentType === 'cipher'
+      ? `Printable Cipher: "${content}"`
+      : "Printable Materials");
 
     // Create print-friendly content
     printWindow.document.write(`
       <html>
         <head>
-          <title>${title}</title>
+          <title>${printTitle}</title>
           <style>
             body {
               font-family: Arial, sans-serif;
@@ -70,6 +79,28 @@ const PrintableLetters: React.FC<PrintableLettersProps> = ({ contentType, conten
               line-height: 1.5;
               letter-spacing: 2px;
             }
+            .chart-container {
+              border: 2px solid #000;
+              padding: 30px;
+              margin: 20px auto;
+              max-width: 800px;
+            }
+            .chart-title {
+              font-size: 28px;
+              font-weight: bold;
+              text-align: center;
+              margin-bottom: 20px;
+              text-transform: uppercase;
+            }
+            .chart-description {
+              font-size: 16px;
+              margin-bottom: 30px;
+              text-align: justify;
+            }
+            .chart-content {
+              font-size: 18px;
+              line-height: 1.6;
+            }
             .instructions {
               margin-bottom: 30px;
               text-align: center;
@@ -83,10 +114,12 @@ const PrintableLetters: React.FC<PrintableLettersProps> = ({ contentType, conten
         </head>
         <body>
           <div class="instructions">
-            <h1>${title}</h1>
+            <h1>${printTitle}</h1>
             ${contentType === 'scramble' 
               ? '<p>Cut out these letters and use them for your escape room word challenge.</p>' 
-              : '<p>Print this cipher to use in your escape room challenge.</p>'
+              : contentType === 'cipher'
+              ? '<p>Print this cipher to use in your escape room challenge.</p>'
+              : '<p>Print these materials for your escape room challenge.</p>'
             }
             <button class="no-print" onclick="window.print()">Print This Page</button>
           </div>
@@ -96,8 +129,16 @@ const PrintableLetters: React.FC<PrintableLettersProps> = ({ contentType, conten
                   `<div class="letter">${letter}</div>`
                 ).join('')}
               </div>` 
-            : `<div class="cipher-container">
+            : contentType === 'cipher'
+            ? `<div class="cipher-container">
                 <div class="cipher-text">${content}</div>
+              </div>`
+            : `<div class="chart-container">
+                <div class="chart-title">${title}</div>
+                <div class="chart-description">${description}</div>
+                <div class="chart-content">
+                  ${formatFacilitatorContent(description)}
+                </div>
               </div>`
           }
         </body>
@@ -108,10 +149,50 @@ const PrintableLetters: React.FC<PrintableLettersProps> = ({ contentType, conten
     printWindow.focus();
   };
 
+  // Helper function to format facilitator content into a nice chart
+  const formatFacilitatorContent = (text: string) => {
+    if (!text) return '';
+    
+    // Look for lists like "1. Item" or "- Item"
+    const listItems = text.match(/(\d+\.\s[^.]+\.)|(-\s[^.]+\.)/g);
+    
+    if (listItems && listItems.length > 0) {
+      return `<ul style="list-style-type: none; padding: 0;">
+        ${listItems.map(item => 
+          `<li style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
+            ${item.trim()}
+          </li>`
+        ).join('')}
+      </ul>`;
+    }
+    
+    // If no list items found, try to extract important information
+    const sentences = text.split('.');
+    return `<ul style="list-style-type: none; padding: 0;">
+      ${sentences.filter(s => s.trim().length > 10).map(sentence => 
+        `<li style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
+          ${sentence.trim()}.
+        </li>`
+      ).join('')}
+    </ul>`;
+  };
+
+  const getButtonLabel = () => {
+    switch (contentType) {
+      case 'scramble': 
+        return 'Print Letters';
+      case 'cipher': 
+        return 'Print Cipher';
+      case 'facilitator': 
+        return 'Print Chart';
+      default: 
+        return 'Print Materials';
+    }
+  };
+
   return (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-3">
-        <h3 className="text-lg font-medium">Printable Content</h3>
         <Button 
           variant="outline" 
           size="sm" 
@@ -119,7 +200,7 @@ const PrintableLetters: React.FC<PrintableLettersProps> = ({ contentType, conten
           className="flex items-center gap-2"
         >
           <Printer className="h-4 w-4" /> 
-          {contentType === 'scramble' ? 'Print Letters' : 'Print Cipher'}
+          {getButtonLabel()}
         </Button>
       </div>
       
@@ -137,10 +218,17 @@ const PrintableLetters: React.FC<PrintableLettersProps> = ({ contentType, conten
               {letter}
             </div>
           ))
-        ) : (
+        ) : contentType === 'cipher' ? (
           // Cipher text display
           <div className="w-full font-mono text-lg p-2 bg-white border border-gray-300 rounded-md">
             {content}
+          </div>
+        ) : (
+          // Facilitator chart preview
+          <div className="w-full p-2 bg-white border border-gray-300 rounded-md">
+            <h3 className="font-bold text-lg text-center mb-2">{title || 'Printable Chart'}</h3>
+            <p className="text-sm italic">{description.substring(0, 100)}...</p>
+            <p className="text-xs text-gray-500 mt-2 text-center">Click "Print Chart" to see the complete formatted chart</p>
           </div>
         )}
       </div>
