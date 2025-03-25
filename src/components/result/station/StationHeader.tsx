@@ -5,6 +5,7 @@ import StationBadges from './StationBadges';
 import StationActions from './StationActions';
 import { stationTypeInfoMap } from '../../../utils/stationTypes';
 import { hasPrintableContent, extractPrintableMaterial } from '../../../utils/printUtils';
+import { taskMentionsPrintableMaterials } from './StationUtils';
 
 interface StationHeaderProps {
   station: Station;
@@ -30,22 +31,15 @@ const StationHeader = ({
     }
     return null;
   };
-
-  // Check if task or facilitator instructions mention printable materials
-  const taskMentionsPrintableMaterials = () => {
-    const taskLower = station.task.toLowerCase();
-    const instructionsLower = station.facilitatorInstructions.toLowerCase();
-    const printableTerms = ['chart', 'cipher', 'key', 'code sheet', 'reference', 'provided', 'decoder', 'print'];
-    
-    return printableTerms.some(term => 
-      taskLower.includes(term) || instructionsLower.includes(term)
-    );
-  };
   
   const difficulty = getStationDifficulty();
-  const hasPrintableMaterials = hasPrintableContent(station.task) || 
-                               extractPrintableMaterial(station.facilitatorInstructions) ||
-                               taskMentionsPrintableMaterials();
+  
+  // Check if task or facilitator instructions mention printable materials
+  const hasPrintableMaterials = Boolean(
+    hasPrintableContent(station.task) || 
+    extractPrintableMaterial(station.facilitatorInstructions) ||
+    taskMentionsPrintableMaterials(station.task)
+  );
 
   return (
     <div className="flex justify-between items-start mb-3">
