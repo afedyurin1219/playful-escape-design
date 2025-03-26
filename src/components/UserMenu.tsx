@@ -7,12 +7,12 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { LogIn, LogOut, User, UserPlus } from "lucide-react";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const UserMenu = () => {
   const { user, isAuthenticated, logout } = useUser();
   const navigate = useNavigate();
-  const { isMobile } = useMobile();
+  const isMobile = useIsMobile();
 
   // Get user initials for the avatar
   const getInitials = () => {
