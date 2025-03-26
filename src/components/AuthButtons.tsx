@@ -1,8 +1,8 @@
 
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LogIn, UserPlus, Mail } from 'lucide-react';
+import { LogIn, UserPlus, Mail, User, LogOut } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -11,6 +11,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 // Define form schemas
 const loginSchema = z.object({
@@ -27,9 +35,25 @@ const signupSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 type SignupFormValues = z.infer<typeof signupSchema>;
 
+type UserData = {
+  name?: string;
+  email: string;
+  avatar?: string;
+};
+
 const AuthButtons = () => {
+  const navigate = useNavigate();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
+  const [user, setUser] = useState<UserData | null>(null);
+  
+  // Check if user is logged in on component mount
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
   
   // Login form
   const loginForm = useForm<LoginFormValues>({
@@ -55,7 +79,9 @@ const AuthButtons = () => {
     // This would be replaced with actual auth implementation
     console.log("Login attempt:", data);
     // Simulate successful login
-    localStorage.setItem('user', JSON.stringify({ email: data.email }));
+    const userData = { email: data.email };
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
     toast({
       title: "Success!",
       description: "You have successfully logged in.",
@@ -68,7 +94,9 @@ const AuthButtons = () => {
     // This would be replaced with actual auth implementation
     console.log("Signup attempt:", data);
     // Simulate successful signup
-    localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email }));
+    const userData = { name: data.name, email: data.email };
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
     toast({
       title: "Account created!",
       description: "Your account has been created successfully.",
@@ -87,6 +115,7 @@ const AuthButtons = () => {
       avatar: "https://lh3.googleusercontent.com/a/default-user"
     };
     localStorage.setItem('user', JSON.stringify(googleUser));
+    setUser(googleUser);
     toast({
       title: "Google login successful!",
       description: "You have logged in with Google.",
@@ -94,6 +123,56 @@ const AuthButtons = () => {
     setIsLoginOpen(false);
     setIsSignupOpen(false);
   };
+
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
+  };
+  
+  // Get user initials for avatar
+  const getInitials = () => {
+    if (!user) return "U";
+    if (user.name) {
+      return user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+    return user.email.substring(0, 2).toUpperCase();
+  };
+
+  // Render user menu if logged in, or login/signup buttons if not
+  if (user) {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="flex items-center gap-2 outline-none">
+            <Avatar className="h-8 w-8 cursor-pointer">
+              <AvatarFallback className="bg-teal text-white">
+                {getInitials()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-sm font-medium hidden md:inline-block">
+              {user.name || user.email.split('@')[0]}
+            </span>
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => navigate('/profile')}>
+            <User className="h-4 w-4 mr-2" />
+            Profile
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleLogout}>
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
   
   return (
     <div className="flex items-center gap-3">
