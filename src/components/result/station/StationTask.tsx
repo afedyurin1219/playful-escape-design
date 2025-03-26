@@ -10,8 +10,9 @@ interface StationTaskProps {
 }
 
 const StationTask = ({ station }: StationTaskProps) => {
-  // Extract printable content from the station (task, cipherText, or scrambledWord)
-  const printableContent = getPrintableContent(station);
+  // Extract printable content from the task
+  const printableContent = hasPrintableContent(station.task) ? 
+    getPrintableContent(station.task, station.answer) : null;
   
   // Additional validation to confirm if this is truly a cipher task
   const isActuallyCipherTask = printableContent && 
@@ -45,7 +46,7 @@ const StationTask = ({ station }: StationTaskProps) => {
       <h4 className="font-semibold text-charcoal-light mb-1">Task:</h4>
       <p>{taskDisplay}</p>
       
-      {printableContent && (
+      {printableContent && isActuallyCipherTask && (
         <div className="mt-3 border border-blue-200 bg-blue-50 p-3 rounded-md">
           <h5 className="text-sm font-semibold mb-2 text-blue-700 flex items-center gap-1">
             <Printer className="h-3 w-3" /> Printable Content
