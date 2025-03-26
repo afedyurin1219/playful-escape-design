@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Home, LogOut } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useAuth } from '@/hooks/useSupabaseAuth';
 import { toast } from '@/hooks/use-toast';
 
 interface Project {
@@ -15,59 +16,53 @@ interface Project {
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<{ name?: string; email: string } | null>(null);
+  const { user, profile, signOut, isLoading } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   
   useEffect(() => {
     // Check if user is logged in
-    const storedUser = localStorage.getItem('user');
-    if (!storedUser) {
-      navigate('/');
+    if (!user && !isLoading) {
+      navigate('/auth');
       return;
     }
     
-    setUser(JSON.parse(storedUser));
-    
-    // Mock projects data - would be fetched from a real database
-    setProjects([
-      { 
-        id: '1', 
-        name: 'Pirate Adventure', 
-        date: '2023-10-15', 
-        theme: 'Pirates'
-      },
-      { 
-        id: '2', 
-        name: 'Space Odyssey', 
-        date: '2023-11-20', 
-        theme: 'Space'
-      },
-      { 
-        id: '3', 
-        name: 'Mystery Mansion', 
-        date: '2023-12-05', 
-        theme: 'Mystery'
-      }
-    ]);
-  }, [navigate]);
-  
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    });
-    navigate('/');
-  };
+    if (user) {
+      // Mock projects data - would be fetched from a real database
+      setProjects([
+        { 
+          id: '1', 
+          name: 'Pirate Adventure', 
+          date: '2023-10-15', 
+          theme: 'Pirates'
+        },
+        { 
+          id: '2', 
+          name: 'Space Odyssey', 
+          date: '2023-11-20', 
+          theme: 'Space'
+        },
+        { 
+          id: '3', 
+          name: 'Mystery Mansion', 
+          date: '2023-12-05', 
+          theme: 'Mystery'
+        }
+      ]);
+    }
+  }, [user, isLoading, navigate]);
   
   // Get user initials for avatar
   const getInitials = () => {
     if (!user) return "U";
-    if (user.name) {
-      return user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+    if (profile?.full_name) {
+      return profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
     }
-    return user.email.substring(0, 2).toUpperCase();
+    return user.email?.substring(0, 2).toUpperCase() || "U";
   };
+  
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
   
   if (!user) return null;
   
@@ -86,7 +81,7 @@ const Profile = () => {
             </Button>
             <Button 
               variant="outline"
-              onClick={handleLogout}
+              onClick={() => signOut()}
               className="flex items-center gap-2"
             >
               <LogOut className="h-4 w-4" /> Logout
@@ -103,7 +98,7 @@ const Profile = () => {
             </AvatarFallback>
           </Avatar>
           <div>
-            <h1 className="text-3xl font-display">{user.name || 'User'}'s Profile</h1>
+            <h1 className="text-3xl font-display">{profile?.full_name || 'User'}'s Profile</h1>
             <p className="text-gray-600">{user.email}</p>
           </div>
         </div>

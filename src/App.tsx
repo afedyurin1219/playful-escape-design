@@ -9,6 +9,8 @@ import Creator from "./pages/Creator";
 import Result from "./pages/Result";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
+import { AuthProvider } from "./hooks/useSupabaseAuth";
+import Auth from "./pages/Auth";
 
 const APP_VERSION = "1.1.0";
 console.log(`App version: ${APP_VERSION}`);
@@ -25,17 +27,20 @@ const queryClient = new QueryClient({
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/create" element={<Creator />} />
-          <Route path="/result" element={<Result />} />
-          <Route path="/result/:version" element={<Result />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/create" element={<Creator />} />
+            <Route path="/result" element={<Result />} />
+            <Route path="/result/:version" element={<Result />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
