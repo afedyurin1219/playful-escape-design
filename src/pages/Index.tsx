@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
+import AuthButtons from '@/components/AuthButtons';
 
 const Index = () => {
   useEffect(() => {
@@ -25,6 +26,11 @@ const Index = () => {
         >
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1553481187-be93c21490a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=2300&q=80')] bg-cover bg-center opacity-20"></div>
         </motion.div>
+        
+        {/* Add the auth buttons to the top right corner */}
+        <div className="absolute top-6 right-6 z-20">
+          <AuthButtons />
+        </div>
         
         <div className="max-w-4xl mx-auto text-center z-10">
           <motion.span 

@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +8,7 @@ import Index from "./pages/Index";
 import Creator from "./pages/Creator";
 import Result from "./pages/Result";
 import NotFound from "./pages/NotFound";
+import Profile from "./pages/Profile";
 
 const APP_VERSION = "1.1.0";
 console.log(`App version: ${APP_VERSION}`);
@@ -31,6 +33,7 @@ const App = () => (
           <Route path="/create" element={<Creator />} />
           <Route path="/result" element={<Result />} />
           <Route path="/result/:version" element={<Result />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
